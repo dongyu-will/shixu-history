@@ -1,0 +1,2185 @@
+/* Stage 1 visual & motion upgrades — archival documentary cartography, shared SVG craft, and YearRoll transitions. */
+
+:root {
+  --motion-ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Physics-based easing fallbacks (progressive enhancement via linear() below; never used on opacity) */
+  --motion-ease-spring: cubic-bezier(0.34, 1.42, 0.64, 1);
+  --motion-ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-stamp: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-graticule: rgba(150, 180, 214, 0.14);
+  --motion-grain-opacity: 0.42;
+  --motion-vignette-color: #050c17;
+  --motion-vignette-opacity: 0.44;
+  --motion-province-aura: rgba(163, 192, 223, 0.42);
+  --motion-seal: #ff9f8a;
+  --motion-seal-bg: rgba(255, 159, 138, 0.1);
+  --motion-medallion-tint-org: rgba(157, 191, 231, 0.13);
+  --motion-medallion-tint-force: rgba(255, 181, 164, 0.14);
+  --motion-medallion-tint-plan: rgba(169, 185, 207, 0.11);
+  --motion-sector-0: #ffb5a4;
+  --motion-sector-1: #9dbfe7;
+  --motion-sector-2: #dcc596;
+  --hero-gold: #e4c78a;
+  --hero-boat-hull: #f0806c;
+  --motion-flow-glint-gold: #f8de9d;
+  --motion-flow-glint-force: #ffe6c7;
+  --motion-flow-glint-org: #d6ebff;
+}
+
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    --motion-ease-spring: linear(
+      0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017,
+      1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%,
+      1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%,
+      0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1
+    );
+    --motion-ease-settle: linear(
+      0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%,
+      0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%,
+      1.001
+    );
+    --motion-ease-stamp: linear(
+      0, 0.012, 0.048 2%, 0.194 4.8%, 0.715 11.4%, 1.028 16.7%, 1.074 20.5%,
+      1.053 25.6%, 0.994 35.1%, 0.988 41.5%, 1.003 55.6%, 1
+    );
+  }
+}
+
+:root[data-theme="light"] {
+  --motion-graticule: rgba(66, 102, 142, 0.14);
+  --motion-grain-opacity: 0.46;
+  --motion-vignette-color: #1c3c61;
+  --motion-vignette-opacity: 0.085;
+  --motion-province-aura: rgba(53, 102, 158, 0.28);
+  --motion-seal: #a93228;
+  --motion-seal-bg: rgba(169, 50, 40, 0.065);
+  --motion-medallion-tint-org: rgba(36, 79, 131, 0.075);
+  --motion-medallion-tint-force: rgba(169, 50, 40, 0.075);
+  --motion-medallion-tint-plan: rgba(93, 113, 137, 0.075);
+  --motion-sector-0: #a93228;
+  --motion-sector-1: #244f83;
+  --motion-sector-2: #7a5f2a;
+  --hero-gold: #8a6823;
+  --hero-boat-hull: #a93228;
+  --motion-flow-glint-gold: #e9b949;
+  --motion-flow-glint-force: #ffd9ba;
+  --motion-flow-glint-org: #d6e9ff;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Cartographic atmosphere                                                    */
+/* -------------------------------------------------------------------------- */
+
+.map-graticule {
+  fill: none;
+  stroke: var(--motion-graticule);
+  stroke-width: 0.65;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+  transition: opacity 220ms ease;
+}
+
+.has-authored-story .map-graticule {
+  opacity: 0.8;
+}
+
+.has-authored-story.organization-context .map-graticule {
+  opacity: 0.5;
+}
+
+.map-vignette-stop-inner,
+.map-vignette-stop-mid {
+  stop-color: var(--motion-vignette-color);
+  stop-opacity: 0;
+}
+
+.map-vignette-stop-outer {
+  stop-color: var(--motion-vignette-color);
+  stop-opacity: var(--motion-vignette-opacity);
+}
+
+.map-vignette-overlay {
+  pointer-events: none;
+}
+
+.map-grain-overlay {
+  opacity: var(--motion-grain-opacity);
+  pointer-events: none;
+}
+
+.current-province {
+  stroke-width: 1.25;
+  filter: drop-shadow(0 0 7px var(--motion-province-aura));
+  transition: fill 220ms ease, stroke 220ms ease, filter 220ms ease;
+}
+
+.has-authored-story.organization-context .current-province {
+  filter: drop-shadow(0 0 4px var(--motion-province-aura));
+}
+
+.lesson-map .current-province {
+  filter: drop-shadow(0 0 6px var(--motion-province-aura));
+}
+
+/* -------------------------------------------------------------------------- */
+/* YearRoll vertical clip-slide transition                                    */
+/* -------------------------------------------------------------------------- */
+
+.year-roll {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.year-roll-digit {
+  position: relative;
+  display: inline-block;
+  overflow: clip;
+  line-height: 1;
+  padding: 0.04em 0;
+  margin: -0.04em 0;
+}
+
+.year-roll-in {
+  display: inline-block;
+  will-change: transform, opacity;
+}
+
+.year-roll-out {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.04em;
+  display: inline-block;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+.year-roll[data-dir="up"] .year-roll-digit.is-rolling .year-roll-in {
+  animation: year-roll-in-up 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+}
+
+.year-roll[data-dir="up"] .year-roll-digit.is-rolling .year-roll-out {
+  animation: year-roll-out-up 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+}
+
+.year-roll[data-dir="down"] .year-roll-digit.is-rolling .year-roll-in {
+  animation: year-roll-in-down 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+}
+
+.year-roll[data-dir="down"] .year-roll-digit.is-rolling .year-roll-out {
+  animation: year-roll-out-down 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+}
+
+@keyframes year-roll-in-up {
+  from {
+    transform: translateY(105%);
+    opacity: 0.12;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes year-roll-out-up {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-105%);
+    opacity: 0;
+  }
+}
+
+@keyframes year-roll-in-down {
+  from {
+    transform: translateY(-105%);
+    opacity: 0.12;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes year-roll-out-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(105%);
+    opacity: 0;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Archival double-ring node medallions                                       */
+/* -------------------------------------------------------------------------- */
+
+.node-medallion {
+  color: var(--story-organization);
+}
+
+.node-medallion-outer {
+  fill: var(--ui-bg);
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-opacity: 0.88;
+}
+
+.node-medallion-inner {
+  fill: var(--motion-medallion-tint-org);
+  stroke: currentColor;
+  stroke-width: 0.9;
+  stroke-opacity: 0.42;
+}
+
+.node-medallion-core {
+  fill: currentColor;
+}
+
+.process-tone-force .node-medallion,
+.node-medallion.node-medallion-force,
+.node-medallion.tone-force {
+  color: var(--story-force);
+}
+
+.process-tone-force .node-medallion-inner,
+.node-medallion.node-medallion-force .node-medallion-inner,
+.node-medallion.tone-force .node-medallion-inner {
+  fill: var(--motion-medallion-tint-force);
+}
+
+.process-tone-plan .node-medallion,
+.node-medallion.node-medallion-plan,
+.node-medallion.tone-plan {
+  color: var(--story-plan);
+}
+
+.process-tone-plan .node-medallion-inner,
+.node-medallion.node-medallion-plan .node-medallion-inner,
+.node-medallion.tone-plan .node-medallion-inner {
+  fill: var(--motion-medallion-tint-plan);
+}
+
+.process-node.is-current .node-medallion-outer {
+  stroke-width: 2.15;
+  stroke-opacity: 1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Curved routes & glowing comet heads                                        */
+/* -------------------------------------------------------------------------- */
+
+.curve-track {
+  fill: none;
+  stroke: var(--ui-line);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 7;
+  stroke-linecap: round;
+  opacity: 0.52;
+  pointer-events: none;
+}
+
+.curve-edge {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.curve-edge-force {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 2.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.comet-head {
+  color: var(--story-organization);
+  pointer-events: none;
+}
+
+circle.comet-head,
+.comet-head circle {
+  fill: currentColor;
+  stroke: var(--ui-bg);
+  stroke-width: 1.4;
+}
+
+.comet-head .comet-head-halo {
+  fill: currentColor;
+  fill-opacity: 0.28;
+  stroke: none;
+}
+
+.comet-head.comet-head-force,
+.comet-head.tone-force,
+.process-geography .comet-head,
+.process-tone-force .comet-head,
+.authored-autumn .comet-head,
+.authored-uprising .comet-head {
+  color: var(--story-force);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Arrival shockwave ripples & cinnabar archival seal stamps                  */
+/* -------------------------------------------------------------------------- */
+
+.arrival-ripple {
+  color: var(--story-force);
+  pointer-events: none;
+}
+
+.arrival-ripple.arrival-ripple-org,
+.arrival-ripple.tone-organization,
+.process-tone-organization .arrival-ripple {
+  color: var(--story-organization);
+}
+
+circle.arrival-ripple,
+.arrival-ripple circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.arrival-ripple circle:nth-child(2) {
+  stroke-width: 1.05;
+  stroke-opacity: 0.52;
+}
+
+.seal-stamp {
+  color: var(--motion-seal);
+}
+
+.seal-stamp.seal-stamp-org,
+.seal-stamp.tone-organization {
+  color: var(--story-organization);
+}
+
+.seal-stamp-frame {
+  fill: color-mix(in srgb, currentColor 8%, var(--ui-bg));
+  stroke: currentColor;
+  stroke-width: 1.6;
+  rx: 3;
+}
+
+.seal-stamp path,
+.seal-stamp line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+
+.authored-layer .seal-stamp text {
+  fill: currentColor;
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 1px;
+  stroke: var(--ui-bg);
+  stroke-width: 3px;
+}
+
+.authored-layer .seal-stamp .process-node-note,
+.authored-layer .seal-stamp .seal-stamp-sub {
+  fill: var(--ui-muted);
+  font-family: "PingFang SC", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.3px;
+}
+
+.reject-seal {
+  color: var(--motion-seal);
+}
+
+.reject-seal rect,
+.reject-seal circle {
+  fill: color-mix(in srgb, var(--motion-seal) 11%, var(--ui-bg));
+  stroke: var(--motion-seal);
+  stroke-width: 1.75;
+}
+
+.reject-seal path,
+.reject-seal line {
+  fill: none;
+  stroke: var(--motion-seal);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.authored-layer .reject-seal text {
+  fill: var(--motion-seal);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  stroke: var(--ui-bg);
+  stroke-width: 2.5px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Parliamentary Hemicycle (三三制)                                            */
+/* -------------------------------------------------------------------------- */
+
+.hemicycle-arc {
+  fill: none;
+  stroke: var(--ui-line);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 6;
+  opacity: 0.7;
+}
+
+g.hemicycle-sector-0 {
+  color: var(--motion-sector-0);
+}
+
+g.hemicycle-sector-1 {
+  color: var(--motion-sector-1);
+}
+
+g.hemicycle-sector-2 {
+  color: var(--motion-sector-2);
+}
+
+path.hemicycle-sector-0,
+.hemicycle-sector-0 > path.hemicycle-arc {
+  fill: color-mix(in srgb, var(--motion-sector-0) 14%, transparent);
+  stroke: var(--motion-sector-0);
+  stroke-width: 1.65;
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+path.hemicycle-sector-1,
+.hemicycle-sector-1 > path.hemicycle-arc {
+  fill: color-mix(in srgb, var(--motion-sector-1) 14%, transparent);
+  stroke: var(--motion-sector-1);
+  stroke-width: 1.65;
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+path.hemicycle-sector-2,
+.hemicycle-sector-2 > path.hemicycle-arc {
+  fill: color-mix(in srgb, var(--motion-sector-2) 15%, transparent);
+  stroke: var(--motion-sector-2);
+  stroke-width: 1.65;
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+.authored-layer .hemicycle-sector-0 text {
+  fill: var(--motion-sector-0);
+}
+
+.authored-layer .hemicycle-sector-1 text {
+  fill: var(--motion-sector-1);
+}
+
+.authored-layer .hemicycle-sector-2 text {
+  fill: var(--motion-sector-2);
+}
+
+.hemicycle-seat {
+  color: inherit;
+}
+
+circle.hemicycle-seat,
+g.hemicycle-seat circle {
+  fill: currentColor;
+  stroke: var(--ui-bg);
+  stroke-width: 2;
+}
+
+.hemicycle-bracket {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+  opacity: 0.78;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Mass Movement Union (五四 / 一二九 / 三元里)                                 */
+/* -------------------------------------------------------------------------- */
+
+.union-wave {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-width: 1.45;
+  stroke-opacity: 0.56;
+  pointer-events: none;
+}
+
+.union-wave.union-wave-force,
+.process-tone-force .union-wave {
+  stroke: var(--story-force);
+}
+
+.union-spark {
+  color: var(--story-organization);
+  pointer-events: none;
+}
+
+.union-spark.union-spark-force,
+.process-tone-force .union-spark {
+  color: var(--story-force);
+}
+
+circle.union-spark,
+.union-spark circle {
+  fill: currentColor;
+  stroke: var(--ui-bg);
+  stroke-width: 1.25;
+}
+
+path.union-spark,
+.union-spark path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Debate & Opposition Arena                                                  */
+/* -------------------------------------------------------------------------- */
+
+.debate-arena {
+  pointer-events: none;
+}
+
+path.debate-arena,
+ellipse.debate-arena,
+rect.debate-arena,
+.debate-arena > path,
+.debate-arena > line,
+.debate-arena > ellipse {
+  fill: none;
+  stroke: var(--ui-line);
+  stroke-width: 1.15;
+  stroke-dasharray: 4 6;
+  opacity: 0.65;
+}
+
+.debate-clash {
+  color: var(--story-force);
+}
+
+circle.debate-clash,
+.debate-clash circle {
+  fill: color-mix(in srgb, var(--story-force) 15%, var(--ui-bg));
+  stroke: var(--story-force);
+  stroke-width: 1.6;
+}
+
+path.debate-clash,
+.debate-clash path,
+.debate-clash line {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.debate-beam {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+}
+
+.debate-beam.debate-beam-force,
+.process-tone-force .debate-beam {
+  stroke: var(--story-force);
+}
+
+.debate-beam.debate-beam-plan,
+.process-tone-plan .debate-beam {
+  stroke: var(--story-plan);
+  stroke-dasharray: 5 5;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Strategic Battle Fronts (抗战 / 解放战争三阶段)                              */
+/* -------------------------------------------------------------------------- */
+
+.front-lane {
+  pointer-events: none;
+}
+
+rect.front-lane,
+.front-lane > rect {
+  fill: color-mix(in srgb, var(--story-organization) 6%, transparent);
+  stroke: var(--ui-line-soft);
+  stroke-width: 1;
+}
+
+path.front-lane,
+line.front-lane,
+.front-lane > path,
+.front-lane > line {
+  fill: none;
+  stroke: var(--ui-line);
+  stroke-width: 1.3;
+  stroke-dasharray: 4 6;
+  opacity: 0.65;
+}
+
+.front-fort {
+  color: var(--story-force);
+}
+
+path.front-fort,
+.front-fort path,
+.front-fort line {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 2.4;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+.front-fort rect {
+  fill: color-mix(in srgb, var(--story-force) 14%, var(--ui-bg));
+  stroke: var(--story-force);
+  stroke-width: 1.6;
+}
+
+.front-wave {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.front-wave.front-wave-force {
+  stroke: var(--story-force);
+}
+
+.front-spearhead {
+  color: var(--story-force);
+}
+
+path.front-spearhead,
+polygon.front-spearhead {
+  fill: var(--story-force);
+  stroke: var(--ui-bg);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+}
+
+g.front-spearhead path,
+g.front-spearhead polygon {
+  fill: var(--story-force);
+  stroke: var(--story-force);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Archival Property-Grid Land Policy Visuals                                 */
+/* -------------------------------------------------------------------------- */
+
+.land-field {
+  color: var(--story-organization);
+}
+
+rect.land-field,
+.land-field rect {
+  fill: color-mix(in srgb, var(--story-organization) 14%, var(--ui-bg));
+  stroke: var(--story-organization);
+  stroke-width: 1.35;
+  transition: fill 240ms ease, stroke 240ms ease;
+}
+
+.land-field.is-proposal rect,
+rect.land-field.is-proposal {
+  fill: color-mix(in srgb, var(--story-plan) 6%, transparent);
+  stroke: var(--story-plan);
+  stroke-dasharray: 4 4;
+}
+
+.land-field.is-transferred rect,
+.land-field.is-force rect,
+.land-value .land-field.is-increment rect,
+rect.land-field.is-transferred,
+rect.land-field.is-force {
+  fill: color-mix(in srgb, var(--story-force) 16%, var(--ui-bg));
+  stroke: var(--story-force);
+}
+
+.land-ridge {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-width: 0.75;
+  stroke-opacity: 0.48;
+  stroke-linecap: round;
+}
+
+.is-proposal .land-ridge {
+  stroke: var(--story-plan);
+  stroke-opacity: 0.36;
+}
+
+.is-transferred .land-ridge,
+.is-force .land-ridge,
+.is-increment .land-ridge {
+  stroke: var(--story-force);
+  stroke-opacity: 0.54;
+}
+
+.land-value-bar {
+  color: var(--story-organization);
+}
+
+rect.land-value-bar,
+.land-value-bar rect {
+  fill: color-mix(in srgb, var(--story-organization) 20%, var(--ui-bg));
+  stroke: var(--story-organization);
+  stroke-width: 1.5;
+}
+
+.land-value-bar.is-increment rect,
+rect.land-value-bar.is-increment,
+.land-value-bar.land-value-bar-increment rect,
+rect.land-value-bar.land-value-bar-increment {
+  fill: color-mix(in srgb, var(--story-force) 20%, var(--ui-bg));
+  stroke: var(--story-force);
+}
+
+.authored-layer .land-value-bar text {
+  font-size: 13px;
+  fill: var(--ui-heading);
+}
+
+.land-deed-seal {
+  color: var(--motion-seal);
+}
+
+.land-deed-seal rect {
+  fill: var(--ui-bg);
+  stroke: var(--story-organization);
+  stroke-width: 1.5;
+}
+
+.land-deed-seal circle {
+  fill: color-mix(in srgb, var(--motion-seal) 15%, var(--ui-bg));
+  stroke: var(--motion-seal);
+  stroke-width: 1.5;
+}
+
+.land-deed-seal path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+
+.land-shield-badge {
+  color: var(--story-organization);
+}
+
+.land-shield-badge rect {
+  fill: color-mix(in srgb, var(--story-organization) 10%, var(--ui-bg));
+  stroke: var(--story-organization);
+  stroke-width: 1.6;
+}
+
+.land-shield-badge path {
+  stroke: var(--story-organization);
+}
+
+.authored-layer .land-shield-badge text {
+  fill: var(--story-organization);
+  font-weight: 500;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Stage 2 Hero Scenes (e-1, e-20, e-21, e-36, e-38, e-47)                    */
+/* -------------------------------------------------------------------------- */
+
+.hero-scene {
+  font-family: "PingFang SC", sans-serif;
+}
+
+.authored-layer .hero-header-note {
+  font-size: 12px;
+  fill: var(--ui-dim);
+  letter-spacing: 0.8px;
+}
+
+.authored-layer .hero-anchor-text {
+  font-size: 12px;
+  fill: var(--ui-muted);
+  letter-spacing: 0.5px;
+}
+
+.authored-layer .hero-place-label {
+  font-size: 17px;
+  font-weight: 500;
+  fill: var(--ui-heading);
+  letter-spacing: 0.4px;
+}
+
+.authored-layer .hero-place-active .hero-place-label {
+  fill: var(--story-force);
+}
+
+.authored-layer .hero-sub-label,
+.authored-layer .hero-sub-note {
+  font-size: 13px;
+  fill: var(--ui-muted);
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0.3px;
+}
+
+.hero-radar-ring,
+.hero-tense-ring,
+.hero-alert-ring,
+.hero-beacon-gold,
+.hero-grand-wings {
+  pointer-events: none;
+}
+
+.hero-ripple-gold,
+.arrival-ripple.hero-ripple-gold {
+  color: var(--hero-gold);
+}
+
+.hero-badge rect {
+  fill: color-mix(in srgb, var(--ui-bg) 95%, transparent);
+  stroke: var(--story-organization);
+  stroke-width: 1.35;
+}
+
+.hero-badge-force rect {
+  fill: color-mix(in srgb, var(--motion-seal) 8%, var(--ui-bg));
+  stroke: var(--motion-seal);
+  stroke-width: 1.35;
+}
+
+.authored-layer .hero-badge-label {
+  font-size: 14px;
+  font-weight: 500;
+  fill: var(--story-force);
+  letter-spacing: 0.6px;
+}
+
+/* e-1: 鸦片战争 — naval arcs, treaty fracture & sovereignty emblems */
+.hero-naval-arc {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 2.1;
+  stroke-linecap: round;
+}
+
+.hero-fracture {
+  fill: none;
+  stroke: var(--motion-seal);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hero-fracture-echo {
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+  stroke-opacity: 0.48;
+}
+
+.hero-pillar {
+  color: var(--story-organization);
+}
+
+.hero-pillar-frame {
+  fill: var(--ui-bg);
+  stroke: var(--story-organization);
+  stroke-width: 1.5;
+}
+
+.authored-layer .hero-pillar-label {
+  font-size: 15px;
+  font-weight: 500;
+  fill: var(--ui-heading);
+  letter-spacing: 0.6px;
+}
+
+.hero-pillar-breach {
+  color: var(--motion-seal);
+  pointer-events: none;
+}
+
+/* e-20: 五四运动 — propagation spark waves & convergence arcs */
+.hero-spark-wave {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-linecap: round;
+}
+
+.hero-converge-arc {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-linecap: round;
+}
+
+.hero-converge-arc-force {
+  stroke: var(--story-force);
+}
+
+/* e-21: 中共一大 — Shanghai beacon, stealth corridor & 南湖红船 */
+.hero-beacon {
+  color: var(--story-force);
+}
+
+.hero-stealth-dash {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.hero-red-boat {
+  pointer-events: none;
+}
+
+.hero-red-boat-hull,
+.hero-red-boat-roof {
+  fill: var(--hero-boat-hull);
+  stroke: var(--ui-bg);
+  stroke-linejoin: round;
+}
+
+.hero-red-boat-cabin {
+  fill: var(--ui-bg);
+  stroke: var(--hero-boat-hull);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.hero-red-boat-window {
+  fill: var(--hero-gold);
+  fill-opacity: 0.92;
+}
+
+.hero-red-boat-water {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-linecap: round;
+}
+
+/* e-36: 遵义会议 — crisis arcs, starlight compass & guiding beam */
+.hero-crisis-arc {
+  fill: none;
+  stroke: var(--story-plan);
+  stroke-width: 1.75;
+  stroke-dasharray: 5 5;
+  stroke-linecap: round;
+}
+
+.hero-crisis-arc-mid {
+  stroke-opacity: 0.72;
+}
+
+.hero-compass {
+  color: var(--story-force);
+}
+
+.hero-compass-dial {
+  fill: var(--ui-bg);
+  stroke: var(--story-force);
+  stroke-width: 1.8;
+}
+
+.hero-compass-ticks {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 1;
+  stroke-opacity: 0.75;
+}
+
+.hero-compass-star {
+  fill: var(--story-force);
+  stroke: var(--ui-bg);
+  stroke-width: 1;
+}
+
+.hero-compass-star-sub {
+  fill: var(--hero-gold);
+  fill-opacity: 0.88;
+}
+
+.hero-compass-core {
+  fill: var(--hero-gold);
+  stroke: var(--ui-bg);
+  stroke-width: 1.3;
+}
+
+.hero-guiding-beam {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+/* e-38: 红军长征胜利会师 — rendezvous labels, unify bridge & northward vector */
+.authored-layer .hero-army-label {
+  fill: var(--story-force);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+}
+
+.hero-unify-bridge {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 1.7;
+  stroke-dasharray: 5 5;
+  stroke-opacity: 0.72;
+  stroke-linecap: round;
+}
+
+.hero-north-band {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 14;
+  stroke-opacity: 0.14;
+  stroke-linecap: round;
+}
+
+.hero-north-vector {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 4.2;
+  stroke-linecap: round;
+}
+
+.authored-layer .hero-north-label {
+  fill: var(--story-force);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* e-47: 新中国成立 — Beijing monument, national sunburst rays & aura */
+.hero-monument-outer {
+  fill: var(--ui-bg);
+  stroke: var(--story-force);
+  stroke-width: 2;
+}
+
+.hero-monument-inner {
+  fill: color-mix(in srgb, var(--story-force) 10%, var(--ui-bg));
+  stroke: var(--hero-gold);
+  stroke-width: 1.05;
+  stroke-opacity: 0.8;
+}
+
+.hero-monument-crest {
+  color: var(--story-force);
+}
+
+.hero-sunburst-ray {
+  fill: none;
+  stroke: var(--story-force);
+  stroke-width: 1.5;
+  stroke-opacity: 0.62;
+  stroke-linecap: round;
+}
+
+.hero-sunburst-ray-sub {
+  stroke: var(--hero-gold);
+  stroke-width: 1.05;
+  stroke-opacity: 0.55;
+}
+
+.hero-sunburst-aura {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 1.2;
+  stroke-opacity: 0.42;
+}
+
+.hero-sunburst-aura-outer {
+  stroke: var(--story-force);
+  stroke-opacity: 0.28;
+}
+
+/* Foley toggle subtle parity across main timeline & 90s lesson */
+.lesson-player .transport-secondary .sfx-toggle {
+  color: var(--ui-muted);
+}
+
+.lesson-player .transport-secondary .sfx-toggle.is-active {
+  color: var(--ui-accent);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Mobile crisp legibility (<= 760px)                                         */
+/* -------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  .map-graticule {
+    stroke-width: 0.75;
+  }
+
+  .map-grain-overlay {
+    opacity: 0.3;
+  }
+
+  .curve-edge {
+    stroke-width: 2.6;
+  }
+
+  .curve-edge-force {
+    stroke-width: 3.2;
+  }
+
+  .history-map .authored-layer .seal-stamp text {
+    font-size: 22px;
+  }
+
+  .history-map .authored-layer .seal-stamp .process-node-note,
+  .history-map .authored-layer .seal-stamp .seal-stamp-sub {
+    font-size: 19px;
+  }
+
+  .history-map .authored-layer .reject-seal text {
+    font-size: 18px;
+  }
+
+  .history-map .authored-layer .land-shield-badge text,
+  .history-map .authored-layer .land-value-bar text {
+    font-size: 19px;
+  }
+
+  .history-map .authored-layer .hero-header-note {
+    font-size: 18px;
+  }
+
+  .history-map .authored-layer .hero-anchor-text {
+    font-size: 16px;
+  }
+
+  .history-map .authored-layer .hero-place-label {
+    font-size: 22px;
+  }
+
+  .history-map .authored-layer .hero-sub-label,
+  .history-map .authored-layer .hero-sub-note {
+    font-size: 17px;
+  }
+
+  .history-map .authored-layer .hero-badge-label,
+  .history-map .authored-layer .hero-badge text {
+    font-size: 18px;
+  }
+
+  .history-map .authored-layer .hero-pillar-label,
+  .history-map .authored-layer .hero-army-label {
+    font-size: 19px;
+  }
+
+  .history-map .authored-layer .hero-north-label {
+    font-size: 22px;
+  }
+
+  /* Compact 7-control mobile footer so 音效 fits cleanly without clipping 回忆 at 390px */
+  .narrated-experience .transport-secondary {
+    gap: 4px;
+    justify-content: space-between;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle,
+  .narrated-experience .transport-secondary .read-toggle {
+    min-width: 0;
+    min-height: 44px;
+    gap: 3px;
+    padding: 4px 2px;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle svg,
+  .narrated-experience .transport-secondary .read-toggle svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle span,
+  .narrated-experience .transport-secondary .read-toggle {
+    font-size: 10px;
+  }
+
+  .narrated-experience .transport-secondary .speed-label select {
+    padding: 0 4px;
+    height: 32px;
+    min-height: 32px;
+  }
+}
+
+@media (max-width: 360px) {
+  .narrated-experience .transport-secondary {
+    gap: 2px;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle,
+  .narrated-experience .transport-secondary .read-toggle {
+    padding: 4px 1px;
+    gap: 2px;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle svg,
+  .narrated-experience .transport-secondary .read-toggle svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle span,
+  .narrated-experience .transport-secondary .read-toggle {
+    font-size: 9.5px;
+  }
+
+  .narrated-experience .transport-secondary .speed-label select {
+    padding: 0 2px;
+    font-size: 10.5px;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Volume II (PRC History) Hero Scene Accents                                 */
+/* -------------------------------------------------------------------------- */
+
+.hero-crisis-ring {
+  stroke: var(--story-force);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 5;
+  opacity: 0.65;
+}
+
+.hero-crisis-ring-inner {
+  stroke: var(--story-force);
+  stroke-width: 1.1;
+  opacity: 0.45;
+}
+
+.hero-shield-arc {
+  stroke: var(--story-organization);
+  stroke-width: 3.2;
+  stroke-linecap: round;
+  stroke-dasharray: 10 6;
+}
+
+.hero-banner-pill {
+  fill: color-mix(in srgb, var(--ui-bg) 92%, var(--story-organization) 8%);
+  stroke: var(--ui-line);
+  stroke-width: 1.2;
+}
+
+.hero-orbit-ring {
+  stroke: var(--story-organization);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
+}
+
+.hero-orbit-mid {
+  stroke-dasharray: 3 5;
+  opacity: 0.85;
+}
+
+.hero-orbit-sat {
+  stroke: var(--story-force);
+  stroke-width: 1.8;
+}
+
+.authored-layer .hero-core-glyph {
+  fill: var(--story-force);
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.hero-old-frame {
+  fill: color-mix(in srgb, var(--ui-bg) 88%, var(--ui-muted) 12%);
+  stroke: var(--ui-line);
+  stroke-width: 1.4;
+  stroke-dasharray: 6 4;
+}
+
+.hero-compass-ring {
+  stroke: var(--story-force);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 5;
+  opacity: 0.72;
+}
+
+.hero-sun-ray {
+  stroke: var(--story-force);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  opacity: 0.78;
+}
+
+/* ========================================================================== */
+/* Phase 1–3 Documentary Animation Upgrade (Plans A + B + C)                  */
+/* ========================================================================== */
+
+/* -------------------------------------------------------------------------- */
+/* Plan C: 9-Chapter Era Atmosphere & 2.5D Tilted Cinema Stage                */
+/* -------------------------------------------------------------------------- */
+
+.map-cinema-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.map-era-atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(62% 58% at 66% 42%, var(--era-glow, transparent) 0%, transparent 70%),
+    radial-gradient(48% 46% at 82% 70%, var(--era-glow-soft, transparent) 0%, transparent 72%);
+  opacity: 1;
+}
+
+.map-cinema-tilt {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  transform-origin: 50% 56%;
+  /* Explicit identity base transform prevents stacking-context shifts on state change */
+  transform: perspective(1800px) rotateX(0deg);
+  backface-visibility: hidden;
+}
+
+.map-cinema-stage.is-spatial-25d .history-map {
+  overflow: visible;
+}
+
+.map-cinema-stage.is-spatial-25d .map-vignette-overlay {
+  opacity: 0;
+}
+
+.map-era-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(
+    74% 70% at 58% 48%,
+    transparent 56%,
+    var(--era-vignette, transparent) 100%
+  );
+}
+
+.map-cinema-stage.is-spatial-25d .map-era-vignette {
+  background:
+    linear-gradient(180deg, var(--era-horizon, transparent) 0%, transparent 18%),
+    radial-gradient(
+      74% 70% at 58% 48%,
+      transparent 56%,
+      var(--era-vignette, transparent) 100%
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Plan A: Bespoke Hero Emblems & Shield Accent                               */
+/* -------------------------------------------------------------------------- */
+
+.hero-emblem {
+  pointer-events: none;
+}
+
+.hero-shield-arc-glow {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 5.5;
+  stroke-linecap: round;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Plan B: Physical Apparatus Craft & Typography (Day / Night)                */
+/* -------------------------------------------------------------------------- */
+
+/* Mechanical Tilting Balance Scale (debate) */
+.proc-scale-frame,
+.proc-scale-pivot-halo {
+  pointer-events: none;
+}
+
+.proc-scale-pillar {
+  fill: var(--ui-bg);
+  stroke: var(--story-organization);
+  stroke-width: 1.35;
+  stroke-opacity: 0.72;
+}
+
+.proc-scale-pivot {
+  fill: color-mix(in srgb, var(--hero-gold) 18%, var(--ui-bg));
+  stroke: var(--hero-gold);
+  stroke-width: 1.45;
+}
+
+.proc-scale-plinth {
+  fill: none;
+  stroke: var(--story-organization);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-opacity: 0.75;
+}
+
+.proc-scale-gauge {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 4;
+  stroke-opacity: 0.65;
+}
+
+.proc-scale-needle {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 1.15;
+  stroke-opacity: 0.72;
+}
+
+.proc-scale-beam {
+  pointer-events: none;
+}
+
+.proc-scale-bar {
+  fill: color-mix(in srgb, var(--hero-gold) 18%, var(--ui-bg));
+  stroke: var(--hero-gold);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.proc-scale-pin {
+  fill: var(--ui-bg);
+  stroke: var(--hero-gold);
+  stroke-width: 1.6;
+}
+
+.proc-scale-pan {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-opacity: 0.78;
+}
+
+/* Meshing Flywheel Gears (cycle) */
+.proc-cycle-orbit {
+  pointer-events: none;
+}
+
+.proc-gear {
+  color: var(--story-organization);
+  pointer-events: none;
+}
+
+.proc-gear.tone-organization {
+  color: var(--story-organization);
+}
+
+.proc-gear.tone-force {
+  color: var(--story-force);
+}
+
+.proc-gear.tone-plan {
+  color: var(--story-plan);
+}
+
+.proc-gear-teeth {
+  fill: currentColor;
+  fill-opacity: 0.08;
+  stroke: currentColor;
+  stroke-width: 1.25;
+  stroke-opacity: 0.62;
+  stroke-linejoin: round;
+}
+
+.proc-gear-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 0.9;
+  stroke-dasharray: 3 3;
+  stroke-opacity: 0.44;
+}
+
+.proc-gear-spokes {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.05;
+  stroke-opacity: 0.38;
+  stroke-linecap: round;
+}
+
+.proc-gear-hub {
+  fill: var(--ui-bg);
+  stroke: currentColor;
+  stroke-width: 1.15;
+  stroke-opacity: 0.56;
+}
+
+.proc-gear-node {
+  opacity: 0.88;
+}
+
+.proc-gear-hub-wheel {
+  opacity: 0.82;
+}
+
+/* Land Policy Subdivision, Stratified Peel & Red Deed Stamp (land) */
+.proc-land-grid-line {
+  pointer-events: none;
+}
+
+.proc-deed-stamp {
+  color: var(--motion-seal);
+}
+
+.proc-deed-stamp.tone-organization {
+  color: var(--story-organization);
+}
+
+.proc-deed-stamp-frame {
+  fill: var(--ui-bg);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.proc-deed-stamp-glow {
+  pointer-events: none;
+}
+
+.authored-layer .proc-deed-stamp-glyph {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  fill: currentColor;
+  letter-spacing: 1px;
+  stroke: var(--ui-bg);
+  stroke-width: 2.5px;
+}
+
+.authored-layer .proc-deed-stamp-sub {
+  font-family: "PingFang SC", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  fill: var(--ui-muted);
+  letter-spacing: 0.3px;
+}
+
+.proc-thumbprint-seal {
+  color: var(--motion-seal);
+}
+
+.proc-thumbprint-badge {
+  fill: var(--ui-bg);
+  stroke: currentColor;
+  stroke-width: 1.65;
+}
+
+/* Override styles.css .land-protected rect/text for prc-l-1 rich-peasant gold preserve showcase */
+.land-protected.proc-land-preserve-frame .amb-breathe rect {
+  fill: none;
+  stroke: var(--hero-gold);
+  stroke-width: 1.15;
+  stroke-dasharray: 4 5;
+  stroke-opacity: 0.56;
+}
+
+.land-protected.proc-land-preserve-frame .proc-land-preserve-box {
+  fill: color-mix(in srgb, var(--hero-gold) 13%, var(--ui-bg));
+  stroke: var(--hero-gold);
+  stroke-width: 1.8;
+}
+
+.authored-layer .land-protected.proc-land-preserve-frame .proc-land-preserve-title,
+.authored-layer .proc-land-preserve-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  fill: var(--hero-gold);
+  letter-spacing: 0.7px;
+}
+
+.authored-layer .land-protected.proc-land-preserve-frame .proc-land-preserve-sub,
+.authored-layer .proc-land-preserve-sub {
+  font-size: 12.5px;
+  font-weight: 400;
+  fill: var(--ui-muted);
+  letter-spacing: 0.3px;
+}
+
+.proc-land-layer {
+  transition: fill 240ms ease, stroke 240ms ease;
+}
+
+.proc-land-layer-base {
+  fill: color-mix(in srgb, var(--story-organization) 12%, var(--ui-bg));
+  stroke: var(--story-organization);
+}
+
+.proc-land-layer-top {
+  fill: color-mix(in srgb, var(--story-force) 10%, var(--ui-bg));
+  stroke: var(--story-force);
+}
+
+.proc-land-layer-0 {
+  fill: color-mix(in srgb, var(--story-plan) 12%, var(--ui-bg));
+  stroke: var(--story-plan);
+}
+
+.proc-land-layer-1 {
+  fill: color-mix(in srgb, var(--story-organization) 12%, var(--ui-bg));
+  stroke: var(--story-organization);
+}
+
+.proc-land-layer-2 {
+  fill: color-mix(in srgb, var(--story-force) 11%, var(--ui-bg));
+  stroke: var(--story-force);
+}
+
+.proc-land-layer-lip {
+  pointer-events: none;
+}
+
+.authored-layer .proc-land-layer-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  fill: var(--ui-heading);
+  letter-spacing: 0.6px;
+}
+
+.authored-layer .proc-land-layer-role {
+  font-size: 12.5px;
+  font-weight: 400;
+  fill: var(--ui-muted);
+  letter-spacing: 0.3px;
+}
+
+.proc-land-lift-guide,
+.proc-land-bracket {
+  pointer-events: none;
+}
+
+/* Ceremonial Seats, Tactical Radar, Active Conduits & Monument Plinths */
+.proc-rostrum-crest,
+.proc-rostrum-halo,
+.proc-rostrum-rays,
+.proc-radar-field,
+.proc-radar-ring,
+.proc-radar-axis,
+.proc-radar-sector,
+.proc-radar-wedge,
+.proc-radar-arm,
+.proc-radar-pulse,
+.proc-radar-breathe,
+.proc-geo-beacon,
+.proc-geo-core-halo,
+.proc-focal-halo,
+.proc-outcome-halo,
+.proc-monument-plinth {
+  pointer-events: none;
+}
+
+.proc-radar-sector.tone-organization {
+  color: var(--story-organization);
+}
+
+.proc-radar-sector.tone-force {
+  color: var(--story-force);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Living Ambient Motion System (.amb-*)                                      */
+/* Static crisp resting defaults here; animations opt-in inside               */
+/* @media (prefers-reduced-motion: no-preference) below.                      */
+/* -------------------------------------------------------------------------- */
+
+.amb-breathe {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 1;
+  opacity: 1;
+}
+
+.amb-ripple-loop {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.amb-flow-dash,
+.amb-flow-dash-soft {
+  fill: none;
+  stroke-linecap: round;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.amb-flow-dash {
+  stroke-dasharray: 5 16;
+  stroke-width: 1.55;
+  stroke: var(--motion-flow-glint-gold);
+}
+
+.amb-flow-dash-soft {
+  stroke-dasharray: 5 14;
+  stroke-width: 1.5;
+  stroke: var(--motion-flow-glint-org);
+}
+
+.amb-flow-dash-gold,
+.proc-flow-orbit {
+  stroke: var(--motion-flow-glint-gold);
+}
+
+.amb-flow-dash-force,
+.proc-flow-force {
+  stroke: var(--motion-flow-glint-force);
+}
+
+.amb-flow-dash-org,
+.proc-flow-org {
+  stroke: var(--motion-flow-glint-org);
+}
+
+.amb-sunburst-spin,
+.amb-gear-cw,
+.amb-gear-ccw,
+.amb-atom-spin,
+.amb-radar-sweep,
+.amb-compass-settle {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  rotate: 0deg;
+}
+
+.amb-sunburst-spin,
+.amb-gear-cw,
+.amb-gear-ccw,
+.amb-atom-spin,
+.amb-radar-sweep {
+  pointer-events: none;
+}
+
+.amb-boat-bob {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  translate: 0 0;
+  rotate: 0deg;
+}
+
+.amb-torch-flicker {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 1;
+  opacity: 1;
+}
+
+.amb-satellite-orbit {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  /* Static perched resting point for reduced motion & non-offset-path browsers */
+  transform: translate(116px, 0px);
+}
+
+.amb-orbit-sat {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  scale: 1;
+}
+
+.amb-shield-pulse {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.amb-float-soft,
+.amb-float-soft-mid {
+  translate: 0 0;
+}
+
+.amb-seat-wave {
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 1;
+  opacity: 1;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Keyframes (all pulse/flicker cycles strictly <= 0.5Hz per WCAG 2.3.1)      */
+/* -------------------------------------------------------------------------- */
+
+@keyframes amb-breathe {
+  from {
+    transform: scale(1);
+    opacity: 0.82;
+  }
+  to {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes amb-ripple-loop {
+  0% {
+    transform: scale(0.88);
+    opacity: 0;
+  }
+  12% {
+    transform: scale(0.95);
+    opacity: 0.52;
+  }
+  100% {
+    transform: scale(1.78);
+    opacity: 0;
+  }
+}
+
+@keyframes amb-flow-dash {
+  from {
+    stroke-dashoffset: 42;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes amb-flow-dash-soft {
+  from {
+    stroke-dashoffset: 38;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes amb-spin-cw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes amb-spin-ccw {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes amb-boat-bob {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-2.4px) rotate(1.1deg);
+  }
+}
+
+@keyframes amb-torch-flicker {
+  from {
+    transform: scale(0.98);
+    opacity: 0.86;
+  }
+  to {
+    transform: scale(1.045);
+    opacity: 1;
+  }
+}
+
+@keyframes amb-compass-settle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  24% {
+    transform: rotate(3.2deg);
+  }
+  56% {
+    transform: rotate(-2.4deg);
+  }
+  80% {
+    transform: rotate(1.2deg);
+  }
+}
+
+@keyframes amb-satellite-orbit {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes amb-shield-pulse {
+  from {
+    opacity: 0.24;
+    stroke-width: 4.5;
+  }
+  to {
+    opacity: 0.78;
+    stroke-width: 7;
+  }
+}
+
+@keyframes amb-float-soft {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3.5px);
+  }
+}
+
+@keyframes amb-float-soft-mid {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2.4px);
+  }
+}
+
+@keyframes amb-seat-wave {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.88;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* Opt-in continuous motion ONLY when user has not requested reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .map-era-atmosphere {
+    transition: opacity 520ms ease;
+  }
+
+  .map-cinema-tilt {
+    transition: transform 760ms var(--motion-ease-settle);
+  }
+
+  .map-cinema-stage.is-spatial-25d .map-cinema-tilt {
+    transform: perspective(1800px) rotateX(var(--map-tilt, 0deg));
+  }
+
+  .amb-breathe {
+    animation: amb-breathe 3.6s ease-in-out infinite alternate;
+  }
+
+  .amb-ripple-loop {
+    animation: amb-ripple-loop 4.2s var(--motion-ease-editorial) infinite;
+  }
+
+  .amb-delay-1 {
+    animation-delay: 2.1s;
+  }
+
+  .amb-flow-dash {
+    opacity: 0.8;
+    animation: amb-flow-dash 2.4s linear infinite;
+  }
+
+  .amb-flow-dash-soft {
+    opacity: 0.6;
+    animation: amb-flow-dash-soft 2.8s linear infinite;
+  }
+
+  .amb-sunburst-spin {
+    animation: amb-spin-cw 48s linear infinite;
+  }
+
+  /* 12T:8T exact 3:2 mesh ratio (24s CW vs 16s CCW) */
+  .amb-gear-cw {
+    animation: amb-spin-cw 24s linear infinite;
+  }
+
+  .hero-scene .amb-gear-cw {
+    animation-duration: 18s;
+  }
+
+  .amb-gear-ccw {
+    animation: amb-spin-ccw 16s linear infinite;
+  }
+
+  .amb-atom-spin {
+    animation: amb-spin-cw 16s linear infinite;
+  }
+
+  .amb-atom-spin.amb-reverse {
+    animation: amb-spin-ccw 22s linear infinite;
+  }
+
+  .amb-radar-sweep {
+    animation: amb-spin-cw 14s linear infinite;
+  }
+
+  .amb-boat-bob {
+    animation: amb-boat-bob 4.4s ease-in-out infinite;
+  }
+
+  .amb-torch-flicker {
+    animation: amb-torch-flicker 2.6s ease-in-out infinite alternate;
+  }
+
+  .amb-compass-settle {
+    animation: amb-compass-settle 5.2s var(--motion-ease-settle) infinite;
+  }
+
+  .amb-shield-pulse {
+    animation: amb-shield-pulse 3.4s ease-in-out infinite alternate;
+  }
+
+  .amb-float-soft {
+    animation: amb-float-soft 4.2s ease-in-out infinite;
+  }
+
+  .amb-float-soft-mid {
+    animation: amb-float-soft-mid 4.8s ease-in-out -1.6s infinite;
+  }
+
+  .amb-seat-wave {
+    animation: amb-seat-wave 4.4s ease-in-out infinite;
+    animation-delay: var(--seat-delay, 0s);
+  }
+
+  @supports (offset-path: path("M 0 0")) {
+    .amb-satellite-orbit {
+      transform: none;
+      offset-path: path("M 116 0 A 116 52 0 1 1 -116 0 A 116 52 0 1 1 116 0");
+      offset-rotate: 0deg;
+      offset-distance: 0%;
+      animation: amb-satellite-orbit 11s linear infinite;
+    }
+  }
+}
+
+/* Pause freeze: immediately halt every living ambient loop (WCAG 2.2.2) */
+.history-map.is-paused [class*="amb-"],
+.map-cinema-stage.is-paused [class*="amb-"],
+.history-map.is-paused .location-pulse,
+.map-cinema-stage.is-paused .location-pulse {
+  animation-play-state: paused !important;
+}
+
+/* Mobile & coarse-landscape cinema stage & apparatus typography safeguards */
+@media (max-width: 760px) {
+  .map-cinema-tilt {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .map-cinema-tilt .history-map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .history-map .authored-layer .proc-deed-stamp-glyph {
+    font-size: 18px;
+  }
+
+  .history-map .authored-layer .proc-deed-stamp-sub {
+    font-size: 16px;
+  }
+
+  .history-map .authored-layer .proc-land-preserve-title,
+  .history-map .authored-layer .land-protected.proc-land-preserve-frame .proc-land-preserve-title {
+    font-size: 20px;
+  }
+
+  .history-map .authored-layer .proc-land-preserve-sub,
+  .history-map .authored-layer .land-protected.proc-land-preserve-frame .proc-land-preserve-sub {
+    font-size: 16px;
+  }
+
+  .history-map .authored-layer .proc-land-layer-title {
+    font-size: 20px;
+  }
+
+  .history-map .authored-layer .proc-land-layer-role {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 761px) and (max-height: 500px) and (pointer: coarse) {
+  .narrated-experience .map-cinema-stage {
+    left: 40%;
+    width: 60%;
+  }
+
+  .narrated-experience .map-cinema-tilt .history-map {
+    left: 0;
+    width: 100%;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Reduced motion accessibility                                               */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .year-roll .year-roll-in {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .year-roll .year-roll-out {
+    display: none !important;
+  }
+
+  .map-graticule,
+  .current-province,
+  rect.land-field,
+  .land-field rect,
+  .proc-land-layer,
+  .map-era-atmosphere,
+  .map-cinema-tilt,
+  .hero-scene,
+  .hero-scene * {
+    transition: none !important;
+  }
+}

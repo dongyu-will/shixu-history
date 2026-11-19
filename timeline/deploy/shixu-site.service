@@ -1,0 +1,30 @@
+[Unit]
+Description=Shixu static site and private media redirects
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+EnvironmentFile=/etc/shixu-object-storage.env
+Environment=SHIXU_ROOT=/srv/shixu
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /srv/shixu/current/deploy/server.py
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=192M
+CPUQuota=50%
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

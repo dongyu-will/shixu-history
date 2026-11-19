@@ -1,0 +1,1131 @@
+{
+  "version": 1,
+  "audio": "/audio/timeline-prc-zh-gpt-b86c805c9b339cf5.m4a",
+  "audioHash": "b86c805c9b339cf5ab22097f2f468235e78f34bc8b6accddbfbf7dc4ac10c035",
+  "captions": "/audio/timeline-prc-zh-gpt-b86c805c9b339cf5.vtt",
+  "duration": 480,
+  "voice": "approved-cloned-voice",
+  "rawManifestHash": "65265c52054e2f0880435750d5f0e4e97a0f40a6b49a2e429e767c24d1fa29d9",
+  "engine": "GPT-SoVITS",
+  "model": "v2ProPlus",
+  "disclosure": "AI合成讲解，采用已确认试听音色；不代表参考声音作者本人讲述或认可。",
+  "referenceSource": "https://www.bilibili.com/video/BV1YxmWBzEYL/",
+  "scriptHash": "feb9d1e243f5c293c40617594453b78a8d2f1ff4c11aa7779620a400671d8dd3",
+  "synthesis": {
+    "engine": "GPT-SoVITS",
+    "model": "v2ProPlus",
+    "device": "cpu",
+    "speedFactor": 0.92,
+    "textSplitMethod": "cut2",
+    "topK": 15,
+    "topP": 0.9,
+    "temperature": 1,
+    "referenceHash": "d0d1d85d99346eaa63a086b986438e8ded6ff79326a93ecb0aece86828330b10",
+    "promptHash": "3e206d08aecb03694f3799283551923b9e3f46217aea53e1a964b8b01c03449d",
+    "approvedAuditionHash": "11fe22871888f76adc1f6f24432ff102c15cf1c913e9c72566e47f9d930de612",
+    "backendCommit": "04a44eb977586645f33594b72af13a035a2056c6"
+  },
+  "contentHashes": {
+    "public/data/history-prc.json": "bcf2b3ba017bce92937541ecbabf150b87502669e19e2d45a7e7160633af7456",
+    "src/storyboards/prc-catalog.js": "f4a86eb47099a7a2d2390b7ad4733b382e4046e585775445e50c53c826aa3574",
+    "src/narration-prc.js": "77842e2353ca494dac033be4d5cc8cb6f05bed97ec337c1f0bee0bc710c0a6e7"
+  },
+  "cues": [
+    {
+      "eventId": "prc-m-1",
+      "start": 0,
+      "end": 6.43,
+      "text": "一九五零年六月，七届三中全会确定，争取三年左右国家财经状况基本好转。"
+    },
+    {
+      "eventId": "prc-m-1",
+      "start": 6.43,
+      "end": 12.2,
+      "text": "会议提出不要四面出击的策略，集中力量巩固新生政权。"
+    },
+    {
+      "eventId": "prc-l-1",
+      "start": 12.2,
+      "end": 18.95,
+      "text": "同年，新中国颁布土地改革法，由征收富农多余土地，改为保存富农经济。"
+    },
+    {
+      "eventId": "prc-l-1",
+      "start": 18.95,
+      "end": 25.7,
+      "text": "废除封建剥削土地所有制，实行农民土地所有制，为工业化开辟道路。"
+    },
+    {
+      "eventId": "prc-e-1",
+      "start": 25.7,
+      "end": 30.91,
+      "text": "美军把战火烧到鸭绿江边，志愿军毅然跨江抗美援朝、保家卫国。"
+    },
+    {
+      "eventId": "prc-e-1",
+      "start": 30.91,
+      "end": 42.3,
+      "text": "一九五三年停战协定签字，打破美军不可战胜的神话，为建设赢得和平环境。"
+    },
+    {
+      "eventId": "prc-e-2",
+      "start": 42.3,
+      "end": 49.84750566893424,
+      "text": "国民经济恢复后，一九五三年提出过渡时期总路线，一化为主体，三改为两翼。"
+    },
+    {
+      "eventId": "prc-e-2",
+      "start": 49.84750566893424,
+      "end": 55.8,
+      "text": "同步实施一五计划，优先发展重工业，统筹推进工业化与社会主义改造。"
+    },
+    {
+      "eventId": "prc-e-3",
+      "start": 55.8,
+      "end": 61.75,
+      "text": "一九五四年，第一届全国人大召开，制定第一部社会主义类型宪法。"
+    },
+    {
+      "eventId": "prc-e-3",
+      "start": 61.75,
+      "end": 69.3,
+      "text": "人民代表大会制度正式确立，新中国基本政治制度全面奠基。"
+    },
+    {
+      "eventId": "prc-l-2",
+      "start": 69.3,
+      "end": 74.99002267573697,
+      "text": "农业与手工业改造遵循自愿互利原则，依托合作社经济稳步过渡。"
+    },
+    {
+      "eventId": "prc-l-2",
+      "start": 74.99002267573697,
+      "end": 81.5,
+      "text": "从互助组、初级社发展到高级社，逐步实现社会主义集体所有制。"
+    },
+    {
+      "eventId": "prc-e-4",
+      "start": 81.5,
+      "end": 86.81002267573696,
+      "text": "对资本主义工商业，采取利用、限制、改造与和平赎买政策。"
+    },
+    {
+      "eventId": "prc-e-4",
+      "start": 86.81002267573696,
+      "end": 95,
+      "text": "从初级国家资本主义到全行业公私合营，和平完成所有制变革。"
+    },
+    {
+      "eventId": "prc-e-5",
+      "start": 95,
+      "end": 101.21,
+      "text": "一九五六年底，三大改造基本完成，社会主义基本经济制度正式建立。"
+    },
+    {
+      "eventId": "prc-e-5",
+      "start": 101.21,
+      "end": 111.6,
+      "text": "社会主义基本制度全面确立，中国由此迈入社会主义初级阶段。"
+    },
+    {
+      "eventId": "prc-w-1",
+      "start": 111.6,
+      "end": 118.13,
+      "text": "一九五六年四月，毛泽东发表论十大关系报告，提出以苏为鉴，开启第二次结合。"
+    },
+    {
+      "eventId": "prc-w-1",
+      "start": 118.13,
+      "end": 126.2,
+      "text": "确立调动一切积极因素的方针，成为探索中国建设道路的良好开端。"
+    },
+    {
+      "eventId": "prc-m-2",
+      "start": 126.2,
+      "end": 132.47,
+      "text": "同年秋，中共八大正确分析国内主要矛盾，坚持在综合平衡中稳步前进。"
+    },
+    {
+      "eventId": "prc-m-2",
+      "start": 132.47,
+      "end": 139.7,
+      "text": "陈云提出三个主体、三个补充，明确集中力量发展社会生产力。"
+    },
+    {
+      "eventId": "prc-w-2",
+      "start": 139.7,
+      "end": 146.91,
+      "text": "一九五七年，毛泽东论述正确处理人民内部矛盾，指出社会主义基本矛盾是非对抗性的。"
+    },
+    {
+      "eventId": "prc-w-2",
+      "start": 146.91,
+      "end": 154.3,
+      "text": "严格区分两类不同性质矛盾，把处理人民内部矛盾作为政治生活主题。"
+    },
+    {
+      "eventId": "prc-m-3",
+      "start": 154.3,
+      "end": 160.81038548752835,
+      "text": "一九五八年八大二次会议后，因急于求成，发动大跃进与人民公社化运动。"
+    },
+    {
+      "eventId": "prc-m-3",
+      "start": 160.81038548752835,
+      "end": 166.5,
+      "text": "违背客观经济规律的曲折探索，给社会主义建设留下深刻教训。"
+    },
+    {
+      "eventId": "prc-m-4",
+      "start": 166.5,
+      "end": 174.51,
+      "text": "面对经济困难，一九六一年八届九中全会，决定实行调整、巩固、充实、提高方针。"
+    },
+    {
+      "eventId": "prc-m-4",
+      "start": 174.51,
+      "end": 178.7,
+      "text": "国民经济由此转入全面调整，逐步恢复生机。"
+    },
+    {
+      "eventId": "prc-m-5",
+      "start": 178.7,
+      "end": 187.9,
+      "text": "一九六四年三届人大一次会议上，周恩来正式提出建设四个现代化的宏伟目标。"
+    },
+    {
+      "eventId": "prc-e-6",
+      "start": 187.9,
+      "end": 194.65,
+      "text": "艰辛探索时期，我国顶住封锁，建成独立的、比较完整的工业和国民经济体系。"
+    },
+    {
+      "eventId": "prc-e-6",
+      "start": 194.65,
+      "end": 204.5,
+      "text": "大庆油田投产，原子弹、氢弹与东方红一号卫星接连成功，筑牢大国基石。"
+    },
+    {
+      "eventId": "prc-e-7",
+      "start": 204.5,
+      "end": 209.77002267573695,
+      "text": "一九七一年，联大通过二七五八号决议，恢复中国在联合国一切合法权利。"
+    },
+    {
+      "eventId": "prc-e-7",
+      "start": 209.77002267573695,
+      "end": 219.1,
+      "text": "随后中美关系走向正常化、中日建交，新中国国际地位显著提升。"
+    },
+    {
+      "eventId": "prc-e-8",
+      "start": 219.1,
+      "end": 225.17,
+      "text": "一九七八年五月，真理标准问题大讨论展开，冲破两个凡是的思想禁锢。"
+    },
+    {
+      "eventId": "prc-e-8",
+      "start": 225.17,
+      "end": 231.3,
+      "text": "实践是检验真理的唯一标准，成为拨乱反正与改革开放的思想先导。"
+    },
+    {
+      "eventId": "prc-m-6",
+      "start": 231.3,
+      "end": 238.25,
+      "text": "一九七八年十二月，十一届三中全会重新确立思想、政治、组织三条正确路线。"
+    },
+    {
+      "eventId": "prc-m-6",
+      "start": 238.25,
+      "end": 247.9,
+      "text": "把工作重点转移到经济建设、实行改革开放，实现建国以来深远意义的伟大转折。"
+    },
+    {
+      "eventId": "prc-l-3",
+      "start": 247.9,
+      "end": 254.80562358276643,
+      "text": "改革率先在农村破冰。安徽凤阳小岗村实行大包干，打破人民公社体制弊端。"
+    },
+    {
+      "eventId": "prc-l-3",
+      "start": 254.80562358276643,
+      "end": 262.5,
+      "text": "家庭联产承包责任制，实现集体所有权与家庭经营权分离，极大解放农村生产力。"
+    },
+    {
+      "eventId": "prc-m-7",
+      "start": 262.5,
+      "end": 268.89,
+      "text": "一九七九年理论工作务虚会上，邓小平首次明确提出四项基本原则。"
+    },
+    {
+      "eventId": "prc-m-7",
+      "start": 268.89,
+      "end": 274.7,
+      "text": "为改革开放和现代化建设，确立了不可动摇的立国之本。"
+    },
+    {
+      "eventId": "prc-e-9",
+      "start": 274.7,
+      "end": 282.71,
+      "text": "一九八零年，深圳、珠海、汕头、厦门四大经济特区设立，对外开放破局起步。"
+    },
+    {
+      "eventId": "prc-e-9",
+      "start": 282.71,
+      "end": 291.3,
+      "text": "随后开放十四个沿海城市、设立海南特区、开发上海浦东，形成点线面开放格局。"
+    },
+    {
+      "eventId": "prc-m-8",
+      "start": 291.3,
+      "end": 297.69,
+      "text": "一九八一年，十一届六中全会通过第二个历史决议，彻底否定文化大革命。"
+    },
+    {
+      "eventId": "prc-m-8",
+      "start": 297.69,
+      "end": 304.8,
+      "text": "科学评价毛泽东与毛泽东思想，概括活的灵魂，完成指导思想拨乱反正。"
+    },
+    {
+      "eventId": "prc-m-9",
+      "start": 304.8,
+      "end": 314,
+      "text": "一九八二年中共十二大，邓小平提出走自己的道路，建设有中国特色的社会主义。"
+    },
+    {
+      "eventId": "prc-m-10",
+      "start": 314,
+      "end": 322.01,
+      "text": "一九八七年中共十三大，系统阐述社会主义初级阶段理论，和一个中心、两个基本点。"
+    },
+    {
+      "eventId": "prc-m-10",
+      "start": 322.01,
+      "end": 326.2,
+      "text": "同时制定了现代化建设三步走发展战略。"
+    },
+    {
+      "eventId": "prc-w-3",
+      "start": 326.2,
+      "end": 333.394693877551,
+      "text": "一九九二年初，邓小平视察武昌、深圳、珠海与上海，发表南方谈话。"
+    },
+    {
+      "eventId": "prc-w-3",
+      "start": 333.394693877551,
+      "end": 339.7,
+      "text": "阐明计划和市场都是经济手段、改革也是解放生产力，掀起新一轮思想解放。"
+    },
+    {
+      "eventId": "prc-m-11",
+      "start": 339.7,
+      "end": 345.390022675737,
+      "text": "同年秋，中共十四大正式确立，建立社会主义市场经济体制的改革目标。"
+    },
+    {
+      "eventId": "prc-m-11",
+      "start": 345.390022675737,
+      "end": 353.2,
+      "text": "明确国有企业改革，是建立市场经济体制的中心环节。"
+    },
+    {
+      "eventId": "prc-m-12",
+      "start": 353.2,
+      "end": 360.34022675736963,
+      "text": "一九九七年中共十五大，把邓小平理论写入党章，明确初级阶段基本经济制度。"
+    },
+    {
+      "eventId": "prc-m-12",
+      "start": 360.34022675736963,
+      "end": 365.4,
+      "text": "香港与澳门相继回归祖国，一国两制构想取得历史性成功。"
+    },
+    {
+      "eventId": "prc-e-10",
+      "start": 365.4,
+      "end": 374.6,
+      "text": "二零零一年十二月，中国正式加入世界贸易组织，对外开放迈入全方位新阶段。"
+    },
+    {
+      "eventId": "prc-m-13",
+      "start": 374.6,
+      "end": 383.8,
+      "text": "二零零二年中共十六大，确立三个代表重要思想，提出全面建设小康社会目标。"
+    },
+    {
+      "eventId": "prc-m-14",
+      "start": 383.8,
+      "end": 393,
+      "text": "二零零七年中共十七大，深入阐述科学发展观，概括中国特色社会主义理论体系。"
+    },
+    {
+      "eventId": "prc-m-15",
+      "start": 393,
+      "end": 399.61,
+      "text": "二零一二年中共十八大，明确五位一体总体布局，和两个一百年奋斗目标。"
+    },
+    {
+      "eventId": "prc-m-15",
+      "start": 399.61,
+      "end": 405.2,
+      "text": "中国特色社会主义由此进入新时代。"
+    },
+    {
+      "eventId": "prc-m-16",
+      "start": 405.2,
+      "end": 413.63,
+      "text": "二零一三年十八届三中全会部署全面深化改革，推进治理体系和治理能力现代化。"
+    },
+    {
+      "eventId": "prc-m-16",
+      "start": 413.63,
+      "end": 419.8,
+      "text": "推动改革由局部探索，迈向系统集成、全面深化的新阶段。"
+    },
+    {
+      "eventId": "prc-m-17",
+      "start": 419.8,
+      "end": 426.15,
+      "text": "二零一七年中共十九大，确立习近平新时代中国特色社会主义思想的历史地位。"
+    },
+    {
+      "eventId": "prc-m-17",
+      "start": 426.15,
+      "end": 434.4,
+      "text": "作出社会主要矛盾新转化论断，部署两步走现代化强国战略。"
+    },
+    {
+      "eventId": "prc-l-4",
+      "start": 434.4,
+      "end": 441.23,
+      "text": "农村推行土地三权分置制度创新，并打赢脱贫攻坚战、历史性消除绝对贫困。"
+    },
+    {
+      "eventId": "prc-l-4",
+      "start": 441.23,
+      "end": 448.9,
+      "text": "二零二一年如期全面建成小康社会，实现第一个百年奋斗目标。"
+    },
+    {
+      "eventId": "prc-m-18",
+      "start": 448.9,
+      "end": 455.99,
+      "text": "二零二一年，十九届六中全会通过第三个历史决议，阐明两个确立的决定性意义。"
+    },
+    {
+      "eventId": "prc-m-18",
+      "start": 455.99,
+      "end": 463.4,
+      "text": "系统总结党百年奋斗的五大历史意义，与十个坚持宝贵经验。"
+    },
+    {
+      "eventId": "prc-m-19",
+      "start": 463.4,
+      "end": 471.23,
+      "text": "二零二二年中共二十大，明确以中国式现代化，全面推进中华民族伟大复兴。"
+    },
+    {
+      "eventId": "prc-m-19",
+      "start": 471.23,
+      "end": 480,
+      "text": "阐明五个中国特色与党的自我革命，引领迈向第二个百年奋斗目标新征程。"
+    }
+  ],
+  "metrics": [
+    {
+      "eventId": "prc-m-1",
+      "nativeDuration": 10.98,
+      "tempo": 1,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-m-1-0",
+          "rawHash": "d702e4ac7f8ba745d028f16316d5b7b4be64795598a9d8beda66a5c2ac28aec3",
+          "seed": 42,
+          "nativeDuration": 6.31
+        },
+        {
+          "id": "prc-m-1-1",
+          "rawHash": "b4934912970219ae001f8a2e8ae46af129da7396b52cc6f159d1900ebcb7c74f",
+          "seed": 42,
+          "nativeDuration": 4.67
+        }
+      ]
+    },
+    {
+      "eventId": "prc-l-1",
+      "nativeDuration": 12.780000000000001,
+      "tempo": 1,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-l-1-0",
+          "rawHash": "dea97b435649a36b49222db78aa5160e7f7c3496e615d9bedc8624c8a2dde60e",
+          "seed": 42,
+          "nativeDuration": 6.63
+        },
+        {
+          "id": "prc-l-1-1",
+          "rawHash": "bb5be613c2531f929a841113570274a8243912d0242c4f372093da9fda57dcb0",
+          "seed": 42,
+          "nativeDuration": 6.15
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-1",
+      "nativeDuration": 11.92,
+      "tempo": 1,
+      "outputSamples": 732060,
+      "clips": [
+        {
+          "id": "prc-e-1-0",
+          "rawHash": "8e6661119525249fe518a19432088a59e0d12276a632b3bac48053b68a4d9097",
+          "seed": 42,
+          "nativeDuration": 5.09
+        },
+        {
+          "id": "prc-e-1-1",
+          "rawHash": "314c72bafe80425fe84645002e6e1685450f0b1bf2c9fe5464779867188428f1",
+          "seed": 42,
+          "nativeDuration": 6.83
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-2",
+      "nativeDuration": 13.24,
+      "tempo": 1.003030303030303,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-e-2-0",
+          "rawHash": "c57dbb14913aa6e2a0c25bc518af08df1796e57b1df1c30ca9de022b7d86ea65",
+          "seed": 42,
+          "nativeDuration": 7.45
+        },
+        {
+          "id": "prc-e-2-1",
+          "rawHash": "23c89e7e4c10f849d263dc8a0079afb6b661a347741d478db210354bd7d032d9",
+          "seed": 42,
+          "nativeDuration": 5.79
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-3",
+      "nativeDuration": 10.620000000000001,
+      "tempo": 1,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-e-3-0",
+          "rawHash": "630caa2200df795e72e9771fe2209d503c490ebca86c83e3f1a1dd80cd1a2c07",
+          "seed": 42,
+          "nativeDuration": 5.83
+        },
+        {
+          "id": "prc-e-3-1",
+          "rawHash": "5480a5f1b13323569e6e5b115046f55dbc9ef94014f86e39de37b9fe5b735448",
+          "seed": 42,
+          "nativeDuration": 4.79
+        }
+      ]
+    },
+    {
+      "eventId": "prc-l-2",
+      "nativeDuration": 11.54,
+      "tempo": 1,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-l-2-0",
+          "rawHash": "385399903640dd2d48f7efa166d180ba171941b9cd498024de0d0bf2f5f9d1fa",
+          "seed": 42,
+          "nativeDuration": 5.57
+        },
+        {
+          "id": "prc-l-2-1",
+          "rawHash": "bee679ff743a4ca96cee299eacc54da22c411af95cccdeed3c827f5b80a85f38",
+          "seed": 42,
+          "nativeDuration": 5.97
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-4",
+      "nativeDuration": 11.34,
+      "tempo": 1,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-e-4-0",
+          "rawHash": "4b598cad02fab9aa4b1a623bddae561fd47b551fdf1445d395236aaa514167e5",
+          "seed": 42,
+          "nativeDuration": 5.19
+        },
+        {
+          "id": "prc-e-4-1",
+          "rawHash": "528552e33dc97bb9896bfd91930dc36e66e2fab3de6124618394edda8fa47883",
+          "seed": 42,
+          "nativeDuration": 6.15
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-5",
+      "nativeDuration": 11.5,
+      "tempo": 1,
+      "outputSamples": 732060,
+      "clips": [
+        {
+          "id": "prc-e-5-0",
+          "rawHash": "8d05d46a04d9ca99640f72c09045d3a4579ded163bf2f23e93319e1e8a4d08e9",
+          "seed": 42,
+          "nativeDuration": 6.09
+        },
+        {
+          "id": "prc-e-5-1",
+          "rawHash": "16c9a837d18be7c83abf7c9105fa4171e9d048dcebc75209a8536844c2d70717",
+          "seed": 42,
+          "nativeDuration": 5.41
+        }
+      ]
+    },
+    {
+      "eventId": "prc-w-1",
+      "nativeDuration": 11.5,
+      "tempo": 1,
+      "outputSamples": 643860,
+      "clips": [
+        {
+          "id": "prc-w-1-0",
+          "rawHash": "88dad3934b888d098c75bc47af0240bfd7c21ccddce77358cc604be555106f72",
+          "seed": 42,
+          "nativeDuration": 6.41
+        },
+        {
+          "id": "prc-w-1-1",
+          "rawHash": "2d36db1d5d5cb92ec9befd5b786ab145c52396d9ff4a5d9c4d52d45e133d0959",
+          "seed": 42,
+          "nativeDuration": 5.09
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-2",
+      "nativeDuration": 11.64,
+      "tempo": 1,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-m-2-0",
+          "rawHash": "6f46d552b6b9a3b1988939683b786c0b81f0dce7a8f30fddd8fdc21a6037143e",
+          "seed": 42,
+          "nativeDuration": 6.15
+        },
+        {
+          "id": "prc-m-2-1",
+          "rawHash": "dd544033ca26399b11a75982238f9725c3b30bf8d6505d8491eaf902283f84b2",
+          "seed": 42,
+          "nativeDuration": 5.49
+        }
+      ]
+    },
+    {
+      "eventId": "prc-w-2",
+      "nativeDuration": 12.54,
+      "tempo": 1,
+      "outputSamples": 643860,
+      "clips": [
+        {
+          "id": "prc-w-2-0",
+          "rawHash": "a75d3387380518ce9ddbdea17aeedacd2351a396fe60746f038fc84e9722177c",
+          "seed": 42,
+          "nativeDuration": 7.09
+        },
+        {
+          "id": "prc-w-2-1",
+          "rawHash": "c026be7f6f2e74c8cea6214cca00d2668d73a4491d5296f62bea510403662c47",
+          "seed": 42,
+          "nativeDuration": 5.45
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-3",
+      "nativeDuration": 12.16,
+      "tempo": 1.0218487394957982,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-m-3-0",
+          "rawHash": "40f98c0e9ea31fd39a9ab36ff527522a029b8d32dff11aa8efe2f39ff7d15bb0",
+          "seed": 42,
+          "nativeDuration": 6.53
+        },
+        {
+          "id": "prc-m-3-1",
+          "rawHash": "3f15aebc4453324c7eb10780241735eae8501b41b6bf88cfc0966553940501f6",
+          "seed": 42,
+          "nativeDuration": 5.63
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-4",
+      "nativeDuration": 11.64,
+      "tempo": 1,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-m-4-0",
+          "rawHash": "81c18803402944a0d41c69a4503c315d3252657f584a8d380d055b72d74cc356",
+          "seed": 42,
+          "nativeDuration": 7.89
+        },
+        {
+          "id": "prc-m-4-1",
+          "rawHash": "0ca2a35443f09e1ba9479da05a81261496072ea8c716a230d0acfffcd9d62d6b",
+          "seed": 42,
+          "nativeDuration": 3.75
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-5",
+      "nativeDuration": 6.27,
+      "tempo": 1,
+      "outputSamples": 405720,
+      "clips": [
+        {
+          "id": "prc-m-5-0",
+          "rawHash": "d75b6e9e169cd457c9c20f0be5fdb7e5063b1e5c030b981233630897f4d505c8",
+          "seed": 42,
+          "nativeDuration": 6.27
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-6",
+      "nativeDuration": 12.86,
+      "tempo": 1,
+      "outputSamples": 732060,
+      "clips": [
+        {
+          "id": "prc-e-6-0",
+          "rawHash": "b22aa0306625a97c725eb23f2c3c230d66535ca5fafae8f47ce605bf0983a382",
+          "seed": 42,
+          "nativeDuration": 6.63
+        },
+        {
+          "id": "prc-e-6-1",
+          "rawHash": "4cf019dbee41e6b27449f5dc0b2d82a4e9ad0e4cfe72eeadf40f32bf6b451ed7",
+          "seed": 42,
+          "nativeDuration": 6.23
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-7",
+      "nativeDuration": 11.46,
+      "tempo": 1,
+      "outputSamples": 643860,
+      "clips": [
+        {
+          "id": "prc-e-7-0",
+          "rawHash": "27240e42bf4fb1aeca56a50ea22050f7c2dada6cd18aa4d7dd1cf7bc47687e65",
+          "seed": 108,
+          "nativeDuration": 5.15
+        },
+        {
+          "id": "prc-e-7-1",
+          "rawHash": "7318d27dbede123d7a539ae0c622b83cf8fa64fdfb0b781742816d0ce094d0b9",
+          "seed": 42,
+          "nativeDuration": 6.31
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-8",
+      "nativeDuration": 12.02,
+      "tempo": 1.0100840336134453,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-e-8-0",
+          "rawHash": "fbf033ef1c296970f9378a3c5cf0b58760423337041036f00da4efe19d34b017",
+          "seed": 42,
+          "nativeDuration": 6.01
+        },
+        {
+          "id": "prc-e-8-1",
+          "rawHash": "4a4336beaaad88adc3d440c73303d60af3896668dd3ac5622a2672ca671b5fba",
+          "seed": 42,
+          "nativeDuration": 6.01
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-6",
+      "nativeDuration": 12.84,
+      "tempo": 1,
+      "outputSamples": 732060,
+      "clips": [
+        {
+          "id": "prc-m-6-0",
+          "rawHash": "f1c38f1c8dad67c92d6f796ef12c12a99ee466a4da2c99144a1a017c1cdf1ea3",
+          "seed": 42,
+          "nativeDuration": 6.83
+        },
+        {
+          "id": "prc-m-6-1",
+          "rawHash": "61e0099876a757654325279eff45923416a3cc7cab9a8756671d352819da5ae5",
+          "seed": 42,
+          "nativeDuration": 6.01
+        }
+      ]
+    },
+    {
+      "eventId": "prc-l-3",
+      "nativeDuration": 14.52,
+      "tempo": 1.0153846153846153,
+      "outputSamples": 643860,
+      "clips": [
+        {
+          "id": "prc-l-3-0",
+          "rawHash": "cdce774fec2651361e0d92507421a9ee3c275ee918ab7a3786cf92b4d9a47477",
+          "seed": 42,
+          "nativeDuration": 6.89
+        },
+        {
+          "id": "prc-l-3-1",
+          "rawHash": "f66dc7b87e32166bb7ba03ea6d6e22818faf5e938179229afd0de9d9fd24a813",
+          "seed": 42,
+          "nativeDuration": 7.63
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-7",
+      "nativeDuration": 10.899999999999999,
+      "tempo": 1,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-m-7-0",
+          "rawHash": "1ecf7235e6c285dfa31fa5a5da7aaa0b9fa59372e5eb140c0f21fa3f8918317f",
+          "seed": 42,
+          "nativeDuration": 6.27
+        },
+        {
+          "id": "prc-m-7-1",
+          "rawHash": "a9b6d4b2350763cebd4a5b055736337f850a5a041ff4b319b94b6afcdbd3f892",
+          "seed": 42,
+          "nativeDuration": 4.63
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-9",
+      "nativeDuration": 15.08,
+      "tempo": 1,
+      "outputSamples": 732060,
+      "clips": [
+        {
+          "id": "prc-e-9-0",
+          "rawHash": "875f628005fc79c80a682a3fc1f0e07882e84cca69f647679508dcab5319b1a0",
+          "seed": 42,
+          "nativeDuration": 7.89
+        },
+        {
+          "id": "prc-e-9-1",
+          "rawHash": "bbad64488e9f3c10b2b4fb4a186f5152f132a9a3894c966701723e220a7adb6e",
+          "seed": 42,
+          "nativeDuration": 7.19
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-8",
+      "nativeDuration": 12.579999999999998,
+      "tempo": 1,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-m-8-0",
+          "rawHash": "b3aa4e9853d70bdbbffd443dd1e6f1a03f6f9ba0acf030aff96bc068052a6711",
+          "seed": 42,
+          "nativeDuration": 6.27
+        },
+        {
+          "id": "prc-m-8-1",
+          "rawHash": "ba995058838f338c7f8f4367621d3c3642df87f744835394220618463e8fd825",
+          "seed": 42,
+          "nativeDuration": 6.31
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-9",
+      "nativeDuration": 6.37,
+      "tempo": 1,
+      "outputSamples": 405720,
+      "clips": [
+        {
+          "id": "prc-m-9-0",
+          "rawHash": "aeb7b31898f869f4ac344620897e7c67d924af0601631d17310d2040a29d46a2",
+          "seed": 42,
+          "nativeDuration": 6.37
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-10",
+      "nativeDuration": 11.12,
+      "tempo": 1,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-m-10-0",
+          "rawHash": "0e60a4dfd7e0ecdd9f5c3b3171210e28cfddf2d24f28202f93664fd4328e586b",
+          "seed": 42,
+          "nativeDuration": 7.89
+        },
+        {
+          "id": "prc-m-10-1",
+          "rawHash": "2709fcb607642ee60e61c12deb044ff74dec88228805659d9bcc28caeac729a3",
+          "seed": 42,
+          "nativeDuration": 3.23
+        }
+      ]
+    },
+    {
+      "eventId": "prc-w-3",
+      "nativeDuration": 14.46,
+      "tempo": 1.0954545454545455,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-w-3-0",
+          "rawHash": "63f87a6bf64bc8a29f5c16b3f0469404516892e7b12180fbb8631dfaf96b86c3",
+          "seed": 42,
+          "nativeDuration": 7.75
+        },
+        {
+          "id": "prc-w-3-1",
+          "rawHash": "5afc87d4437e7f0a98253af5c72dc321eebf8a741d6eeb4ea5f5c9af433eaa2f",
+          "seed": 42,
+          "nativeDuration": 6.71
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-11",
+      "nativeDuration": 10.58,
+      "tempo": 1,
+      "outputSamples": 595350,
+      "clips": [
+        {
+          "id": "prc-m-11-0",
+          "rawHash": "65a4e057bec760e9e2b9d96ff93d1ad4a0b017eeff6868d0a3d8bf415b19db14",
+          "seed": 42,
+          "nativeDuration": 5.57
+        },
+        {
+          "id": "prc-m-11-1",
+          "rawHash": "42ed639b59f1d67c648ad5049facf94c47ac3442ac72fb7d537ca3aadd3e46ed",
+          "seed": 42,
+          "nativeDuration": 5.01
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-12",
+      "nativeDuration": 12.120000000000001,
+      "tempo": 1.0184873949579833,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-m-12-0",
+          "rawHash": "04c17b0e5b256299b31489ba4eea27ac747b2ebaa466273d92615dc901ff441a",
+          "seed": 42,
+          "nativeDuration": 7.15
+        },
+        {
+          "id": "prc-m-12-1",
+          "rawHash": "2d9b1bb2c10f4ac78285c5364781157ee0c032326ce3e31fc7607b2b7c32b527",
+          "seed": 42,
+          "nativeDuration": 4.97
+        }
+      ]
+    },
+    {
+      "eventId": "prc-e-10",
+      "nativeDuration": 6.09,
+      "tempo": 1,
+      "outputSamples": 405720,
+      "clips": [
+        {
+          "id": "prc-e-10-0",
+          "rawHash": "3dcc856bdc59722d5df8f44fd26a24654d9f321b8e72892dba4b97d74d15ac04",
+          "seed": 42,
+          "nativeDuration": 6.09
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-13",
+      "nativeDuration": 7.01,
+      "tempo": 1,
+      "outputSamples": 405720,
+      "clips": [
+        {
+          "id": "prc-m-13-0",
+          "rawHash": "25383c45a23257c66c2400f26ecd088b7d3831ceac3889b3e9d614764539cb9f",
+          "seed": 108,
+          "nativeDuration": 7.01
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-14",
+      "nativeDuration": 6.89,
+      "tempo": 1,
+      "outputSamples": 405720,
+      "clips": [
+        {
+          "id": "prc-m-14-0",
+          "rawHash": "cfb575377ee2001ad83e44ce821cdc5fbab8206e44155a5221384cdf363a774f",
+          "seed": 42,
+          "nativeDuration": 6.89
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-15",
+      "nativeDuration": 9.8,
+      "tempo": 1,
+      "outputSamples": 538020,
+      "clips": [
+        {
+          "id": "prc-m-15-0",
+          "rawHash": "68f7518b979e90453fd2a95bdb9f044413d62635d144c9bb0516d46fc39f6267",
+          "seed": 42,
+          "nativeDuration": 6.49
+        },
+        {
+          "id": "prc-m-15-1",
+          "rawHash": "41a0a7407ee860290c2a404242e995afd6772201502618410db93be75739edf4",
+          "seed": 42,
+          "nativeDuration": 3.31
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-16",
+      "nativeDuration": 13.06,
+      "tempo": 1,
+      "outputSamples": 643860,
+      "clips": [
+        {
+          "id": "prc-m-16-0",
+          "rawHash": "deef8e849bb05b3bd125cacc4001a1c034fd28c9bcec1c1246ace0af9acf1d6b",
+          "seed": 42,
+          "nativeDuration": 8.31
+        },
+        {
+          "id": "prc-m-16-1",
+          "rawHash": "aa9ab4a68d789810e69f1686b6652d01852a0967046adf1034e542692124a7ad",
+          "seed": 42,
+          "nativeDuration": 4.75
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-17",
+      "nativeDuration": 12.16,
+      "tempo": 1,
+      "outputSamples": 643860,
+      "clips": [
+        {
+          "id": "prc-m-17-0",
+          "rawHash": "7ecb19c41f28f027060c468103692f1fefa53582377414b3984c26f4b8318d1c",
+          "seed": 42,
+          "nativeDuration": 6.23
+        },
+        {
+          "id": "prc-m-17-1",
+          "rawHash": "9d7d438072490eb022ff1622c9219ad6220883ae58cba634978fb54f624f30da",
+          "seed": 42,
+          "nativeDuration": 5.93
+        }
+      ]
+    },
+    {
+      "eventId": "prc-l-4",
+      "nativeDuration": 11.719999999999999,
+      "tempo": 1,
+      "outputSamples": 639450,
+      "clips": [
+        {
+          "id": "prc-l-4-0",
+          "rawHash": "62725d34e8e484aa88de494287ac2a25eb816c245e9e62d9d33fd1324476d8c8",
+          "seed": 42,
+          "nativeDuration": 6.71
+        },
+        {
+          "id": "prc-l-4-1",
+          "rawHash": "e41a7883a3b638a3769a9b3d146d5fb2a7d2e414c54500237b3d2febea03770a",
+          "seed": 42,
+          "nativeDuration": 5.01
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-18",
+      "nativeDuration": 12.379999999999999,
+      "tempo": 1,
+      "outputSamples": 639450,
+      "clips": [
+        {
+          "id": "prc-m-18-0",
+          "rawHash": "169d27a5f7256376adc260af3730d298406b6824de7b3b343597e6a54b331e79",
+          "seed": 42,
+          "nativeDuration": 6.97
+        },
+        {
+          "id": "prc-m-18-1",
+          "rawHash": "cefb9206e16f2f5c83575d451a8e27b2660852eda721d5057eb994c45575bc8d",
+          "seed": 42,
+          "nativeDuration": 5.41
+        }
+      ]
+    },
+    {
+      "eventId": "prc-m-19",
+      "nativeDuration": 14.280000000000001,
+      "tempo": 1,
+      "outputSamples": 732060,
+      "clips": [
+        {
+          "id": "prc-m-19-0",
+          "rawHash": "6d9bf63f5458d7adbdc891a5e98baedafc397b027d010822574cc142d8e4172e",
+          "seed": 42,
+          "nativeDuration": 7.71
+        },
+        {
+          "id": "prc-m-19-1",
+          "rawHash": "9697abb14cde9bfd8813c26529073cf987718092a83d09d9be895b024da6af7f",
+          "seed": 42,
+          "nativeDuration": 6.57
+        }
+      ]
+    }
+  ],
+  "voiceProfileId": "approved-audition-v2proplus",
+  "voiceProfileHash": "bb7a26a6ba78cca17d9eaad087e03fb3b0e78184fd6b447074d40019b2351688"
+}

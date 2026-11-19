@@ -1,0 +1,753 @@
+/* ========================================================================== */
+/* Editorial De-Clutter & Spacious Cinema Layout                              */
+/* Imported last in main.jsx so spatial proportions override legacy crowding. */
+/* ========================================================================== */
+
+/* 1. Quiet Single-Row Masthead (< 8% viewport height) */
+.narrated-experience .masthead {
+  height: 56px;
+  min-height: 56px;
+  margin: 0 36px;
+  gap: 16px;
+}
+
+.narrated-experience .brand {
+  font-size: 20px;
+  letter-spacing: 2.5px;
+  gap: 8px;
+}
+
+.narrated-experience .brand i {
+  height: 15px;
+  margin: 0 6px;
+}
+
+.narrated-experience .volume-switch {
+  padding: 2px;
+  gap: 2px;
+  border-color: var(--ui-line-soft);
+  background: color-mix(in srgb, var(--ui-panel) 84%, transparent);
+}
+
+.narrated-experience .volume-pill {
+  min-height: 26px;
+  padding: 2px 12px;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+}
+
+.narrated-experience .header-actions {
+  gap: 20px;
+}
+
+.narrated-experience .header-actions button {
+  font-size: 12.5px;
+  gap: 6px;
+}
+
+/* 2. Generous Editorial Stage & Dedicated Left Margin */
+.narrated-experience .map-viewport {
+  position: absolute;
+  inset: 0;
+}
+
+.narrated-experience .story:not(.lesson-story) {
+  left: 36px;
+  top: 40px;
+  width: 304px;
+  z-index: 2;
+}
+
+.narrated-experience .story-head-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.narrated-experience .story:not(.lesson-story) .year-line {
+  margin-bottom: 4px;
+  gap: 7px;
+}
+
+.narrated-experience .story:not(.lesson-story) .year {
+  font-size: 64px;
+}
+
+.narrated-experience .story:not(.lesson-story) .period-end {
+  font-size: 21px;
+}
+
+.narrated-experience .story:not(.lesson-story) h1 {
+  font-size: 27px;
+  line-height: 1.42;
+  margin: 12px 0 12px;
+  letter-spacing: 1px;
+}
+
+.narrated-experience .story:not(.lesson-story) h1.long-title {
+  font-size: 21px;
+}
+
+.narrated-experience .story:not(.lesson-story) .beat-title {
+  font-size: 14.5px;
+  line-height: 1.55;
+  margin: 0 0 8px;
+}
+
+.narrated-experience .story:not(.lesson-story) .scene-summary {
+  font-size: 13px;
+  line-height: 1.85;
+  max-width: 296px;
+}
+
+.narrated-experience .story:not(.lesson-story) .beat-navigation {
+  margin-top: 14px;
+}
+
+.narrated-experience .story:not(.lesson-story) .story-bottom {
+  margin-top: 14px;
+  padding-top: 12px;
+}
+
+/* Move map zoom controls cleanly to the top-right corner clear of Hero nodes */
+.narrated-experience .map-tools {
+  top: 14px;
+  right: 24px;
+  gap: 4px;
+  z-index: 2;
+}
+
+.narrated-experience .map-tools button {
+  height: 29px;
+  min-width: 29px;
+  padding: 0 8px;
+  font-size: 11px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ui-bg) 82%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+/* Transparent borderless cinema subtitles with subtle canvas-matched halo */
+.narrated-experience .narration-subtitles {
+  left: 368px;
+  right: 32px;
+  bottom: 14px;
+  display: flex;
+  justify-content: center;
+  background: transparent;
+  box-shadow: none;
+  border: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.narration-subtitles p,
+.narrated-experience .narration-subtitles p {
+  display: inline-block;
+  max-width: min(680px, 100%);
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  color: var(--ui-heading);
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 1.6;
+  letter-spacing: 0.4px;
+  text-align: center;
+  text-shadow:
+    0 0 8px var(--ui-bg),
+    0 0 16px var(--ui-bg),
+    0 1px 2px var(--ui-bg);
+}
+
+/* 3. Calm Cinema Footer Dock (~96px desktop) */
+.narrated-experience .player {
+  padding: 0 36px 10px;
+  border-top: 0;
+}
+
+.narrated-experience .player .timeline-track {
+  height: 18px;
+  margin-bottom: 2px;
+}
+
+.narrated-experience .player .timeline-track::before,
+.narrated-experience .player .timeline-fill {
+  top: 8px;
+}
+
+.narrated-experience .player .scene-ticks > span {
+  top: 6px;
+}
+
+.narrated-experience .player .scene-ticks > span.current {
+  top: 3px;
+}
+
+.narrated-experience .player .timeline-track input {
+  inset: -6px 0;
+  height: 30px;
+}
+
+.narrated-experience .playback-row {
+  height: 44px;
+  gap: 16px;
+}
+
+.narrated-experience .play-button {
+  width: 36px;
+  height: 36px;
+}
+
+.narrated-experience .transport {
+  gap: 8px;
+}
+
+.narrated-experience .transport-secondary {
+  gap: 14px;
+}
+
+.narrated-experience .transport-secondary .narration-toggle,
+.narrated-experience .transport-secondary .read-toggle {
+  position: relative;
+  min-height: 34px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.narrated-experience .transport-secondary .narration-toggle:hover,
+.narrated-experience .transport-secondary .read-toggle:hover {
+  background: color-mix(in srgb, var(--ui-line) 28%, transparent);
+}
+
+.narrated-experience .prefs-trigger {
+  anchor-name: --player-prefs;
+}
+
+.narrated-experience .prefs-trigger.has-active-pref {
+  color: var(--ui-accent);
+}
+
+.narrated-experience .pref-dot {
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ui-accent);
+}
+
+.narrated-experience .chapter-track {
+  margin-top: 2px;
+}
+
+.narrated-experience .chapter-track button {
+  height: 34px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+  gap: 1px;
+}
+
+.narrated-experience .chapter-track button span {
+  font-size: 9px;
+}
+
+.narrated-experience .chapter-track strong {
+  font-size: 11px;
+}
+
+/* 4. Native Top-Layer Playback Preferences Popover */
+.prefs-popover {
+  width: min(296px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--ui-line);
+  border-radius: 10px;
+  background: var(--ui-panel);
+  color: var(--ui-heading);
+  box-shadow: 0 18px 42px color-mix(in srgb, #000 18%, transparent);
+}
+
+.prefs-popover:is(:popover-open, .\:popover-open) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@supports (position-area: block-start) {
+  .prefs-popover {
+    position-anchor: --player-prefs;
+    inset: auto;
+    margin: 0 0 10px 0;
+    position-area: block-start span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  }
+}
+
+@supports not (position-area: block-start) {
+  .prefs-popover {
+    position: fixed;
+    inset: auto 24px 96px auto;
+    margin: 0;
+  }
+}
+
+.prefs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prefs-label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  color: var(--ui-dim);
+}
+
+.prefs-rate-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border-radius: 7px;
+  background: var(--ui-bg);
+  border: 1px solid var(--ui-line-soft);
+}
+
+.prefs-rate-btn {
+  min-height: 30px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ui-muted);
+  font-family: var(--font-numeric);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.prefs-rate-btn.is-active,
+.prefs-rate-btn[aria-pressed="true"] {
+  background: var(--ui-accent);
+  color: var(--ui-button-ink);
+  font-weight: 600;
+}
+
+.prefs-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prefs-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ui-control);
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.prefs-row:hover {
+  background: color-mix(in srgb, var(--ui-line) 24%, transparent);
+}
+
+.prefs-row.is-active {
+  color: var(--ui-heading);
+  background: color-mix(in srgb, var(--ui-accent) 9%, var(--ui-bg));
+  border-color: color-mix(in srgb, var(--ui-accent) 30%, transparent);
+}
+
+.prefs-row span {
+  flex: 1;
+  text-align: left;
+}
+
+.prefs-row em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--ui-dim);
+}
+
+.prefs-row.is-active em {
+  color: var(--ui-accent);
+  font-weight: 600;
+}
+
+.prefs-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--ui-line-soft);
+}
+
+.prefs-footer button,
+.prefs-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  color: var(--ui-muted);
+  text-decoration: none;
+}
+
+.prefs-footer button:hover,
+.prefs-footer a:hover {
+  color: var(--ui-accent);
+  background: color-mix(in srgb, var(--ui-line) 22%, transparent);
+}
+
+/* Featured 90-second sample entry inside Directory drawer */
+.directory-sample-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--ui-line-soft);
+  border-radius: 6px;
+  background: var(--ui-bg);
+  color: var(--ui-heading);
+  text-decoration: none;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.directory-sample-card:hover {
+  border-color: var(--ui-accent-line);
+  color: var(--ui-accent);
+}
+
+.directory-sample-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.directory-sample-card strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.directory-sample-card span {
+  font-size: 11.5px;
+  color: var(--ui-muted);
+}
+
+/* 5. Spacious Mobile Layout (<= 760px) — Single-Row Header + Larger Map */
+@media (max-width: 760px) {
+  .narrated-experience .masthead {
+    height: 52px;
+    min-height: 52px;
+    flex-wrap: nowrap;
+    margin: 0 max(14px, env(safe-area-inset-left));
+    padding: 0;
+    gap: 8px;
+  }
+
+  .narrated-experience .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .narrated-experience .brand {
+    font-size: 17px;
+    letter-spacing: 1.5px;
+    gap: 5px;
+  }
+
+  .narrated-experience .brand svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .narrated-experience .brand i {
+    display: none;
+  }
+
+  .narrated-experience .volume-switch {
+    order: 0;
+    flex-basis: auto;
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  .narrated-experience .volume-pill {
+    flex: 0 0 auto;
+    min-height: 26px;
+    padding: 2px 9px;
+    font-size: 11px;
+    letter-spacing: 0.2px;
+  }
+
+  .narrated-experience .header-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .narrated-experience .header-actions button {
+    min-height: 40px;
+    font-size: 12px;
+    padding: 0 3px;
+  }
+
+  .narrated-experience .header-actions button:not(.icon-button) svg {
+    display: none;
+  }
+
+  .narrated-experience .header-actions .icon-button {
+    min-width: 34px;
+    min-height: 40px;
+    padding: 4px;
+  }
+
+  .narrated-experience .stage {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .narrated-experience .story:not(.lesson-story) {
+    position: relative;
+    inset: auto;
+    width: auto;
+    order: 0;
+    flex-shrink: 0;
+    margin: 10px 18px 4px;
+  }
+
+  .narrated-experience .story-head-meta {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin-bottom: 4px;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .year-line {
+    min-height: 0;
+    margin-bottom: 0;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .year {
+    font-size: 30px;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .period-end {
+    font-size: 15px;
+  }
+
+  .narrated-experience .story:not(.lesson-story) h1 {
+    font-size: 20px;
+    margin: 2px 0 4px;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .beat-title {
+    font-size: 13.5px;
+    margin: 0 0 4px;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .scene-summary {
+    font-size: 12.5px;
+    line-height: 1.65;
+    max-width: none;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .beat-navigation {
+    margin-top: 8px;
+    padding-right: 54px;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .beat-navigation button {
+    min-height: 34px;
+    font-size: 11px;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .story-bottom {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .narrated-experience .story:not(.lesson-story) .details-trigger {
+    min-height: 34px;
+    font-size: 11.5px;
+  }
+
+  .narrated-experience .map-viewport {
+    position: relative;
+    inset: auto;
+    order: 1;
+    flex: 1 1 268px;
+    min-height: 248px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .narrated-experience .map-viewport .history-map {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .narrated-experience .map-tools {
+    top: 8px;
+    right: 12px;
+    gap: 3px;
+  }
+
+  .narrated-experience .map-tools button {
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0 7px;
+    font-size: 10.5px;
+  }
+
+  .narrated-experience .narration-subtitles {
+    position: relative;
+    inset: auto;
+    order: 2;
+    flex-shrink: 0;
+    margin: 4px 14px 8px;
+    padding: 0;
+  }
+
+  .narrated-experience .narration-subtitles p {
+    border-radius: 0;
+    border: 0;
+    background: transparent;
+    padding: 4px 8px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .narrated-experience .player {
+    padding: 0 max(14px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  }
+
+  .narrated-experience .playback-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    height: auto;
+    padding-top: 2px;
+    gap: 2px 12px;
+  }
+
+  .narrated-experience .transport {
+    gap: 4px;
+  }
+
+  .narrated-experience .transport .icon-button {
+    min-width: 34px;
+    height: 36px;
+  }
+
+  .narrated-experience .play-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .narrated-experience .playback-time {
+    justify-self: end;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .narrated-experience .transport-secondary {
+    grid-column: 1 / -1;
+    justify-content: space-between;
+    gap: 6px;
+    margin: 0;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle,
+  .narrated-experience .transport-secondary .read-toggle {
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+    min-height: 36px;
+    padding: 4px 6px;
+    gap: 5px;
+    font-size: 11.5px;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle svg,
+  .narrated-experience .transport-secondary .read-toggle svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .narrated-experience .chapter-track button {
+    height: 36px;
+  }
+
+  @supports not (position-area: block-start) {
+    .prefs-popover {
+      inset: auto 12px 104px 12px;
+      width: auto;
+    }
+  }
+}
+
+/* Ultra-narrow 320px safeguard: keep single-row topbar & 4-control footer airy */
+@media (max-width: 360px) {
+  .narrated-experience .masthead {
+    margin: 0 10px;
+    gap: 4px;
+  }
+
+  .narrated-experience .brand svg {
+    display: none;
+  }
+
+  .narrated-experience .brand {
+    font-size: 15px;
+  }
+
+  .narrated-experience .volume-pill {
+    padding: 2px 6px;
+    font-size: 10.5px;
+  }
+
+  .narrated-experience .header-actions {
+    gap: 4px;
+  }
+
+  .narrated-experience .header-actions button {
+    font-size: 11px;
+  }
+
+  .narrated-experience .transport-secondary .narration-toggle,
+  .narrated-experience .transport-secondary .read-toggle {
+    padding: 4px 4px;
+    font-size: 11px;
+  }
+}

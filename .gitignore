@@ -1,0 +1,49 @@
+# Heavy local-only artifacts (TTS models, voice references, release tarballs, exam PDFs)
+output/
+
+# Copyrighted source documents — never commit third-party PDFs
+timeline/public/sources/
+*.pdf
+
+# Local QA / design-review captures & preview videos
+timeline/evidence/
+
+# Dependencies & build outputs
+node_modules/
+dist/
+timeline/dist/
+.vite/
+*.tsbuildinfo
+
+# Cloudflare Wrangler & local caches
+.wrangler/
+timeline/.wrangler/
+.cache/
+.impeccable/
+
+# Secrets & environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# OS, editor & log files
+.DS_Store
+._*
+Thumbs.db
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.swp
+*.swo
+*~
+*.tmp
+*.bak

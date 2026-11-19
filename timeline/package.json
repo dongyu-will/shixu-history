@@ -1,0 +1,37 @@
+{
+  "name": "timeline",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node scripts/prepare-sites-build.mjs",
+    "build:pages": "npm run build && node scripts/prepare-pages-build.mjs",
+    "preview": "vite preview",
+    "audio:timeline": "node scripts/render-timeline-audio.mjs",
+    "audio:timeline:system": "node scripts/render-system-timeline-audio.mjs",
+    "audio:publish": "node scripts/render-timeline-audio.mjs --publish-only",
+    "audio:prc": "node scripts/render-prc-audio.mjs",
+    "audio:prc:publish": "node scripts/render-prc-audio.mjs --publish-only",
+    "audio:road": "node scripts/render-road-cloned-audio.mjs",
+    "audio:road:publish": "node scripts/render-road-cloned-audio.mjs --publish-only",
+    "test": "node --test tests/*.test.mjs && python3 -m unittest discover -s tests -p test_server_deployment.py",
+    "test:sites": "node --test tests/sites-worker.test.mjs",
+    "test:narration": "node --test tests/narration.test.mjs tests/audio-timing.test.mjs",
+    "test:lesson": "node --test tests/lesson.test.mjs",
+    "test:storyboards": "node --test tests/storyboards.test.mjs",
+    "test:motion": "node --test tests/motion-clock.test.mjs",
+    "test:site-path": "node --test tests/site-path.test.mjs",
+    "test:theme": "node --test tests/theme.test.mjs",
+    "test:road": "node --test tests/road-questions.test.mjs",
+    "test:deploy": "python3 -m unittest discover -s tests -p test_server_deployment.py"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@vitejs/plugin-react": "5.0.4",
+    "d3-geo": "^3.1.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "vite": "6.4.2"
+  }
+}

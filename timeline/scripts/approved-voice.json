@@ -1,0 +1,18 @@
+{
+  "id": "approved-audition-v2proplus",
+  "engine": "GPT-SoVITS",
+  "model": "v2ProPlus",
+  "speakerLabel": "已确认试听音色",
+  "referenceSource": "https://www.bilibili.com/video/BV1YxmWBzEYL/",
+  "referenceHash": "d0d1d85d99346eaa63a086b986438e8ded6ff79326a93ecb0aece86828330b10",
+  "promptHash": "3e206d08aecb03694f3799283551923b9e3f46217aea53e1a964b8b01c03449d",
+  "approvedAuditionHash": "11fe22871888f76adc1f6f24432ff102c15cf1c913e9c72566e47f9d930de612",
+  "parameters": {
+    "textSplitMethod": "cut2",
+    "speedFactor": 0.92,
+    "topK": 15,
+    "topP": 0.9,
+    "temperature": 1
+  },
+  "disclosure": "AI合成讲解，采用已确认试听音色；不代表参考声音作者本人讲述或认可。"
+}

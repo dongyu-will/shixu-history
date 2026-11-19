@@ -1,0 +1,2809 @@
+{
+  "version": 1,
+  "audio": "/audio/timeline-zh-gpt-2df123eaa767547e.m4a",
+  "audioHash": "2df123eaa767547e4d44e9b615fb12da9c43511568901bf9f3e18dfc12157b57",
+  "captions": "/audio/timeline-zh-gpt-2df123eaa767547e.vtt",
+  "duration": 720,
+  "voice": "approved-cloned-voice",
+  "rawManifestHash": "87f909db4b721cce996c3f4737cf02afcd168d813b1130bd52b6303a1ec1b277",
+  "engine": "GPT-SoVITS",
+  "model": "v2ProPlus",
+  "disclosure": "AI合成讲解，采用已确认试听音色；不代表参考声音作者本人讲述或认可。",
+  "referenceSource": "https://www.bilibili.com/video/BV1YxmWBzEYL/",
+  "scriptHash": "ecb36b35d9f40ec66fb6b6e172d7e4f6d9bfb43a0e343d48390a465b29948fe5",
+  "synthesis": {
+    "engine": "GPT-SoVITS",
+    "model": "v2ProPlus",
+    "device": "cpu",
+    "speedFactor": 0.92,
+    "textSplitMethod": "cut2",
+    "topK": 15,
+    "topP": 0.9,
+    "temperature": 1,
+    "referenceHash": "d0d1d85d99346eaa63a086b986438e8ded6ff79326a93ecb0aece86828330b10",
+    "promptHash": "3e206d08aecb03694f3799283551923b9e3f46217aea53e1a964b8b01c03449d",
+    "approvedAuditionHash": "11fe22871888f76adc1f6f24432ff102c15cf1c913e9c72566e47f9d930de612",
+    "backendCommit": "04a44eb977586645f33594b72af13a035a2056c6"
+  },
+  "contentHashes": {
+    "public/data/history.json": "51d37f276318937387094ab500fa3e8c8ca095cb5ce2f1872511fe7188cbf250",
+    "src/stories.js": "d132f459d03965464121f3e2aa0e5db9e9201fa817fd7760ef758fee0e83940c",
+    "src/storyboards/catalog.js": "df635d2ad780ef999bdddb3c52b396885724a6ac22c38ca66af9a7bcce023081",
+    "src/narration.js": "1c01acd5392dc9be05c9f8a9e0e0be2b271ac835cb74197290bba2febcca64d8",
+    "src/lesson.js": "01ff054415a678c8a17fe6a1f5385c6264a2a22d3a476c24692fd518b28a3600"
+  },
+  "cues": [
+    {
+      "eventId": "e-1",
+      "start": 0,
+      "end": 2.519002267573696,
+      "text": "鸦片战争，沿海战事展开。"
+    },
+    {
+      "eventId": "e-1",
+      "start": 2.519002267573696,
+      "end": 10.5,
+      "text": "战败后签订南京条约，中国社会性质开始变化。"
+    },
+    {
+      "eventId": "e-2",
+      "start": 10.5,
+      "end": 12.93,
+      "text": "三元里民众组织武装抗英。"
+    },
+    {
+      "eventId": "e-2",
+      "start": 12.93,
+      "end": 17.5,
+      "text": "这是近代中国人民反侵略斗争的开端。"
+    },
+    {
+      "eventId": "e-3",
+      "start": 17.5,
+      "end": 21.307551020408162,
+      "text": "魏源编写海国图志，提出师夷长技以制夷。"
+    },
+    {
+      "eventId": "e-3",
+      "start": 21.307551020408162,
+      "end": 24.5,
+      "text": "主张学习外国先进技术，抵御侵略。"
+    },
+    {
+      "eventId": "e-4",
+      "start": 24.5,
+      "end": 29.11,
+      "text": "太平天国提出天朝田亩制度，表达农民的土地要求。"
+    },
+    {
+      "eventId": "e-4",
+      "start": 29.11,
+      "end": 35,
+      "text": "后期提出资政新篇，两种方案均未能实施。"
+    },
+    {
+      "eventId": "land-70",
+      "start": 35,
+      "end": 38.564126984126986,
+      "text": "天朝田亩制度主张按人口平均分配土地。"
+    },
+    {
+      "eventId": "land-70",
+      "start": 38.564126984126986,
+      "end": 41.6,
+      "text": "绝对平均的方案，未能付诸实施。"
+    },
+    {
+      "eventId": "e-5",
+      "start": 41.6,
+      "end": 47.09,
+      "text": "洋务运动以中体西用谋求自强求富，兴办企业、军队和教育。"
+    },
+    {
+      "eventId": "e-5",
+      "start": 47.09,
+      "end": 52.1,
+      "text": "甲午战败，暴露其制度局限。"
+    },
+    {
+      "eventId": "e-6",
+      "start": 52.1,
+      "end": 56.80764172335601,
+      "text": "早期维新派的学习视野，由技术扩展到制度。"
+    },
+    {
+      "eventId": "e-6",
+      "start": 56.80764172335601,
+      "end": 59.1,
+      "text": "开始关注政治和经济改革。"
+    },
+    {
+      "eventId": "e-7",
+      "start": 59.1,
+      "end": 62.53,
+      "text": "甲午战争，中国战败，北洋海军覆没。"
+    },
+    {
+      "eventId": "e-7",
+      "start": 62.53,
+      "end": 69.6,
+      "text": "马关条约加深民族危机，列强掀起瓜分狂潮。"
+    },
+    {
+      "eventId": "e-8",
+      "start": 69.6,
+      "end": 73.25,
+      "text": "严复发出救亡呼声，孙中山提出振兴中华。"
+    },
+    {
+      "eventId": "e-8",
+      "start": 73.25,
+      "end": 76.6,
+      "text": "思想启蒙与革命组织并进。"
+    },
+    {
+      "eventId": "e-9",
+      "start": 76.6,
+      "end": 80.73,
+      "text": "戊戌维新推动思想解放，并尝试制度改革。"
+    },
+    {
+      "eventId": "e-9",
+      "start": 80.73,
+      "end": 87.1,
+      "text": "改革不彻底，守旧势力反对，最终失败。"
+    },
+    {
+      "eventId": "e-10",
+      "start": 87.1,
+      "end": 90.01,
+      "text": "义和团在华北开展反侵略斗争。"
+    },
+    {
+      "eventId": "e-10",
+      "start": 90.01,
+      "end": 94.1,
+      "text": "阻击列强瓜分图谋，同时存在自身局限。"
+    },
+    {
+      "eventId": "e-11",
+      "start": 94.1,
+      "end": 97.55024943310657,
+      "text": "八国联军侵华后，签订辛丑条约。"
+    },
+    {
+      "eventId": "e-11",
+      "start": 97.55024943310657,
+      "end": 101.1,
+      "text": "清政府实行新政，仍未能挽救统治。"
+    },
+    {
+      "eventId": "e-14",
+      "start": 101.1,
+      "end": 103.79,
+      "text": "革命派与改良派展开论战。"
+    },
+    {
+      "eventId": "e-14",
+      "start": 103.79,
+      "end": 108.1,
+      "text": "围绕革命还是改良，革命思想得到传播。"
+    },
+    {
+      "eventId": "land-71",
+      "start": 108.1,
+      "end": 111.82353741496598,
+      "text": "平均地权先核定地价，原价归地主，增值归国家。"
+    },
+    {
+      "eventId": "land-71",
+      "start": 111.82353741496598,
+      "end": 114.7,
+      "text": "没有正面触及封建土地所有制。"
+    },
+    {
+      "eventId": "e-12",
+      "start": 114.7,
+      "end": 117.83,
+      "text": "中国同盟会成立，以三民主义为纲领。"
+    },
+    {
+      "eventId": "e-12",
+      "start": 117.83,
+      "end": 121.7,
+      "text": "革命力量由组织联合走向武装起义。"
+    },
+    {
+      "eventId": "e-13",
+      "start": 121.7,
+      "end": 124.86458049886622,
+      "text": "同盟会成立后，发动萍浏醴起义。"
+    },
+    {
+      "eventId": "e-13",
+      "start": 124.86458049886622,
+      "end": 128.7,
+      "text": "在湖南、江西交界地区，实践革命主张。"
+    },
+    {
+      "eventId": "e-15",
+      "start": 128.7,
+      "end": 133.19,
+      "text": "武昌起义推动各省响应，清帝随后退位。"
+    },
+    {
+      "eventId": "e-15",
+      "start": 133.19,
+      "end": 139.2,
+      "text": "延续两千多年的君主专制制度结束。"
+    },
+    {
+      "eventId": "e-16",
+      "start": 139.2,
+      "end": 143.41,
+      "text": "中华民国在南京成立，临时约法确认共和制度。"
+    },
+    {
+      "eventId": "e-16",
+      "start": 143.41,
+      "end": 149.7,
+      "text": "共和观念传播，革命仍有局限。"
+    },
+    {
+      "eventId": "e-17",
+      "start": 149.7,
+      "end": 153.43424036281178,
+      "text": "袁世凯窃取革命果实，北洋军阀统治形成。"
+    },
+    {
+      "eventId": "e-17",
+      "start": 153.43424036281178,
+      "end": 156.7,
+      "text": "维护共和的斗争，未能摆脱失败困境。"
+    },
+    {
+      "eventId": "e-18",
+      "start": 156.7,
+      "end": 160.79,
+      "text": "新文化运动以民主和科学，冲击封建旧思想。"
+    },
+    {
+      "eventId": "e-18",
+      "start": 160.79,
+      "end": 167.2,
+      "text": "五四以后，马克思主义的影响扩大。"
+    },
+    {
+      "eventId": "e-19",
+      "start": 167.2,
+      "end": 169.99,
+      "text": "十月革命提供新的道路选择。"
+    },
+    {
+      "eventId": "e-19",
+      "start": 169.99,
+      "end": 174.2,
+      "text": "中国先进分子开始系统研究和传播马克思主义。"
+    },
+    {
+      "eventId": "e-20",
+      "start": 174.2,
+      "end": 179.11,
+      "text": "五四运动由学生抗议发展为广泛的爱国运动。"
+    },
+    {
+      "eventId": "e-20",
+      "start": 179.11,
+      "end": 184.7,
+      "text": "工人登上政治舞台，推动马克思主义与工人运动结合。"
+    },
+    {
+      "eventId": "e-21",
+      "start": 184.7,
+      "end": 188.87,
+      "text": "中共一大在上海开幕，最后一天转移到嘉兴南湖。"
+    },
+    {
+      "eventId": "e-21",
+      "start": 188.87,
+      "end": 195.2,
+      "text": "大会通过纲领，确定党的组织和任务。"
+    },
+    {
+      "eventId": "e-23",
+      "start": 195.2,
+      "end": 198.03,
+      "text": "各地罢工，展现工人力量的成长。"
+    },
+    {
+      "eventId": "e-23",
+      "start": 198.03,
+      "end": 202.2,
+      "text": "注意比较不同斗争的领导方式和结果。"
+    },
+    {
+      "eventId": "e-22",
+      "start": 202.2,
+      "end": 205.29,
+      "text": "中共二大区分当前任务与长远目标。"
+    },
+    {
+      "eventId": "e-22",
+      "start": 205.29,
+      "end": 209.2,
+      "text": "提出反帝反封建的民主革命纲领。"
+    },
+    {
+      "eventId": "e-24",
+      "start": 209.2,
+      "end": 213.11,
+      "text": "中共三大决定，党员以个人身份加入国民党。"
+    },
+    {
+      "eventId": "e-24",
+      "start": 213.11,
+      "end": 216.2,
+      "text": "在合作中，保持党的独立性。"
+    },
+    {
+      "eventId": "e-25",
+      "start": 216.2,
+      "end": 220.55897959183673,
+      "text": "国民党一大重新解释三民主义，确认三大革命政策。"
+    },
+    {
+      "eventId": "e-25",
+      "start": 220.55897959183673,
+      "end": 223.2,
+      "text": "第一次国共合作正式形成。"
+    },
+    {
+      "eventId": "land-72",
+      "start": 223.2,
+      "end": 226.94399092970522,
+      "text": "新民生主义，提出平均地权和节制资本。"
+    },
+    {
+      "eventId": "land-72",
+      "start": 226.94399092970522,
+      "end": 229.8,
+      "text": "它是新三民主义的重要组成部分。"
+    },
+    {
+      "eventId": "e-26",
+      "start": 229.8,
+      "end": 234.11002267573696,
+      "text": "五卅运动掀起大革命高潮，随后开始北伐。"
+    },
+    {
+      "eventId": "e-26",
+      "start": 234.11002267573696,
+      "end": 240.3,
+      "text": "一九二七年国共合作破裂，大革命失败。"
+    },
+    {
+      "eventId": "e-30",
+      "start": 240.3,
+      "end": 243.80410430839,
+      "text": "毛泽东从分清敌友，到考察农民运动。"
+    },
+    {
+      "eventId": "e-30",
+      "start": 243.80410430839,
+      "end": 247.3,
+      "text": "阶级分析和工农革命实践，推动思想萌芽。"
+    },
+    {
+      "eventId": "meeting-48",
+      "start": 247.3,
+      "end": 252.6,
+      "text": "中共四大，提出无产阶级领导权和工农联盟问题。"
+    },
+    {
+      "eventId": "writing-80",
+      "start": 252.6,
+      "end": 257.4,
+      "text": "分清敌友，分析革命的对象、动力和领导权。"
+    },
+    {
+      "eventId": "writing-81",
+      "start": 257.4,
+      "end": 262.2,
+      "text": "考察农民运动，强调农民在革命中的重要作用。"
+    },
+    {
+      "eventId": "land-73",
+      "start": 262.2,
+      "end": 265.4193424036281,
+      "text": "大革命失败后，重新确定斗争方向。"
+    },
+    {
+      "eventId": "land-73",
+      "start": 265.4193424036281,
+      "end": 268.8,
+      "text": "把土地革命与武装反抗国民党统治相结合。"
+    },
+    {
+      "eventId": "meeting-49",
+      "start": 268.8,
+      "end": 274.1,
+      "text": "中共五大之后，党章明确规定民主集中制。"
+    },
+    {
+      "eventId": "e-27",
+      "start": 274.1,
+      "end": 278.01,
+      "text": "南昌起义打响武装反抗国民党反动派的第一枪。"
+    },
+    {
+      "eventId": "e-27",
+      "start": 278.01,
+      "end": 284.6,
+      "text": "标志着党独立领导革命战争、创建人民军队的开端。"
+    },
+    {
+      "eventId": "e-28",
+      "start": 284.6,
+      "end": 289.17,
+      "text": "八七会议总结大革命失败教训，纠正右倾错误。"
+    },
+    {
+      "eventId": "e-28",
+      "start": 289.17,
+      "end": 295.1,
+      "text": "确定土地革命和武装起义的方针，重新组织革命力量。"
+    },
+    {
+      "eventId": "e-29",
+      "start": 295.1,
+      "end": 299.75002267573694,
+      "text": "秋收起义原定进攻长沙，三路行动先后受挫。"
+    },
+    {
+      "eventId": "e-29",
+      "start": 299.75002267573694,
+      "end": 305.24002267573695,
+      "text": "余部在文家市会合，改变方向，转向农村山区。"
+    },
+    {
+      "eventId": "e-29",
+      "start": 305.24002267573695,
+      "end": 310,
+      "text": "部队南移抵达三湾，准备整顿和改编。"
+    },
+    {
+      "eventId": "meeting-50",
+      "start": 310,
+      "end": 314.17,
+      "text": "三湾改编整顿队伍，把支部建在连上。"
+    },
+    {
+      "eventId": "meeting-50",
+      "start": 314.17,
+      "end": 319.78,
+      "text": "实行官兵平等，建立士兵委员会，从组织上落实党的领导。"
+    },
+    {
+      "eventId": "meeting-50",
+      "start": 319.78,
+      "end": 323.1,
+      "text": "改编后，部队继续向井冈山进军。"
+    },
+    {
+      "eventId": "e-31",
+      "start": 323.1,
+      "end": 327.60077097505666,
+      "text": "红色政权理论，把土地革命、武装斗争与根据地联系起来。"
+    },
+    {
+      "eventId": "e-31",
+      "start": 327.60077097505666,
+      "end": 330.1,
+      "text": "调查研究，推动理论联系实际。"
+    },
+    {
+      "eventId": "e-34",
+      "start": 330.1,
+      "end": 333.7608843537415,
+      "text": "脱离实际的错误路线，给革命造成严重损失。"
+    },
+    {
+      "eventId": "e-34",
+      "start": 333.7608843537415,
+      "end": 337.1,
+      "text": "第五次反围剿失败，红军开始战略转移。"
+    },
+    {
+      "eventId": "writing-82",
+      "start": 337.1,
+      "end": 341.9,
+      "text": "立足中国国情，分析红色政权存在和发展的条件。"
+    },
+    {
+      "eventId": "writing-83",
+      "start": 341.9,
+      "end": 346.7,
+      "text": "土地革命、武装斗争和根据地建设，相互支撑。"
+    },
+    {
+      "eventId": "land-74",
+      "start": 346.7,
+      "end": 349.79,
+      "text": "井冈山土地法，规定没收一切土地。"
+    },
+    {
+      "eventId": "land-74",
+      "start": 349.79,
+      "end": 353.3,
+      "text": "这一范围过宽，不适合农村实际。"
+    },
+    {
+      "eventId": "meeting-51",
+      "start": 353.3,
+      "end": 358.6,
+      "text": "中共六大，把争取群众作为当前首要任务。"
+    },
+    {
+      "eventId": "land-75",
+      "start": 358.6,
+      "end": 362.78369614512474,
+      "text": "兴国土地法，改为没收公共土地及地主阶级土地。"
+    },
+    {
+      "eventId": "land-75",
+      "start": 362.78369614512474,
+      "end": 365.2,
+      "text": "保护中农，但农民只有使用权。"
+    },
+    {
+      "eventId": "e-32",
+      "start": 365.2,
+      "end": 370.890022675737,
+      "text": "古田会议纠正军队中的错误思想，确立思想建党、政治建军原则。"
+    },
+    {
+      "eventId": "e-32",
+      "start": 370.890022675737,
+      "end": 375.7,
+      "text": "红军承担打仗、筹款和群众工作的任务。"
+    },
+    {
+      "eventId": "writing-84",
+      "start": 375.7,
+      "end": 380.5,
+      "text": "红军和根据地的发展，能够推动全国革命高潮。"
+    },
+    {
+      "eventId": "writing-85",
+      "start": 380.5,
+      "end": 382.8440589569161,
+      "text": "没有调查，没有发言权。"
+    },
+    {
+      "eventId": "writing-85",
+      "start": 382.8440589569161,
+      "end": 385.3,
+      "text": "理论必须同实际相结合。"
+    },
+    {
+      "eventId": "land-76",
+      "start": 385.3,
+      "end": 388.67950113378686,
+      "text": "土地分给农民个人所有，按人口平分。"
+    },
+    {
+      "eventId": "land-76",
+      "start": 388.67950113378686,
+      "end": 391.9,
+      "text": "依靠贫雇农，联合中农。"
+    },
+    {
+      "eventId": "e-35",
+      "start": 391.9,
+      "end": 395.95,
+      "text": "九一八事变，日军制造借口，进攻沈阳。"
+    },
+    {
+      "eventId": "e-35",
+      "start": 395.95,
+      "end": 402.4,
+      "text": "东北随后沦陷，中国人民抗日战争开始。"
+    },
+    {
+      "eventId": "e-33",
+      "start": 402.4,
+      "end": 405.1901587301587,
+      "text": "中华苏维埃一大在瑞金召开。"
+    },
+    {
+      "eventId": "e-33",
+      "start": 405.1901587301587,
+      "end": 409.4,
+      "text": "通过宪法大纲等法令，成立临时中央政府。"
+    },
+    {
+      "eventId": "e-36",
+      "start": 409.4,
+      "end": 413.89,
+      "text": "遵义会议集中解决军事和组织问题，纠正错误。"
+    },
+    {
+      "eventId": "e-36",
+      "start": 413.89,
+      "end": 419.9,
+      "text": "这是党开始独立自主解决革命实际问题的重要转折。"
+    },
+    {
+      "eventId": "meeting-52",
+      "start": 419.9,
+      "end": 425.1,
+      "text": "八一宣言呼吁停止内战，团结各方，共同抗日。"
+    },
+    {
+      "eventId": "meeting-53",
+      "start": 425.1,
+      "end": 430.3,
+      "text": "瓦窑堡会议，确立抗日民族统一战线的策略方针。"
+    },
+    {
+      "eventId": "e-37",
+      "start": 430.3,
+      "end": 435.33396825396824,
+      "text": "一二九运动从北平学生抗议，扩展为广泛的救亡运动。"
+    },
+    {
+      "eventId": "e-37",
+      "start": 435.33396825396824,
+      "end": 437.3,
+      "text": "推动全国抗日救亡。"
+    },
+    {
+      "eventId": "writing-86",
+      "start": 437.3,
+      "end": 442.1,
+      "text": "认识中国革命战争的特点，用具体规律指导战争。"
+    },
+    {
+      "eventId": "meeting-54",
+      "start": 442.1,
+      "end": 447.3,
+      "text": "放弃反蒋口号，主张停战议和，随后提出逼蒋抗日。"
+    },
+    {
+      "eventId": "e-38",
+      "start": 447.3,
+      "end": 450.83,
+      "text": "红军主力先后在会宁、将台堡会师。"
+    },
+    {
+      "eventId": "e-38",
+      "start": 450.83,
+      "end": 457.8,
+      "text": "三大主力会师，标志着长征胜利结束。"
+    },
+    {
+      "eventId": "meeting-55",
+      "start": 457.8,
+      "end": 463,
+      "text": "西安事变和平解决，十年内战局面基本结束。"
+    },
+    {
+      "eventId": "e-39",
+      "start": 463,
+      "end": 468.01,
+      "text": "从抗日号召、统一战线方针，到西安事变和平解决。"
+    },
+    {
+      "eventId": "e-39",
+      "start": 468.01,
+      "end": 473.5,
+      "text": "随着第二次国共合作形成，抗日民族统一战线正式建立。"
+    },
+    {
+      "eventId": "e-40",
+      "start": 473.5,
+      "end": 480.5,
+      "text": "统一战线的策略是，发展进步势力，争取中间势力，孤立顽固势力。"
+    },
+    {
+      "eventId": "e-41",
+      "start": 480.5,
+      "end": 484.33,
+      "text": "三三制政权，三种力量各占三分之一。"
+    },
+    {
+      "eventId": "e-41",
+      "start": 484.33,
+      "end": 487.5,
+      "text": "团结各方面的抗日民主力量。"
+    },
+    {
+      "eventId": "writing-87",
+      "start": 487.5,
+      "end": 492.3,
+      "text": "认识来自实践，坚持具体问题具体分析。"
+    },
+    {
+      "eventId": "land-77",
+      "start": 492.3,
+      "end": 496.49478458049884,
+      "text": "抗战时期，地主减租减息，农民交租交息。"
+    },
+    {
+      "eventId": "land-77",
+      "start": 496.49478458049884,
+      "end": 498.9,
+      "text": "兼顾利益，团结抗日。"
+    },
+    {
+      "eventId": "meeting-56",
+      "start": 498.9,
+      "end": 504.1,
+      "text": "四项保证，推动停止内战、一致抗日的谈判。"
+    },
+    {
+      "eventId": "meeting-57",
+      "start": 504.1,
+      "end": 509.3,
+      "text": "洛川会议，强调全面抗战，动员军队和人民。"
+    },
+    {
+      "eventId": "meeting-58",
+      "start": 509.3,
+      "end": 514.5,
+      "text": "合作宣言发表，国共合作抗日正式形成。"
+    },
+    {
+      "eventId": "writing-88",
+      "start": 514.5,
+      "end": 519.33,
+      "text": "抗日战争经历战略防御、战略相持、战略反攻。"
+    },
+    {
+      "eventId": "writing-88",
+      "start": 519.33,
+      "end": 525,
+      "text": "战略相持，是最重要的阶段；持久抗战，争取最后胜利。"
+    },
+    {
+      "eventId": "meeting-59",
+      "start": 525,
+      "end": 530.2,
+      "text": "六届六中全会，提出马克思主义中国化的命题。"
+    },
+    {
+      "eventId": "writing-89",
+      "start": 530.2,
+      "end": 535,
+      "text": "统一战线、武装斗争、党的建设，是三大法宝。"
+    },
+    {
+      "eventId": "writing-90",
+      "start": 535,
+      "end": 539.8,
+      "text": "认识中国国情，提出新民主主义革命的概念。"
+    },
+    {
+      "eventId": "writing-91",
+      "start": 539.8,
+      "end": 544.6,
+      "text": "革命分两步走，阐述新民主主义政治、经济和文化。"
+    },
+    {
+      "eventId": "writing-92",
+      "start": 544.6,
+      "end": 549.4,
+      "text": "反对主观主义，以实事求是的态度改造学习。"
+    },
+    {
+      "eventId": "meeting-60",
+      "start": 549.4,
+      "end": 552.1305215419501,
+      "text": "延安整风由高级干部，扩展到全党。"
+    },
+    {
+      "eventId": "meeting-60",
+      "start": 552.1305215419501,
+      "end": 554.6,
+      "text": "确立实事求是的思想路线。"
+    },
+    {
+      "eventId": "writing-93",
+      "start": 554.6,
+      "end": 559.4,
+      "text": "反对主观主义、宗派主义和党八股，整顿党的作风。"
+    },
+    {
+      "eventId": "writing-94",
+      "start": 559.4,
+      "end": 564.2,
+      "text": "反对党八股，整顿文风，与学风、党风整顿结合。"
+    },
+    {
+      "eventId": "writing-95",
+      "start": 564.2,
+      "end": 569,
+      "text": "文艺为人民大众服务，首先为工农兵服务。"
+    },
+    {
+      "eventId": "meeting-61",
+      "start": 569,
+      "end": 574.2,
+      "text": "六届七中全会，通过关于若干历史问题的决议。"
+    },
+    {
+      "eventId": "e-43",
+      "start": 574.2,
+      "end": 578.69,
+      "text": "抗战胜利后，党提出和平、民主、团结的口号。"
+    },
+    {
+      "eventId": "e-43",
+      "start": 578.69,
+      "end": 581.2,
+      "text": "努力争取和平民主。"
+    },
+    {
+      "eventId": "e-44",
+      "start": 581.2,
+      "end": 583.6900226757369,
+      "text": "重庆谈判签订双十协定。"
+    },
+    {
+      "eventId": "e-44",
+      "start": 583.6900226757369,
+      "end": 588.2,
+      "text": "随后召开的政治协商会议，达成五项协议。"
+    },
+    {
+      "eventId": "writing-96",
+      "start": 588.2,
+      "end": 593,
+      "text": "理论联系实际、密切联系群众、批评与自我批评。"
+    },
+    {
+      "eventId": "meeting-62",
+      "start": 593,
+      "end": 598.2,
+      "text": "中共七大，把毛泽东思想确立为党的指导思想。"
+    },
+    {
+      "eventId": "meeting-63",
+      "start": 598.2,
+      "end": 603.4,
+      "text": "提出和平、民主、团结，争取和平民主的中国。"
+    },
+    {
+      "eventId": "meeting-64",
+      "start": 603.4,
+      "end": 608.6,
+      "text": "赴重庆争取和平，十月十日签署双十协定。"
+    },
+    {
+      "eventId": "e-42",
+      "start": 608.6,
+      "end": 613.870022675737,
+      "text": "抗日战争取得胜利，台湾、澎湖重归中国主权管辖。"
+    },
+    {
+      "eventId": "e-42",
+      "start": 613.870022675737,
+      "end": 619.1,
+      "text": "民族命运，迎来历史转折。"
+    },
+    {
+      "eventId": "e-45",
+      "start": 619.1,
+      "end": 624.05,
+      "text": "解放战争，从战略防御转入战略进攻，再到战略决战。"
+    },
+    {
+      "eventId": "e-45",
+      "start": 624.05,
+      "end": 629.6,
+      "text": "配合第二条战线，争取革命胜利。"
+    },
+    {
+      "eventId": "e-46",
+      "start": 629.6,
+      "end": 633.2583219954648,
+      "text": "民主党派和各界人士，响应协商建国号召。"
+    },
+    {
+      "eventId": "e-46",
+      "start": 633.2583219954648,
+      "end": 636.6,
+      "text": "共同参与新中国的管理和建设。"
+    },
+    {
+      "eventId": "meeting-65",
+      "start": 636.6,
+      "end": 641.8,
+      "text": "重庆政协达成五项协议，贯彻和平民主建国原则。"
+    },
+    {
+      "eventId": "land-78",
+      "start": 641.8,
+      "end": 645.6850566893424,
+      "text": "五四指示，推动由减租减息转向耕者有其田。"
+    },
+    {
+      "eventId": "land-78",
+      "start": 645.6850566893424,
+      "end": 648.4,
+      "text": "保护中农，一般不动富农土地。"
+    },
+    {
+      "eventId": "land-79",
+      "start": 648.4,
+      "end": 653.23,
+      "text": "中国土地法大纲，废除封建及半封建剥削土地制度。"
+    },
+    {
+      "eventId": "land-79",
+      "start": 653.23,
+      "end": 658.9,
+      "text": "由农会接收、分配土地，实现耕者有其田。"
+    },
+    {
+      "eventId": "writing-97",
+      "start": 658.9,
+      "end": 663.7,
+      "text": "阐述新民主主义革命总路线和土地改革总路线。"
+    },
+    {
+      "eventId": "writing-98",
+      "start": 663.7,
+      "end": 668.5,
+      "text": "将革命进行到底，提出人民民主专政的概念。"
+    },
+    {
+      "eventId": "meeting-66",
+      "start": 668.5,
+      "end": 673.7,
+      "text": "五一口号，揭开各方协商、共同建国的序幕。"
+    },
+    {
+      "eventId": "writing-99",
+      "start": 673.7,
+      "end": 678.5,
+      "text": "工作重心由乡村转到城市，胜利后仍须保持优良作风。"
+    },
+    {
+      "eventId": "writing-100",
+      "start": 678.5,
+      "end": 683.3,
+      "text": "工人阶级领导，以工农联盟为基础，实行人民民主专政。"
+    },
+    {
+      "eventId": "meeting-67",
+      "start": 683.3,
+      "end": 688.5,
+      "text": "民主人士声明，自愿接受中国共产党领导。"
+    },
+    {
+      "eventId": "meeting-68",
+      "start": 688.5,
+      "end": 694.07,
+      "text": "七届二中全会讨论工作重心，由乡村转向城市。"
+    },
+    {
+      "eventId": "meeting-68",
+      "start": 694.07,
+      "end": 699,
+      "text": "进城以后，仍须牢记两个务必。"
+    },
+    {
+      "eventId": "meeting-69",
+      "start": 699,
+      "end": 704.13,
+      "text": "人民政协第一届全体会议在北平召开，通过三份重要文件。"
+    },
+    {
+      "eventId": "meeting-69",
+      "start": 704.13,
+      "end": 709.5,
+      "text": "为新中国成立，奠定制度基础。"
+    },
+    {
+      "eventId": "e-47",
+      "start": 709.5,
+      "end": 713.41,
+      "text": "人民政协完成建国准备，中华人民共和国成立。"
+    },
+    {
+      "eventId": "e-47",
+      "start": 713.41,
+      "end": 720,
+      "text": "中国革命取得胜利，开启国家建设的新阶段。"
+    }
+  ],
+  "metrics": [
+    {
+      "eventId": "e-1",
+      "nativeDuration": 6.45,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-1-0",
+          "rawHash": "648a0098b56f403a73526cf34a54c71d28708b9e2bdc5f60befa94db81ea6048",
+          "seed": 42,
+          "nativeDuration": 2.399
+        },
+        {
+          "id": "e-1-1",
+          "rawHash": "82242f745c1c8c256de7f1af13f4d5f2db8aa18020bdc5ae6a27f0a2a121ec6b",
+          "seed": 42,
+          "nativeDuration": 4.051
+        }
+      ]
+    },
+    {
+      "eventId": "e-2",
+      "nativeDuration": 5.28,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-2-0",
+          "rawHash": "63768e34a880d47794b91223483645bbe722ffaed9a04b9392ee7031e4d1350a",
+          "seed": 42,
+          "nativeDuration": 2.31
+        },
+        {
+          "id": "e-2-1",
+          "rawHash": "e677f6761fcdb797cef99ded28d0156f281f47e36ccf709e8738e318e5da9001",
+          "seed": 42,
+          "nativeDuration": 2.97
+        }
+      ]
+    },
+    {
+      "eventId": "e-3",
+      "nativeDuration": 7.9399999999999995,
+      "tempo": 1.1850746268656716,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-3-0",
+          "rawHash": "e1cb555c403747c577d1d5c9e876556b5d309cbe31c7b5a95f17e4d1658c6f66",
+          "seed": 43,
+          "nativeDuration": 4.37
+        },
+        {
+          "id": "e-3-1",
+          "rawHash": "6225f6be7db280474e481a399e2993b555aa10e0056e69ba20fefa104f32be1c",
+          "seed": 42,
+          "nativeDuration": 3.57
+        }
+      ]
+    },
+    {
+      "eventId": "e-4",
+      "nativeDuration": 9.42,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-4-0",
+          "rawHash": "416c58e92f4442105eb3498753fbd1af25d4d39176efb9b01eec53a45932d17e",
+          "seed": 42,
+          "nativeDuration": 4.49
+        },
+        {
+          "id": "e-4-1",
+          "rawHash": "c896fab61e092b492f3ba57bb6a060ee5ab781c033d560e47fa7961587966f39",
+          "seed": 42,
+          "nativeDuration": 4.93
+        }
+      ]
+    },
+    {
+      "eventId": "land-70",
+      "nativeDuration": 6.64,
+      "tempo": 1.053968253968254,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-70-0",
+          "rawHash": "17c5c72b3a4efa31ede4b64db9ced0c6eecd304a342b3de20ede8dc9777e2b01",
+          "seed": 42,
+          "nativeDuration": 3.63
+        },
+        {
+          "id": "land-70-1",
+          "rawHash": "82009fea485acbc1c5914041160db87cf1637d1833259d423a68a6c963639dc3",
+          "seed": 42,
+          "nativeDuration": 3.01
+        }
+      ]
+    },
+    {
+      "eventId": "e-5",
+      "nativeDuration": 7.82,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-5-0",
+          "rawHash": "fc088108b268bd1df6daa94c2093ac2bede7398524062d3ab0b4f13f21f5f843",
+          "seed": 42,
+          "nativeDuration": 5.37
+        },
+        {
+          "id": "e-5-1",
+          "rawHash": "8b5ba78cf5ba4a4a5d4d9b10f3e1a53093ce665d5f807ce7e0ddab5ab0cecb0c",
+          "seed": 44,
+          "nativeDuration": 2.45
+        }
+      ]
+    },
+    {
+      "eventId": "e-6",
+      "nativeDuration": 7.199999999999999,
+      "tempo": 1.0746268656716416,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-6-0",
+          "rawHash": "75a60f2e596ebc5093a546aeffdb27d3afa35f892cb22a0fe420a771478abefd",
+          "seed": 42,
+          "nativeDuration": 4.93
+        },
+        {
+          "id": "e-6-1",
+          "rawHash": "da47346ecb618df4c6999082e6129f55dd03b1c9dbbb1666c8e287fc6a5b5f0a",
+          "seed": 42,
+          "nativeDuration": 2.27
+        }
+      ]
+    },
+    {
+      "eventId": "e-7",
+      "nativeDuration": 8.4,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-7-0",
+          "rawHash": "f5acdbc086204965ec39c6fc4e54fc330474f3960cc76aec53f340ca251ac6ff",
+          "seed": 42,
+          "nativeDuration": 3.31
+        },
+        {
+          "id": "e-7-1",
+          "rawHash": "13ad8af75a6aa2b595c4e176da245890f750bfb973279c7260b2a8c119745f67",
+          "seed": 42,
+          "nativeDuration": 5.09
+        }
+      ]
+    },
+    {
+      "eventId": "e-8",
+      "nativeDuration": 6.619999999999999,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-8-0",
+          "rawHash": "6a91dce93b45f7ce4def07a513d988a461b19c95e1c609abe56750cad7981347",
+          "seed": 43,
+          "nativeDuration": 3.53
+        },
+        {
+          "id": "e-8-1",
+          "rawHash": "e28ada274e716a9256f2a13e00ee22074527409d0279983f6939534257f3bf32",
+          "seed": 42,
+          "nativeDuration": 3.09
+        }
+      ]
+    },
+    {
+      "eventId": "e-9",
+      "nativeDuration": 8.24,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-9-0",
+          "rawHash": "dc1c7e8d808b6faa5e865975362810eea568b66c71da5ae54303e1052dec18ad",
+          "seed": 42,
+          "nativeDuration": 4.01
+        },
+        {
+          "id": "e-9-1",
+          "rawHash": "7e65c20b0666925351d441e26d1fc0c7c34d007fd0fd60bdba9239595b6421a0",
+          "seed": 42,
+          "nativeDuration": 4.23
+        }
+      ]
+    },
+    {
+      "eventId": "e-10",
+      "nativeDuration": 6.54,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-10-0",
+          "rawHash": "114b58daf1455fca2b8ab204e75b0ab0f7813a7d49ccc4f2e383fd966f396b74",
+          "seed": 44,
+          "nativeDuration": 2.79
+        },
+        {
+          "id": "e-10-1",
+          "rawHash": "0405ce60989e5e1f5ac14214026ce04e4eb2d5c08f846e0f5964b345ba7c8c31",
+          "seed": 42,
+          "nativeDuration": 3.75
+        }
+      ]
+    },
+    {
+      "eventId": "e-11",
+      "nativeDuration": 6.78,
+      "tempo": 1.0119402985074626,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-11-0",
+          "rawHash": "4cc26bc109f3b7ca1d6ec31d4d81aad89d2ea553437953669311de583a2fa670",
+          "seed": 42,
+          "nativeDuration": 3.37
+        },
+        {
+          "id": "e-11-1",
+          "rawHash": "f5f002992e054be1692468d1db8ef6451dad547d562aefda6d7e6722e8323099",
+          "seed": 42,
+          "nativeDuration": 3.41
+        }
+      ]
+    },
+    {
+      "eventId": "e-14",
+      "nativeDuration": 6.32,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-14-0",
+          "rawHash": "608aff568028fd94ef4f5158ff24a41cd3650b9361a9340205f93cbe4ff47951",
+          "seed": 42,
+          "nativeDuration": 2.57
+        },
+        {
+          "id": "e-14-1",
+          "rawHash": "7a20dda9c7b793ea2f277c18a22a013277df91740d09bd5f085ce59a7d16d135",
+          "seed": 42,
+          "nativeDuration": 3.75
+        }
+      ]
+    },
+    {
+      "eventId": "land-71",
+      "nativeDuration": 7.640000000000001,
+      "tempo": 1.2126984126984128,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-71-0",
+          "rawHash": "6869fd4ea6abe9c9dea65b86ca98411270ab86f9b5276e18900ced8fb4ef4d0f",
+          "seed": 42,
+          "nativeDuration": 4.37
+        },
+        {
+          "id": "land-71-1",
+          "rawHash": "c0062336464dc67319330e761e836630f35015e895e9ac72731cceaadb6a8e2a",
+          "seed": 42,
+          "nativeDuration": 3.27
+        }
+      ]
+    },
+    {
+      "eventId": "e-12",
+      "nativeDuration": 6.02,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-12-0",
+          "rawHash": "4e593df184673138d1ae725cc54c00b00d07bc44a0e25b071cbc9a5d6e8441f6",
+          "seed": 42,
+          "nativeDuration": 3.01
+        },
+        {
+          "id": "e-12-1",
+          "rawHash": "2bee6b23bcdbd7f8a9cc4f9f639c62821e6f81dca48d4f3510e44030d3e18a04",
+          "seed": 42,
+          "nativeDuration": 3.01
+        }
+      ]
+    },
+    {
+      "eventId": "e-13",
+      "nativeDuration": 6.8,
+      "tempo": 1.0149253731343284,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-13-0",
+          "rawHash": "68df703eddeefbdfabfdfb8da4771581350741252d4a79fab3579cef819658b5",
+          "seed": 45,
+          "nativeDuration": 3.09
+        },
+        {
+          "id": "e-13-1",
+          "rawHash": "914097f76424ec8e5cc1409c47b4d58e2fc7f445d9e4efd9dade45b1df681bc1",
+          "seed": 42,
+          "nativeDuration": 3.71
+        }
+      ]
+    },
+    {
+      "eventId": "e-15",
+      "nativeDuration": 8.16,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-15-0",
+          "rawHash": "3bfddb53b0979cf90febf73ceb663874f27dedccb7d9fb7e2dbaef063a58f269",
+          "seed": 44,
+          "nativeDuration": 4.37
+        },
+        {
+          "id": "e-15-1",
+          "rawHash": "3ede197ab42a604aa7acf6e84fd93c55444cb9a9bc2a30accb9186b373541ee4",
+          "seed": 42,
+          "nativeDuration": 3.79
+        }
+      ]
+    },
+    {
+      "eventId": "e-16",
+      "nativeDuration": 7.18,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-16-0",
+          "rawHash": "20eba6cede8fdd62ca1d075980a687d12286e21decbd4751a4a32b1b437c87f2",
+          "seed": 42,
+          "nativeDuration": 4.09
+        },
+        {
+          "id": "e-16-1",
+          "rawHash": "6e87bf5352960863ead53eef2049cefe3f7a729a09f2557f00e1fb6ee13e3725",
+          "seed": 42,
+          "nativeDuration": 3.09
+        }
+      ]
+    },
+    {
+      "eventId": "e-17",
+      "nativeDuration": 7.1,
+      "tempo": 1.0597014925373134,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-17-0",
+          "rawHash": "1789567c07c2112f8574aa854fa8bfe5ffae8f47e3b9b6d33d951ad4571d49b8",
+          "seed": 42,
+          "nativeDuration": 3.83
+        },
+        {
+          "id": "e-17-1",
+          "rawHash": "fb741e81fce057aad3ea175d4104ab9149ffef26adb3b2a2691f9b8093777e82",
+          "seed": 42,
+          "nativeDuration": 3.27
+        }
+      ]
+    },
+    {
+      "eventId": "e-18",
+      "nativeDuration": 7.2,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-18-0",
+          "rawHash": "26947ef4cb1ff20502a04114e177ba308d2484aaa8607f639ad41f1d816057bb",
+          "seed": 42,
+          "nativeDuration": 3.97
+        },
+        {
+          "id": "e-18-1",
+          "rawHash": "073242f5a4cec7441daf20e9fa382502f21e866ba10777a515b2f165891ad0aa",
+          "seed": 42,
+          "nativeDuration": 3.23
+        }
+      ]
+    },
+    {
+      "eventId": "e-19",
+      "nativeDuration": 6.640000000000001,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-19-0",
+          "rawHash": "a8a307211cac65abf6c0242ad3dc4a111f38785157891406ef47c449dc7466e0",
+          "seed": 42,
+          "nativeDuration": 2.67
+        },
+        {
+          "id": "e-19-1",
+          "rawHash": "51164df6c68d3fc1370a9655887f1e2de7c49dc207bef00a868a9a84a0ce018d",
+          "seed": 42,
+          "nativeDuration": 3.97
+        }
+      ]
+    },
+    {
+      "eventId": "e-20",
+      "nativeDuration": 9.16,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-20-0",
+          "rawHash": "c4fc8c7232de22f0c633f7096c46928d1852f62087738fc4fc60af73066504e4",
+          "seed": 42,
+          "nativeDuration": 4.79
+        },
+        {
+          "id": "e-20-1",
+          "rawHash": "1418f428246dd24fc6a939a811cb968642fab26b346a2378adf1a56bc88d628e",
+          "seed": 42,
+          "nativeDuration": 4.37
+        }
+      ]
+    },
+    {
+      "eventId": "e-21",
+      "nativeDuration": 7.199999999999999,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-21-0",
+          "rawHash": "eb6a89b8b968fd94f7f7d592ac193388fa598415e3ac8e07825dd81863c87eb0",
+          "seed": 42,
+          "nativeDuration": 4.05
+        },
+        {
+          "id": "e-21-1",
+          "rawHash": "3f395998821d0d7d1060ec74605e7ddd39c7f089516859165d2b1c0d958cc094",
+          "seed": 42,
+          "nativeDuration": 3.15
+        }
+      ]
+    },
+    {
+      "eventId": "e-23",
+      "nativeDuration": 6.12,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-23-0",
+          "rawHash": "86a26096e9c2d5a0d717b78e7d8f9129c987c2c53064a7bed212235cd2d69439",
+          "seed": 42,
+          "nativeDuration": 2.71
+        },
+        {
+          "id": "e-23-1",
+          "rawHash": "3fe0305b04a3bdcc217f2e1ad48b949ee4f3c3f53bd99702ed4bb911cc4b0cc4",
+          "seed": 42,
+          "nativeDuration": 3.41
+        }
+      ]
+    },
+    {
+      "eventId": "e-22",
+      "nativeDuration": 6.28,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-22-0",
+          "rawHash": "17c650dd228516f0629a89727fa15047a260e5685a3df26996a8a22b665fe1e3",
+          "seed": 42,
+          "nativeDuration": 2.97
+        },
+        {
+          "id": "e-22-1",
+          "rawHash": "ce6ca88cc9e171fda950be2782c5650c6d0900b2cbf4c841a2918f1498567918",
+          "seed": 43,
+          "nativeDuration": 3.31
+        }
+      ]
+    },
+    {
+      "eventId": "e-24",
+      "nativeDuration": 6.46,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-24-0",
+          "rawHash": "4f3ec0e4ee06bfc5195ecf3a22cbb264bec89f0e41b5dd13345a43c8cf22e701",
+          "seed": 42,
+          "nativeDuration": 3.79
+        },
+        {
+          "id": "e-24-1",
+          "rawHash": "6af23f01ea0d5fe07edfee9b3d460ddfefce36f1aa584009dfb63c910e9d3cf9",
+          "seed": 42,
+          "nativeDuration": 2.67
+        }
+      ]
+    },
+    {
+      "eventId": "e-25",
+      "nativeDuration": 7.16,
+      "tempo": 1.0686567164179104,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-25-0",
+          "rawHash": "05747e81dc4125071cb0f85d976a0949c58ddaaccf0a9b5567b97667a175d082",
+          "seed": 42,
+          "nativeDuration": 4.53
+        },
+        {
+          "id": "e-25-1",
+          "rawHash": "0375519d6f57602612128be76f6a066cb755bd9088951b26c08be5862b516e34",
+          "seed": 42,
+          "nativeDuration": 2.63
+        }
+      ]
+    },
+    {
+      "eventId": "land-72",
+      "nativeDuration": 6.38,
+      "tempo": 1.0126984126984127,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-72-0",
+          "rawHash": "012f8f6f9cc5dec095cfa96c889e4cf3a9d9456dc330db4160ebc24ec2840875",
+          "seed": 42,
+          "nativeDuration": 3.67
+        },
+        {
+          "id": "land-72-1",
+          "rawHash": "faec74f87971681d82d396c9210550a8f4faaec299dc04b015ff591d84fffd01",
+          "seed": 42,
+          "nativeDuration": 2.71
+        }
+      ]
+    },
+    {
+      "eventId": "e-26",
+      "nativeDuration": 7.9,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-26-0",
+          "rawHash": "4553fdc1e891ee4c6ddc2662718e845ca5e689325e615594fd54eae3f254f087",
+          "seed": 42,
+          "nativeDuration": 4.19
+        },
+        {
+          "id": "e-26-1",
+          "rawHash": "aa902c419ce50043797e869b1194f0779ef5533838a2d88525e7fbb36a8b1c74",
+          "seed": 42,
+          "nativeDuration": 3.71
+        }
+      ]
+    },
+    {
+      "eventId": "e-30",
+      "nativeDuration": 7.86,
+      "tempo": 1.173134328358209,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-30-0",
+          "rawHash": "56c1114c59a0795da7dbc71334d70ccbaaf9c5d74ac868d0a95fd363d2e15523",
+          "seed": 42,
+          "nativeDuration": 3.97
+        },
+        {
+          "id": "e-30-1",
+          "rawHash": "c2a9d80c6f0f6c634641e24b79b82744722a22aaf8502bd1f7b92d4027324c24",
+          "seed": 43,
+          "nativeDuration": 3.89
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-48",
+      "nativeDuration": 4.49,
+      "tempo": 1,
+      "outputSamples": 233730,
+      "clips": [
+        {
+          "id": "meeting-48-0",
+          "rawHash": "e216c7e093f572b1e7fb5b7b6cf9c6f58050f141a8983d0b619bdae80f76179e",
+          "seed": 42,
+          "nativeDuration": 4.49
+        }
+      ]
+    },
+    {
+      "eventId": "writing-80",
+      "nativeDuration": 5.05,
+      "tempo": 1.093073593073593,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-80-0",
+          "rawHash": "33b0e77a3f6bd5e34965abd5f380a1676434adc0d347d1747ba4bf9750eeb3de",
+          "seed": 42,
+          "nativeDuration": 5.05
+        }
+      ]
+    },
+    {
+      "eventId": "writing-81",
+      "nativeDuration": 3.97,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-81-0",
+          "rawHash": "59766aa4834588e269b441b6b135d4c137149f6d8048c0385904213f9bed9cae",
+          "seed": 42,
+          "nativeDuration": 3.97
+        }
+      ]
+    },
+    {
+      "eventId": "land-73",
+      "nativeDuration": 7.46,
+      "tempo": 1.1841269841269841,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-73-0",
+          "rawHash": "a56bf494f14c463181ad55553ffa6b498697d0ceae9899931ba27ddfb61441ac",
+          "seed": 42,
+          "nativeDuration": 3.67
+        },
+        {
+          "id": "land-73-1",
+          "rawHash": "adcaef750766f139f7a9e6a9f5dd79e944c82fbf0b9561743fb9540ba42ee6c0",
+          "seed": 42,
+          "nativeDuration": 3.79
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-49",
+      "nativeDuration": 4.31,
+      "tempo": 1,
+      "outputSamples": 233730,
+      "clips": [
+        {
+          "id": "meeting-49-0",
+          "rawHash": "725601121bda1dbcd3707d7128828282a404ff53e89057b9dc41aed66f2fd722",
+          "seed": 42,
+          "nativeDuration": 4.31
+        }
+      ]
+    },
+    {
+      "eventId": "e-27",
+      "nativeDuration": 7.98,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-27-0",
+          "rawHash": "e3fc140da0cb46e340a1d6207bc15f08f202b45199f70959b804e280e976ec39",
+          "seed": 42,
+          "nativeDuration": 3.79
+        },
+        {
+          "id": "e-27-1",
+          "rawHash": "f2256761b7b6d0d247b1a7ab47b5b8c761438b0217acddd7a9944d9a8426c3c5",
+          "seed": 42,
+          "nativeDuration": 4.19
+        }
+      ]
+    },
+    {
+      "eventId": "e-28",
+      "nativeDuration": 10.02,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-28-0",
+          "rawHash": "7771b5ceac38df949dd8246d6cb90e38a55364e8a8047552ebcff473cfb41646",
+          "seed": 42,
+          "nativeDuration": 4.45
+        },
+        {
+          "id": "e-28-1",
+          "rawHash": "83a093f0b31688a1ba76171675a681a97f9d7657e577424f08d58602b47ff03b",
+          "seed": 42,
+          "nativeDuration": 5.57
+        }
+      ]
+    },
+    {
+      "eventId": "e-29",
+      "nativeDuration": 13.870000000000001,
+      "tempo": 1,
+      "outputSamples": 657090,
+      "clips": [
+        {
+          "id": "e-29-0",
+          "rawHash": "92eb30efe99f7c70bcd68c71bb1d632a99611a176bddf2cd805d356933670bb7",
+          "seed": 43,
+          "nativeDuration": 4.53
+        },
+        {
+          "id": "e-29-1",
+          "rawHash": "362e66f07d00152f8d7dec107d50722422ea235902ab07a8d3af5f570ccbbea2",
+          "seed": 42,
+          "nativeDuration": 5.37
+        },
+        {
+          "id": "e-29-2",
+          "rawHash": "e64b259c2840ec8e0bc101edb112a461ab1f3b36265bd6caf1f7e4f76fa8e137",
+          "seed": 42,
+          "nativeDuration": 3.97
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-50",
+      "nativeDuration": 12.629999999999999,
+      "tempo": 1,
+      "outputSamples": 577710,
+      "clips": [
+        {
+          "id": "meeting-50-0",
+          "rawHash": "805c10c18e526489e49e6dcf45621e75c3444d2fdd8ac4a82c03356cd2ae1371",
+          "seed": 42,
+          "nativeDuration": 4.05
+        },
+        {
+          "id": "meeting-50-1",
+          "rawHash": "5ef4159ceaac32740c730ab21a9470ee0f05fc9ec4d5ed20ee74bf052ddf020d",
+          "seed": 42,
+          "nativeDuration": 5.49
+        },
+        {
+          "id": "meeting-50-2",
+          "rawHash": "0a1bcfb133f24e487a9861c8dfce2de91e0cb6919b37421f32bea10518b4eb92",
+          "seed": 42,
+          "nativeDuration": 3.09
+        }
+      ]
+    },
+    {
+      "eventId": "e-31",
+      "nativeDuration": 8.059999999999999,
+      "tempo": 1.2029850746268655,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-31-0",
+          "rawHash": "2675ed84ca63d08c6109a8019192e3f78ecbcb4de63e46dbcb02d633a6aab4b4",
+          "seed": 42,
+          "nativeDuration": 5.27
+        },
+        {
+          "id": "e-31-1",
+          "rawHash": "25b4f92461f14ffcb962d10fdbaf15492d7da3f88e86f3c5ec58366c336f74ed",
+          "seed": 42,
+          "nativeDuration": 2.79
+        }
+      ]
+    },
+    {
+      "eventId": "e-34",
+      "nativeDuration": 7.02,
+      "tempo": 1.0477611940298506,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-34-0",
+          "rawHash": "065966e5ec3af3472ee38b945b9da5abbec486042484ff6e3d76459dc05b46a6",
+          "seed": 42,
+          "nativeDuration": 3.71
+        },
+        {
+          "id": "e-34-1",
+          "rawHash": "f02fcd8a64fac7d9847d6a132973d9f5b0274c636e27fe009a00d6e4d246c5d3",
+          "seed": 42,
+          "nativeDuration": 3.31
+        }
+      ]
+    },
+    {
+      "eventId": "writing-82",
+      "nativeDuration": 4.27,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-82-0",
+          "rawHash": "a4cfa09bfbfa0c390cc3a443f180fa2a11592ff93f2c49237dfae0a42334cc34",
+          "seed": 42,
+          "nativeDuration": 4.27
+        }
+      ]
+    },
+    {
+      "eventId": "writing-83",
+      "nativeDuration": 3.93,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-83-0",
+          "rawHash": "cb646780c227330d5686da0b809c10244058927e1ce03fb24432823ecec3e977",
+          "seed": 42,
+          "nativeDuration": 3.93
+        }
+      ]
+    },
+    {
+      "eventId": "land-74",
+      "nativeDuration": 5.640000000000001,
+      "tempo": 1,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-74-0",
+          "rawHash": "c164b26a17817e462f9f6e76f2986390d09488dae647941847a1c6c1120948d9",
+          "seed": 42,
+          "nativeDuration": 2.97
+        },
+        {
+          "id": "land-74-1",
+          "rawHash": "82f64ba9860dc306b780de7b193d84ba3e3242d9e1dd7898703b5a455ebf32a4",
+          "seed": 42,
+          "nativeDuration": 2.67
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-51",
+      "nativeDuration": 3.57,
+      "tempo": 1,
+      "outputSamples": 233730,
+      "clips": [
+        {
+          "id": "meeting-51-0",
+          "rawHash": "82cf6c26852a9487e9421d1619810254f8b73319cea1240a2f9f1c5618ce6b6b",
+          "seed": 42,
+          "nativeDuration": 3.57
+        }
+      ]
+    },
+    {
+      "eventId": "land-75",
+      "nativeDuration": 7.24,
+      "tempo": 1.1492063492063493,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-75-0",
+          "rawHash": "506e56ad5caa43881cad786054e2beaaa948042a593c7c98f28da3ef0f1be731",
+          "seed": 42,
+          "nativeDuration": 4.67
+        },
+        {
+          "id": "land-75-1",
+          "rawHash": "df0846774d0059bafcde8941060c742c715b3df224494ae986ada2501d758748",
+          "seed": 42,
+          "nativeDuration": 2.57
+        }
+      ]
+    },
+    {
+      "eventId": "e-32",
+      "nativeDuration": 9.66,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-32-0",
+          "rawHash": "105b4c37e97a1b929afc0543cd444c6a73939071acb6255879fa56632f6b25fc",
+          "seed": 42,
+          "nativeDuration": 5.57
+        },
+        {
+          "id": "e-32-1",
+          "rawHash": "246c44c5f3aca39c3d5460d01c36840ac560e1c15ac260a469d2b81b7f2ca21c",
+          "seed": 42,
+          "nativeDuration": 4.09
+        }
+      ]
+    },
+    {
+      "eventId": "writing-84",
+      "nativeDuration": 3.49,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-84-0",
+          "rawHash": "8f64f633d7b0265448b42784894d248210d8547fd41e9ba0227b9616dfde9cc9",
+          "seed": 42,
+          "nativeDuration": 3.49
+        }
+      ]
+    },
+    {
+      "eventId": "writing-85",
+      "nativeDuration": 5.199999999999999,
+      "tempo": 1.1555555555555554,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-85-0",
+          "rawHash": "af7f4ea1317c37ecdbdb0d017ea774decbd310ddda1b6e96edcf390c15f71478",
+          "seed": 42,
+          "nativeDuration": 2.57
+        },
+        {
+          "id": "writing-85-1",
+          "rawHash": "23bdf964940242ac99249188fd2d1714c57cc328e5b358d4506b80172c3b0fd9",
+          "seed": 42,
+          "nativeDuration": 2.63
+        }
+      ]
+    },
+    {
+      "eventId": "land-76",
+      "nativeDuration": 5.890000000000001,
+      "tempo": 1,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-76-0",
+          "rawHash": "c525a05a22006a7b630296a1c5ca06d492527b9a6f1851b796b1f14f59503ba0",
+          "seed": 42,
+          "nativeDuration": 3.2595
+        },
+        {
+          "id": "land-76-1",
+          "rawHash": "7d3fcf5a4ffe34d5d01d802b57e59049edae863de72bcf1319875aff537086dc",
+          "seed": 42,
+          "nativeDuration": 2.6305
+        }
+      ]
+    },
+    {
+      "eventId": "e-35",
+      "nativeDuration": 7.720000000000001,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-35-0",
+          "rawHash": "26852593517a254d8cad6ed1f26350b318f63252ba495d601c012e64cae5466d",
+          "seed": 42,
+          "nativeDuration": 3.93
+        },
+        {
+          "id": "e-35-1",
+          "rawHash": "03b6169f1b33f28111a0d7661627ca9f58e0c50536c4d080714a55209e58c8d0",
+          "seed": 42,
+          "nativeDuration": 3.79
+        }
+      ]
+    },
+    {
+      "eventId": "e-33",
+      "nativeDuration": 6.8,
+      "tempo": 1.0149253731343284,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-33-0",
+          "rawHash": "145a2841dd7069b6c7913c8e86f4ec3dfdfd660413385c510c592b9df5b83830",
+          "seed": 42,
+          "nativeDuration": 2.71
+        },
+        {
+          "id": "e-33-1",
+          "rawHash": "f0f3b309fbb18a4c90fbe7d94c0e911081e9f3995cec36e92b6edfba4851622e",
+          "seed": 42,
+          "nativeDuration": 4.09
+        }
+      ]
+    },
+    {
+      "eventId": "e-36",
+      "nativeDuration": 8.52,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-36-0",
+          "rawHash": "d393d2e06c5195d779bdac28698e6750b8d58b4f84cda2f5fb6dc9742d97ff7e",
+          "seed": 42,
+          "nativeDuration": 4.37
+        },
+        {
+          "id": "e-36-1",
+          "rawHash": "5b66c412618d36751e248e8237143288a0baf7042ae1dd4aecfc0e2b42eb0dc2",
+          "seed": 42,
+          "nativeDuration": 4.15
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-52",
+      "nativeDuration": 4.71,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-52-0",
+          "rawHash": "f5b50d93dfca53d46b75af4f60b25b46dd322106c8b02a278e8866a2523b1e97",
+          "seed": 42,
+          "nativeDuration": 4.71
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-53",
+      "nativeDuration": 4.19,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-53-0",
+          "rawHash": "0cf2df838d8d9556a69b95c0f112d8e7703e0edf155b306c3bcdd6dffc7065e5",
+          "seed": 44,
+          "nativeDuration": 4.19
+        }
+      ]
+    },
+    {
+      "eventId": "e-37",
+      "nativeDuration": 7.239999999999999,
+      "tempo": 1.080597014925373,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-37-0",
+          "rawHash": "cc9bc9848fea72e0b13e06689cd183cec818f8f4ed78fa70aaef16621a7738bc",
+          "seed": 42,
+          "nativeDuration": 5.31
+        },
+        {
+          "id": "e-37-1",
+          "rawHash": "b7032ef80725d74e399bdbe8d64e996b37641ac4f8380ce60b7650f5439b602c",
+          "seed": 42,
+          "nativeDuration": 1.93
+        }
+      ]
+    },
+    {
+      "eventId": "writing-86",
+      "nativeDuration": 3.97,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-86-0",
+          "rawHash": "5e039e3926bbbbec16f31740aa5461633d3da2e199afe23bff24a812aa6e991a",
+          "seed": 42,
+          "nativeDuration": 3.97
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-54",
+      "nativeDuration": 5.09,
+      "tempo": 1.0139442231075697,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-54-0",
+          "rawHash": "4eaf1e79f5aaf73bd43df8292d5a0ee7702aa9d4262a957b09e7ba8238c50749",
+          "seed": 42,
+          "nativeDuration": 5.09
+        }
+      ]
+    },
+    {
+      "eventId": "e-38",
+      "nativeDuration": 6.34,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-38-0",
+          "rawHash": "ab03c819332e061a76101aebbee7e8826ec7443164c9c920cc6329b4850d785d",
+          "seed": 42,
+          "nativeDuration": 3.41
+        },
+        {
+          "id": "e-38-1",
+          "rawHash": "7b458d25185d1e43d9f159e4c2ae5fddd2d98aa45b7b214577775d0275ae74b8",
+          "seed": 42,
+          "nativeDuration": 2.93
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-55",
+      "nativeDuration": 4.41,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-55-0",
+          "rawHash": "edd4adeed332a6740f40bfd505ca286e606d071d6cd86c3eb73b3c4f068ece82",
+          "seed": 42,
+          "nativeDuration": 4.41
+        }
+      ]
+    },
+    {
+      "eventId": "e-39",
+      "nativeDuration": 9.82,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-39-0",
+          "rawHash": "d5d22694ca9b76686a3278c75c9142d9db9dfca8cf51ebd73abadd5dab04adb1",
+          "seed": 42,
+          "nativeDuration": 4.89
+        },
+        {
+          "id": "e-39-1",
+          "rawHash": "22e66d406a84a89f203513bb2ccf49e018a2f56ee2ce04fc7f8587d2250b4bec",
+          "seed": 42,
+          "nativeDuration": 4.93
+        }
+      ]
+    },
+    {
+      "eventId": "e-40",
+      "nativeDuration": 5.31,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-40-0",
+          "rawHash": "42aeb4911b661cebb6b25dc93d3c904b8c00cefa00a59539cdc40adfd9f00306",
+          "seed": 42,
+          "nativeDuration": 5.31
+        }
+      ]
+    },
+    {
+      "eventId": "e-41",
+      "nativeDuration": 6.38,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-41-0",
+          "rawHash": "ff50bbb3bb39c5d77ce50ec72ee961689ce1bcb975566b17d70c6a7041b21c9c",
+          "seed": 43,
+          "nativeDuration": 3.71
+        },
+        {
+          "id": "e-41-1",
+          "rawHash": "bff866f18da7573a1ee973b61c65688a2fc71057fe797afa0a301445ff7b1747",
+          "seed": 42,
+          "nativeDuration": 2.67
+        }
+      ]
+    },
+    {
+      "eventId": "writing-87",
+      "nativeDuration": 3.45,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-87-0",
+          "rawHash": "cccda4d395a87a2183b49c9a51f0015b13f1e6c9bf567450d292576549e3012b",
+          "seed": 42,
+          "nativeDuration": 3.45
+        }
+      ]
+    },
+    {
+      "eventId": "land-77",
+      "nativeDuration": 6.540000000000001,
+      "tempo": 1.0380952380952382,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-77-0",
+          "rawHash": "cbf0f2d74ee9372c2df0d5a27d7c733e84d24f09cce5eb2250f649847b1b0d4a",
+          "seed": 42,
+          "nativeDuration": 4.23
+        },
+        {
+          "id": "land-77-1",
+          "rawHash": "d902d1cf4e3703ffc4978c78fa5e150cf0ffccace69fd1dd7d62f558601e7a3c",
+          "seed": 42,
+          "nativeDuration": 2.31
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-56",
+      "nativeDuration": 4.19,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-56-0",
+          "rawHash": "dbcaf97cbfb9fb67e86ad7205bfa64565952b8ca9e13012e14f3c3c7d16cddfd",
+          "seed": 42,
+          "nativeDuration": 4.19
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-57",
+      "nativeDuration": 4.49,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-57-0",
+          "rawHash": "2cb6e6af1859786e70c6c7bb87d818760ef89e4875ed2c1d4c0a4002eb004d21",
+          "seed": 42,
+          "nativeDuration": 4.49
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-58",
+      "nativeDuration": 4.27,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-58-0",
+          "rawHash": "ff6ec1d49b2523b28ae726b00099eeaae7f21600ee8f9128ffb805ec79813851",
+          "seed": 42,
+          "nativeDuration": 4.27
+        }
+      ]
+    },
+    {
+      "eventId": "writing-88",
+      "nativeDuration": 10.2,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "writing-88-0",
+          "rawHash": "75673051be9f2b4bc131b9fc78d24211ba1aa66a80b37f641c232a522eabb6b8",
+          "seed": 42,
+          "nativeDuration": 4.71
+        },
+        {
+          "id": "writing-88-1",
+          "rawHash": "5c297c9810aa1db1bd46ff3e82b2f3bee1272685fc21235631925e5b8f5095f5",
+          "seed": 42,
+          "nativeDuration": 5.49
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-59",
+      "nativeDuration": 3.83,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-59-0",
+          "rawHash": "07783f0932235c309ddee76f92674acfdcc8eab41b5c03dabcd975b99bc78229",
+          "seed": 42,
+          "nativeDuration": 3.83
+        }
+      ]
+    },
+    {
+      "eventId": "writing-89",
+      "nativeDuration": 4.93,
+      "tempo": 1.067099567099567,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-89-0",
+          "rawHash": "acce42824308b3505d53cd19a9c4ab4ca5e4467a92d42e54c52aabc58143b845",
+          "seed": 42,
+          "nativeDuration": 4.93
+        }
+      ]
+    },
+    {
+      "eventId": "writing-90",
+      "nativeDuration": 4.37,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-90-0",
+          "rawHash": "a817f6deae7649422cf23d44d6067563711768ea3bc577654e4b080d9af024ec",
+          "seed": 42,
+          "nativeDuration": 4.37
+        }
+      ]
+    },
+    {
+      "eventId": "writing-91",
+      "nativeDuration": 5.57,
+      "tempo": 1.2056277056277056,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-91-0",
+          "rawHash": "b5cb5d8cd7340fc852df2153d41a17b2278e71a57f383d57e0b0800978926eac",
+          "seed": 43,
+          "nativeDuration": 5.57
+        }
+      ]
+    },
+    {
+      "eventId": "writing-92",
+      "nativeDuration": 3.37,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-92-0",
+          "rawHash": "bb107fa8136c0dbaa0ddbf7b95b845c90d0ec3f3025af92afda6dc088ee5cfd9",
+          "seed": 42,
+          "nativeDuration": 3.37
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-60",
+      "nativeDuration": 5.8,
+      "tempo": 1.183673469387755,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-60-0",
+          "rawHash": "730d3df4c750634ea3c3f4cddd62e08d84d6ac0dd8d7e6f78bd7a18be3f82954",
+          "seed": 45,
+          "nativeDuration": 3.09
+        },
+        {
+          "id": "meeting-60-1",
+          "rawHash": "45b6faa94db4e5e4f942f9f4fb4fd93d88c31e727442320c5604a957286561ea",
+          "seed": 42,
+          "nativeDuration": 2.71
+        }
+      ]
+    },
+    {
+      "eventId": "writing-93",
+      "nativeDuration": 4.49,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-93-0",
+          "rawHash": "a4ae9fc947f68d810ef8dc5301fccf11d4860336fd24ac0b9f0454061a2b2fa6",
+          "seed": 42,
+          "nativeDuration": 4.49
+        }
+      ]
+    },
+    {
+      "eventId": "writing-94",
+      "nativeDuration": 4.67,
+      "tempo": 1.0108225108225108,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-94-0",
+          "rawHash": "e018307d512404772734583aeb21216e19bd0473ee8536ea284dd1982e11a2ac",
+          "seed": 42,
+          "nativeDuration": 4.67
+        }
+      ]
+    },
+    {
+      "eventId": "writing-95",
+      "nativeDuration": 4.15,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-95-0",
+          "rawHash": "672ad4044daa478f99dccdfde9cbab6bfee5e19714984a77269187fb67ae466e",
+          "seed": 42,
+          "nativeDuration": 4.15
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-61",
+      "nativeDuration": 4.63,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-61-0",
+          "rawHash": "7dba5f6244788347718fc4a4f6cdf3e81df6fe0715806d429a4a9f0ad0aeeb2a",
+          "seed": 42,
+          "nativeDuration": 4.63
+        }
+      ]
+    },
+    {
+      "eventId": "e-43",
+      "nativeDuration": 6.46,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-43-0",
+          "rawHash": "bd47fe9860319118f3fed2fe6e012c17a272b8e32c606f9f79917e4a175fc020",
+          "seed": 42,
+          "nativeDuration": 4.37
+        },
+        {
+          "id": "e-43-1",
+          "rawHash": "0de31b3b236559ea9709ebdf8e54735f5055dc177fee374eb49e789bd5d5c00a",
+          "seed": 42,
+          "nativeDuration": 2.09
+        }
+      ]
+    },
+    {
+      "eventId": "e-44",
+      "nativeDuration": 6.04,
+      "tempo": 1,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-44-0",
+          "rawHash": "de2803a4ffd2b2e4061670116ef6de8880036ac9c3b63d0cf62b68ad454506ab",
+          "seed": 42,
+          "nativeDuration": 2.37
+        },
+        {
+          "id": "e-44-1",
+          "rawHash": "95eb773e622983e7e399c7e712fbec5a4896c4d030f5379b6bb69a183d48b61c",
+          "seed": 42,
+          "nativeDuration": 3.67
+        }
+      ]
+    },
+    {
+      "eventId": "writing-96",
+      "nativeDuration": 4.31,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-96-0",
+          "rawHash": "b36722361b953e0611726150f0caf020971c6d66b52bbaac55399a93182d3844",
+          "seed": 42,
+          "nativeDuration": 4.31
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-62",
+      "nativeDuration": 4.31,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-62-0",
+          "rawHash": "d8a6eba75a846b2a13b8516b0786a198528396e6ee192997c3b6d942e821290a",
+          "seed": 42,
+          "nativeDuration": 4.31
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-63",
+      "nativeDuration": 4.93,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-63-0",
+          "rawHash": "e90961d387c4946d17ea0fdf79e6e98df54f7065d0356f5acb02c9462b73516f",
+          "seed": 42,
+          "nativeDuration": 4.93
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-64",
+      "nativeDuration": 4.01,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-64-0",
+          "rawHash": "be04f78f4b06fd66677b05b6349dfc12dfcc8253824b2fb88ee6b6077023939e",
+          "seed": 42,
+          "nativeDuration": 4.01
+        }
+      ]
+    },
+    {
+      "eventId": "e-42",
+      "nativeDuration": 7.640000000000001,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-42-0",
+          "rawHash": "93f9271decc4f81332cb766c2627d7f5bacf805ab857b0c8f284a35fae75c0a3",
+          "seed": 42,
+          "nativeDuration": 5.15
+        },
+        {
+          "id": "e-42-1",
+          "rawHash": "81eade48fca494605dd6b6f6a8cef05cf110a06721abb0dcabf0a7074fb37d6d",
+          "seed": 42,
+          "nativeDuration": 2.49
+        }
+      ]
+    },
+    {
+      "eventId": "e-45",
+      "nativeDuration": 7.84,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-45-0",
+          "rawHash": "8ddc128b49d971969e75a7283ca8bda45a3e5f23a5ca6cf8466fbe7274df1804",
+          "seed": 42,
+          "nativeDuration": 4.83
+        },
+        {
+          "id": "e-45-1",
+          "rawHash": "ca33a25c293f9a22ab0a81aa3c244240297904b4ed4db1717d73580fa07beb4d",
+          "seed": 42,
+          "nativeDuration": 3.01
+        }
+      ]
+    },
+    {
+      "eventId": "e-46",
+      "nativeDuration": 6.76,
+      "tempo": 1.008955223880597,
+      "outputSamples": 308700,
+      "clips": [
+        {
+          "id": "e-46-0",
+          "rawHash": "f930661b6019b47d706cc80c7492fc021eac0fa8360e82782037d70dcf66d04b",
+          "seed": 42,
+          "nativeDuration": 3.57
+        },
+        {
+          "id": "e-46-1",
+          "rawHash": "23b99356a6a20d9d8035d42f208dea8971a86b0083b658c9bf6e841a24da2a9c",
+          "seed": 42,
+          "nativeDuration": 3.19
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-65",
+      "nativeDuration": 4.79,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-65-0",
+          "rawHash": "84b9701b0ab4bff2d35cdee172325142f60863eea13ba20154838d9ed6f549e6",
+          "seed": 42,
+          "nativeDuration": 4.79
+        }
+      ]
+    },
+    {
+      "eventId": "land-78",
+      "nativeDuration": 7.58,
+      "tempo": 1.2031746031746031,
+      "outputSamples": 291060,
+      "clips": [
+        {
+          "id": "land-78-0",
+          "rawHash": "d030752b8bb1bd77da69bb8e1c5ea6a174a09071a4b7c9f3e589a954034e44ec",
+          "seed": 43,
+          "nativeDuration": 4.53
+        },
+        {
+          "id": "land-78-1",
+          "rawHash": "5dc2461b6608e12c4da6da82eef8646661b66770a337e8c6708be96d4d20f503",
+          "seed": 44,
+          "nativeDuration": 3.05
+        }
+      ]
+    },
+    {
+      "eventId": "land-79",
+      "nativeDuration": 8.719999999999999,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "land-79-0",
+          "rawHash": "2f5471a101f0a061fa2b1001c63c2e7e402e2a2ddd491c943936fd54b33213cd",
+          "seed": 42,
+          "nativeDuration": 4.71
+        },
+        {
+          "id": "land-79-1",
+          "rawHash": "c3d7d7ec9913ec71b1e43aae383499cbcbd3a49d8ce430ce01bb97bb294d7b2a",
+          "seed": 42,
+          "nativeDuration": 4.01
+        }
+      ]
+    },
+    {
+      "eventId": "writing-97",
+      "nativeDuration": 4.57,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-97-0",
+          "rawHash": "962e80f7c26278b456c8edb1dc40f7bd46698ea997b94ed2fe008ea9c3a5f7d1",
+          "seed": 42,
+          "nativeDuration": 4.57
+        }
+      ]
+    },
+    {
+      "eventId": "writing-98",
+      "nativeDuration": 4.09,
+      "tempo": 1,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-98-0",
+          "rawHash": "4446d03aed1c7b129c1376f023518f90bc041217a78891e4e1731aadde992e92",
+          "seed": 42,
+          "nativeDuration": 4.09
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-66",
+      "nativeDuration": 4.19,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-66-0",
+          "rawHash": "c5d4c9896ddc44d186da22915c36a2644dad1b82464323a8155044524395fb1e",
+          "seed": 42,
+          "nativeDuration": 4.19
+        }
+      ]
+    },
+    {
+      "eventId": "writing-99",
+      "nativeDuration": 5.79,
+      "tempo": 1.2532467532467533,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-99-0",
+          "rawHash": "42e0bcf6362374850d069d11fff5e1c93b010ebec044dead085ae345d5436b37",
+          "seed": 42,
+          "nativeDuration": 5.79
+        }
+      ]
+    },
+    {
+      "eventId": "writing-100",
+      "nativeDuration": 5.09,
+      "tempo": 1.1017316017316017,
+      "outputSamples": 211680,
+      "clips": [
+        {
+          "id": "writing-100-0",
+          "rawHash": "2ebbf54d8656b6930448b6e8bcb388ef35c43da4abf5995a08db3adff7f16328",
+          "seed": 42,
+          "nativeDuration": 5.09
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-67",
+      "nativeDuration": 3.53,
+      "tempo": 1,
+      "outputSamples": 229320,
+      "clips": [
+        {
+          "id": "meeting-67-0",
+          "rawHash": "19697cc35fbba7f05e83f58df15df2e7daabab7316be843bf762d3d5ca8f5042",
+          "seed": 42,
+          "nativeDuration": 3.53
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-68",
+      "nativeDuration": 8.64,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "meeting-68-0",
+          "rawHash": "7906abec198079c2644186f84cb054b370fcf3bb319cc3485680367a859ddcae",
+          "seed": 42,
+          "nativeDuration": 5.45
+        },
+        {
+          "id": "meeting-68-1",
+          "rawHash": "9328779fdf38de5f93e297c7d2c24719680bf358e501b2a7c7a99d5260213146",
+          "seed": 42,
+          "nativeDuration": 3.19
+        }
+      ]
+    },
+    {
+      "eventId": "meeting-69",
+      "nativeDuration": 7.58,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "meeting-69-0",
+          "rawHash": "b8533a91858804bd46ee86ed0da4223a76aafa705b5d49d70b5656331bae23df",
+          "seed": 42,
+          "nativeDuration": 5.01
+        },
+        {
+          "id": "meeting-69-1",
+          "rawHash": "85180be6d72137cd7259d70b41d3722486dd4a0e10ff9418ab24e37fad68920b",
+          "seed": 42,
+          "nativeDuration": 2.57
+        }
+      ]
+    },
+    {
+      "eventId": "e-47",
+      "nativeDuration": 7.2,
+      "tempo": 1,
+      "outputSamples": 463050,
+      "clips": [
+        {
+          "id": "e-47-0",
+          "rawHash": "d8d596e2090567ab2e3397571544e5261471ca205caedc2936a4785cc714bf93",
+          "seed": 42,
+          "nativeDuration": 3.79
+        },
+        {
+          "id": "e-47-1",
+          "rawHash": "b881b3aa87e8337939398ed8356c82f3288280ae7df8152faf1989677391237b",
+          "seed": 42,
+          "nativeDuration": 3.41
+        }
+      ]
+    }
+  ],
+  "voiceProfileId": "approved-audition-v2proplus",
+  "voiceProfileHash": "bb7a26a6ba78cca17d9eaad087e03fb3b0e78184fd6b447074d40019b2351688"
+}
