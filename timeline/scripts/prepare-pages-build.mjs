@@ -8,6 +8,10 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const input = path.join(root, 'dist/client');
 const output = path.join(root, 'dist/pages');
 const mediaOrigin = (process.env.SHIXU_MEDIA_ORIGIN || 'https://media.example.com/shixu').replace(/\/+$/, '');
+const mediaLayout = (process.env.SHIXU_MEDIA_LAYOUT || 'hashed').toLowerCase();
+if (mediaLayout !== 'hashed' && mediaLayout !== 'flat') {
+  throw new Error(`Unsupported SHIXU_MEDIA_LAYOUT: ${mediaLayout} (expected "hashed" or "flat")`);
+}
 const narration = JSON.parse(await readFile(path.join(input, 'audio/timeline-zh.json'), 'utf8'));
 const prcManifestPath = path.join(input, 'audio/timeline-prc-zh.json');
 const prcNarration = existsSync(prcManifestPath) ? JSON.parse(await readFile(prcManifestPath, 'utf8')) : null;
@@ -41,9 +45,12 @@ for (const name of audioMetaFiles) {
   await cp(path.join(input, 'audio', name), path.join(output, 'audio', name));
 }
 
-// Nginx or object storage serves immutable audio with native Range support; Pages only redirects.
+// Nginx, object storage, or CDN serves immutable audio with native Range support; Pages only redirects.
 const redirects = await Promise.all(
   audioFiles.map(async (name) => {
+    if (mediaLayout === 'flat') {
+      return `/audio/${name} ${mediaOrigin}/${name} 302`;
+    }
     const hash = createHash('sha256')
       .update(await readFile(path.join(input, 'audio', name)))
       .digest('hex');
@@ -51,6 +58,18 @@ const redirects = await Promise.all(
   }),
 );
 await writeFile(path.join(output, '_redirects'), `${redirects.join('\n')}\n`);
+
+await writeFile(
+  path.join(output, '_headers'),
+  [
+    '/assets/*',
+    '  Cache-Control: public, max-age=31536000, immutable',
+    '',
+    '/audio/timeline-*.vtt',
+    '  Cache-Control: public, max-age=31536000, immutable',
+    '',
+  ].join('\n'),
+);
 
 // Keep missing PDF requests as real 404s instead of Pages' default SPA fallback.
 await writeFile(

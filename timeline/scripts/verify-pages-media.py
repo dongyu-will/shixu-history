@@ -9,13 +9,18 @@ import urllib.request
 from pathlib import Path
 
 
-def verify(base, files, direct=False, media_host=None):
+def verify(base, files, direct=False, media_host=None, flat=False):
     manifest = json.loads((files / 'audio/timeline-zh.json').read_text())
+    prc_manifest_path = files / 'audio/timeline-prc-zh.json'
+    prc_manifest = json.loads(prc_manifest_path.read_text()) if prc_manifest_path.exists() else None
     expected_host = media_host or os.environ.get('SHIXU_MEDIA_HOST') or (
         urllib.parse.urlsplit(base).hostname if direct else 'media.example.com'
     )
+    audio_names = ['road-90.m4a', Path(manifest['audio']).name]
+    if prc_manifest:
+        audio_names.append(Path(prc_manifest['audio']).name)
     results = []
-    for name in ['road-90.m4a', Path(manifest['audio']).name]:
+    for name in audio_names:
         expected = (files / 'audio' / name).read_bytes()
         digest = hashlib.sha256(expected).hexdigest()
         path = f'media/{digest}/{name}' if direct else f'audio/{name}?delivery=static-v2'
@@ -32,7 +37,8 @@ def verify(base, files, direct=False, media_host=None):
             assert response.headers.get('Accept-Ranges') == 'bytes', (name, 'Accept-Ranges')
             assert response.headers['Content-Type'].startswith('audio/'), (name, 'Content-Type')
             final = urllib.parse.urlsplit(response.url)
-            assert final.hostname == expected_host and final.path.endswith(f'/{digest}/{name}'), (name, 'static destination')
+            expected_suffix = f'/{name}' if flat else f'/{digest}/{name}'
+            assert final.hostname == expected_host and final.path.endswith(expected_suffix), (name, 'static destination', final.hostname, final.path)
             etag = response.headers.get('ETag')
 
         ranges = [(0, 1), (len(expected) // 2, len(expected) // 2 + 1023), (len(expected) - 1024, len(expected) - 1)]
@@ -66,5 +72,6 @@ if __name__ == '__main__':
     parser.add_argument('--files', type=Path, default=Path(__file__).resolve().parents[1] / 'dist/client')
     parser.add_argument('--direct', action='store_true', help='Verify the static media host before switching Pages')
     parser.add_argument('--media-host', default=None, help='Expected final hostname for redirected media (default: SHIXU_MEDIA_HOST or media.example.com)')
+    parser.add_argument('--flat', action='store_true', help='Expect flat destination path (<origin>/<file>) instead of hashed (<origin>/<sha256>/<file>)')
     args = parser.parse_args()
-    verify(args.base, args.files, args.direct, args.media_host)
+    verify(args.base, args.files, args.direct, args.media_host, args.flat)

@@ -40,22 +40,30 @@ python3 /srv/shixu/incoming/<RELEASE_ID>/deploy/install.py \
 
 ---
 
-## 二、Cloudflare Pages + 外部媒体源（可选）
+## 二、Cloudflare Pages + 外部媒体源（推荐用于 Cloudflare Pages）
 
-如果希望将页面部署到 Cloudflare Pages，同时将音频放在独立对象存储（如 Cloudflare R2）或自有 Nginx 上以确保原生 HTTP `Range` 拖拽支持，可使用 `build:pages`：
+Cloudflare Pages 静态文件层默认忽略 `Range` 请求头（返回 `200` 而非 `206`），会导致 Safari / 移动端无法正常播放或拖拽音频。使用 `build:pages` 可将页面、字幕与数据留在 Pages，并通过 `_redirects` 将 3 条 `.m4a` 音轨 302 分流至支持原生 `Range 206` 的静态源（零 Worker CPU 开销）：
 
-```sh
-cd timeline
-SHIXU_MEDIA_ORIGIN=https://media.example.com/shixu npm run build:pages
-```
+- **Cloudflare R2 / 自有 Nginx（哈希路径，默认 `SHIXU_MEDIA_LAYOUT=hashed`）**：
+  ```sh
+  cd timeline
+  SHIXU_MEDIA_ORIGIN=https://media.example.com/shixu npm run build:pages
+  ```
+- **开源仓库 jsDelivr CDN（扁平路径，`SHIXU_MEDIA_LAYOUT=flat`，零绑卡）**：
+  ```sh
+  cd timeline
+  SHIXU_MEDIA_ORIGIN="https://cdn.jsdelivr.net/gh/dongyu-will/shixu-history@<commit>/timeline/public/audio" \
+  SHIXU_MEDIA_LAYOUT=flat \
+  npm run build:pages
+  ```
 
 `scripts/prepare-pages-build.mjs` 会输出 `dist/pages`：
 - 仅包含运行时所需的 HTML/JS/CSS、JSON 数据、音频清单与 WebVTT 字幕；
-- 为活跃音轨生成 `_redirects` 302 规则，指向 `${SHIXU_MEDIA_ORIGIN}/<SHA256>/<文件名>`；
-- 自动生成 `404.html`，防止缺失资源落入默认 SPA 回退。
+- 为活跃音轨生成 `_redirects` 302 规则（`hashed` 模式指向 `${SHIXU_MEDIA_ORIGIN}/<SHA256>/<文件名>`，`flat` 模式指向 `${SHIXU_MEDIA_ORIGIN}/<文件名>`）；
+- 自动生成 `_headers`（静态资源与字幕长效缓存）和 `404.html`（防止缺失资源落入默认 SPA 回退）。
 
-部署后可使用 `verify-pages-media.py` 验证完整哈希、`HEAD` 长度、`Range`（`206` / `416`）与 `If-Range` 行为：
+部署后可使用 `verify-pages-media.py` 验证全部 3 条音轨的完整哈希、`HEAD` 长度、`Range`（`206` / `416`）与 `If-Range` 行为：
 
 ```sh
-python3 scripts/verify-pages-media.py https://your-site.pages.dev/ --media-host media.example.com
+python3 scripts/verify-pages-media.py https://shixu-history.pages.dev/ --media-host cdn.jsdelivr.net --flat
 ```

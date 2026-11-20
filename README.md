@@ -74,7 +74,7 @@ VITE_REPO_URL=https://github.com/<your-username>/shixu-history npm run build
 | **Vercel**（推荐） | 100 GB/月带宽 | 原生支持 | 已内置根目录 [`vercel.json`](vercel.json)，导入仓库后**无需修改任何字段**直接 Deploy |
 | **GitHub Pages**（推荐） | 100 GB/月带宽 | 原生支持 | 已内置 [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml)，开启 Pages（Source: GitHub Actions）自动部署 |
 | **Netlify**（推荐） | 100 GB/月带宽 | 原生支持 | Base: `timeline` · Build: `npm run build` · Publish: `timeline/dist/client` |
-| **Cloudflare Pages** | 无限带宽（单文件 ≤ 25 MiB） | 需实测验证（见下方说明） | Root: `timeline` · Build: `npm run build` · Output: `dist/client` |
+| **Cloudflare Pages** | 无限带宽 | 通过 `_redirects` 302 分流至 jsDelivr / R2，原生支持 `206` | `SHIXU_MEDIA_ORIGIN=... SHIXU_MEDIA_LAYOUT=flat npm run build:pages` → `dist/pages` |
 
 ### Vercel 零配置一键部署
 
@@ -86,9 +86,21 @@ VITE_REPO_URL=https://github.com/<your-username>/shixu-history npm run build
 
 仓库已内置 [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml)，并针对子路径部署做好相对资源解析（`vite.config.mjs` 的 `base: './'` 与 `src/site-path.js`）。在仓库设置中启用 **Settings → Pages → Build and deployment → Source: GitHub Actions** 后，每次推送 `main` 分支即可自动发布到 `https://dongyu-will.github.io/shixu-history/`。
 
-### Cloudflare Pages 注意事项
+### Cloudflare Pages 部署说明（音频 `Range 206` 分流）
 
-Cloudflare Pages 免费层单文件上限 25 MiB、不限流量，可直接托管完整的 `dist/client`。但历史上部分边缘节点对静态 `.m4a` 响应可能忽略 `Range` 请求头，导致音轨拖拽回跳。部署后建议检查音频 URL 是否返回 `Accept-Ranges: bytes` 与 `206 Partial Content`；若遇到跳转回弹，可将音频放入免费 **Cloudflare R2** 存储桶（10 GB 免费、零出口流量费、原生支持 Range），并通过 `SHIXU_MEDIA_ORIGIN` 环境变量配合 `npm run build:pages` 生成重定向规则。
+Cloudflare Pages 免费层不限流量，但其静态文件层对 HTTP `Range` 请求默认返回 `200 OK` 而非 `206 Partial Content`，会导致 iOS Safari 音频无法播放或拖拽回弹。因此推荐使用 `npm run build:pages` 构建 `dist/pages`（仅约 `1.9 MB`），由 Pages 生成 `_redirects` 将 3 条 `.m4a` 音轨 302 分流至支持原生 `Range 206` 的媒体源（零 Worker CPU 占用）：
+
+- **方式 A（零绑卡，使用开源 jsDelivr CDN）**：将 `SHIXU_MEDIA_ORIGIN` 指向固定 commit 的仓库音频目录并启用 `SHIXU_MEDIA_LAYOUT=flat`：
+  ```sh
+  cd timeline
+  SHIXU_MEDIA_ORIGIN="https://cdn.jsdelivr.net/gh/dongyu-will/shixu-history@<commit>/timeline/public/audio" \
+  SHIXU_MEDIA_LAYOUT=flat \
+  npm run build:pages
+  npx wrangler pages deploy dist/pages --project-name=shixu-history --branch=main
+  ```
+- **方式 B（大流量推荐，搭配免费 Cloudflare R2）**：将音频按 `<sha256>/<文件名>` 上传至 R2（10 GB 免费存储 + 零出口流量费），使用默认的 `SHIXU_MEDIA_LAYOUT=hashed` 配合 `SHIXU_MEDIA_ORIGIN=https://<your-r2-domain>` 构建即可无缝切换。
+
+上线后可用 `python3 timeline/scripts/verify-pages-media.py <site-url> --media-host <host> [--flat]` 一键验证全部 3 条音轨的 `HEAD`、`Range 206`、`416` 与完整 SHA-256 校验。
 
 ---
 
