@@ -74,6 +74,7 @@ export const MapScene = memo(function MapScene({
   reduceMotion,
 }) {
   const cameraRef = useRef(null);
+  const uiGlideRef = useRef(null);
   const previousTransform = useRef(null);
   const lastAuthoredSceneRef = useRef(null);
   const playingRef = useRef(playing);
@@ -179,12 +180,15 @@ export const MapScene = memo(function MapScene({
       lastAuthoredSceneRef.current = scene.id;
       const rest = `translate(${930 * (1 - zoom)}px,${340 * (1 - zoom)}px) scale(${zoom})`;
       const elapsed = Math.max(0, (clock?.current?.time ?? sceneStart) - sceneStart);
+      const prev = previousTransform.current;
 
+      uiGlideRef.current?.cancel();
+      uiGlideRef.current = null;
       animationRef.current?.cancel();
       animationRef.current = null;
 
       // Smooth 0.75s documentary arrival settle glide on scene change while playing,
-      // then hold rock-steady for the rest of the scene. Paused or reduced-motion snaps cleanly.
+      // or an interruptible 0.36s camera glide when zooming/toggling while paused.
       if (isNewScene && playingRef.current && !reduce && elapsed < 0.72 && typeof element.animate === 'function') {
         const startScale = zoom * 0.965;
         const from = `translate(${(930 * (1 - startScale)).toFixed(2)}px,${(340 * (1 - startScale) + 10).toFixed(2)}px) scale(${startScale.toFixed(4)})`;
@@ -211,6 +215,21 @@ export const MapScene = memo(function MapScene({
         };
       }
 
+      if (!playingRef.current && !reduce && prev && prev !== 'none' && prev !== rest && typeof element.animate === 'function') {
+        const glide = element.animate(
+          [{ transform: prev }, { transform: rest }],
+          { duration: 360, easing: ARRIVAL_EASE, fill: 'forwards' },
+        );
+        uiGlideRef.current = glide;
+        element.style.transform = rest;
+        return () => {
+          previousTransform.current = getComputedStyle(element).transform;
+          glide.cancel();
+          if (uiGlideRef.current === glide) uiGlideRef.current = null;
+          element.style.transform = '';
+        };
+      }
+
       element.style.transform = rest;
       return () => {
         previousTransform.current = getComputedStyle(element).transform;
@@ -224,13 +243,17 @@ export const MapScene = memo(function MapScene({
     const targetX = scene.coordinates && !overview ? 930 : 810;
     const targetY = scene.coordinates && !overview ? 353 : 365;
     const transform = (s) => `translate(${targetX - p[0] * s}px, ${targetY - p[1] * s}px) scale(${s})`;
-    const from = playingRef.current && !reduce ? previousTransform.current || getComputedStyle(element).transform : transform(scale);
+    const restTransform = transform(scale);
+    const liveFrom = previousTransform.current || getComputedStyle(element).transform;
+    const from = playingRef.current && !reduce ? liveFrom : restTransform;
+    uiGlideRef.current?.cancel();
+    uiGlideRef.current = null;
     animationRef.current?.cancel();
     const a = element.animate(
       [
         { transform: from, offset: 0, easing: EASE },
-        { transform: transform(scale), offset: 0.16 },
-        { transform: transform(scale), offset: 1 },
+        { transform: restTransform, offset: 0.16 },
+        { transform: restTransform, offset: 1 },
       ],
       { duration: scene.duration * 1000, fill: 'forwards', easing: 'linear' },
     );
@@ -239,8 +262,27 @@ export const MapScene = memo(function MapScene({
     if (playingRef.current) a.play();
     else a.pause();
     animationRef.current = a;
+
+    let glide = null;
+    if (
+      !playingRef.current &&
+      !reduce &&
+      liveFrom &&
+      liveFrom !== 'none' &&
+      liveFrom !== restTransform &&
+      typeof element.animate === 'function'
+    ) {
+      glide = element.animate(
+        [{ transform: liveFrom }, { transform: restTransform }],
+        { duration: 360, easing: ARRIVAL_EASE, fill: 'forwards' },
+      );
+      uiGlideRef.current = glide;
+    }
+
     return () => {
       previousTransform.current = getComputedStyle(element).transform;
+      glide?.cancel();
+      if (uiGlideRef.current === glide) uiGlideRef.current = null;
       a.cancel();
     };
   }, [scene.id, scene.duration, scene.coordinates, sceneStart, geography, overview, zoom, reduce, authored, projection, clock, animationRef]);
@@ -248,6 +290,10 @@ export const MapScene = memo(function MapScene({
   useEffect(() => {
     const a = animationRef.current;
     if (!a) return;
+    if (playing) {
+      uiGlideRef.current?.cancel();
+      uiGlideRef.current = null;
+    }
     a.currentTime = Math.max(0, clock.current.time - sceneStart) * 1000;
     a.playbackRate = rate;
     if (playing) a.play();

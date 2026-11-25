@@ -48,6 +48,7 @@ import { KineticCopy } from './KineticCopy.jsx';
 import { MapScene } from './MapScene.jsx';
 import { PILOT_STAGE_LIST, StageCinema, getPilotStage } from './StageCinema.jsx';
 import { YearRoll } from './YearRoll.jsx';
+import { cancelTopLayerClose, closeTopLayer, supportsTopLayerExit } from './top-layer.js';
 import {
   cueForBeat,
   playCue,
@@ -1140,15 +1141,29 @@ function HistoryExperience({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    if (panel && !dialog.open) dialog.showModal();
-    else if (!panel && dialog.open) dialog.close();
+    if (panel) {
+      cancelTopLayerClose(dialog);
+      if (!dialog.open) dialog.showModal();
+    } else if (dialog.open) {
+      closeTopLayer(dialog);
+    }
   }, [panel]);
 
-  // Fallback for browsers without <dialog closedby="any"> support (e.g. Safari):
-  // require both pointerdown and pointerup outside the dialog bounding box.
+  // Animate native Esc / backdrop cancel on browsers lacking top-layer exit support,
+  // and provide Safari outside pointerdown+pointerup light dismiss.
   useEffect(() => {
     const dialog = dialogRef.current;
-    if (!dialog || 'closedBy' in HTMLDialogElement.prototype) return;
+    if (!dialog) return undefined;
+    const onCancel = (e) => {
+      if (!supportsTopLayerExit()) {
+        e.preventDefault();
+        closeTopLayer(dialog, () => closePanel(true));
+      }
+    };
+    dialog.addEventListener('cancel', onCancel);
+    if ('closedBy' in HTMLDialogElement.prototype) {
+      return () => dialog.removeEventListener('cancel', onCancel);
+    }
     const isOutside = (e) => {
       const rect = dialog.getBoundingClientRect();
       return (
@@ -1163,16 +1178,19 @@ function HistoryExperience({
       pressedOutside = dialog.open && isOutside(e);
     };
     const onUp = (e) => {
-      if (pressedOutside && dialog.open && isOutside(e)) dialog.close();
+      if (pressedOutside && dialog.open && isOutside(e)) {
+        closeTopLayer(dialog, () => closePanel(true));
+      }
       pressedOutside = false;
     };
     dialog.addEventListener('pointerdown', onDown);
     dialog.addEventListener('pointerup', onUp);
     return () => {
+      dialog.removeEventListener('cancel', onCancel);
       dialog.removeEventListener('pointerdown', onDown);
       dialog.removeEventListener('pointerup', onUp);
     };
-  }, []);
+  }, [closePanel]);
 
   const chapterStarts = data.chapters.map((c, i) => {
     const n = events.findIndex((e) => e.chapter === i);
@@ -1350,7 +1368,9 @@ function HistoryExperience({
             title={theme === 'dark' ? '切换到日间模式' : '切换到夜间模式'}
             onClick={toggleTheme}
           >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            <span key={theme} className="icon-swap">
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </span>
           </button>
         </div>
       </header>
@@ -1500,7 +1520,11 @@ function HistoryExperience({
               详情
             </button>
           </div>
-          {currentBeat && <h2 className="beat-title">{currentBeat.title}</h2>}
+          {currentBeat && (
+            <h2 key={`${scene.id}:${beatIndex}`} className="beat-title">
+              {currentBeat.title}
+            </h2>
+          )}
           <KineticCopy
             text={currentBeat?.text || scene.summary}
             beatKey={`${scene.id}:${beatIndex}`}
@@ -1584,7 +1608,7 @@ function HistoryExperience({
 
         {narration.captionsVisible && activeCaption && (hasStartedPlayback || playing || clock.current.time > 0.2) && (
           <div className="narration-subtitles" aria-label="配音字幕">
-            <p>{activeCaption.text}</p>
+            <p key={activeCaption.text}>{activeCaption.text}</p>
           </div>
         )}
       </section>
@@ -1687,7 +1711,9 @@ function HistoryExperience({
               title="播放 / 暂停（空格）"
               onClick={toggle}
             >
-              {playing ? <Pause size={18} weight="fill" /> : <Play size={18} weight="fill" />}
+              <span key={playing ? 'pause' : 'play'} className="icon-swap">
+                {playing ? <Pause size={18} weight="fill" /> : <Play size={18} weight="fill" />}
+              </span>
             </button>
             <button
               type="button"
@@ -1759,7 +1785,9 @@ function HistoryExperience({
                 setRate((r) => RATE_OPTIONS[(RATE_OPTIONS.indexOf(r) + 1) % RATE_OPTIONS.length])
               }
             >
-              <span>{rate}×</span>
+              <span key={rate} className="icon-swap">
+                {rate}×
+              </span>
             </button>
             <button
               type="button"
@@ -1942,7 +1970,9 @@ function HistoryExperience({
         ref={dialogRef}
         closedby="any"
         className={`reading-dialog ${panel === 'directory' ? 'directory-dialog' : ''} ${isWideDialog ? 'wide-dialog' : ''}`}
-        onClose={() => closePanel(true)}
+        onClose={() => {
+          if (!dialogRef.current?.open) closePanel(true);
+        }}
         aria-labelledby="dialog-title"
       >
         <div className="dialog-content">

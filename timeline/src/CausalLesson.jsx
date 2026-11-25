@@ -40,6 +40,7 @@ import {
 import { sitePath } from './site-path.js';
 import { AUTHORED_STORIES, playbackTime } from './stories.js';
 import { useTheme } from './theme.js';
+import { cancelTopLayerClose, closeTopLayer, supportsTopLayerExit } from './top-layer.js';
 import './lesson.css';
 
 const stamp = (t) =>
@@ -330,9 +331,28 @@ export function CausalLesson({ data, geography }) {
   }, [toggle, navigate, practice, gate, reading]);
 
   useEffect(() => {
-    if (reading && !dialog.current.open) dialog.current.showModal();
-    if (!reading && dialog.current.open) dialog.current.close();
+    const el = dialog.current;
+    if (!el) return;
+    if (reading) {
+      cancelTopLayerClose(el);
+      if (!el.open) el.showModal();
+    } else if (el.open) {
+      closeTopLayer(el);
+    }
   }, [reading]);
+
+  useEffect(() => {
+    const el = dialog.current;
+    if (!el) return undefined;
+    const onCancel = (e) => {
+      if (!supportsTopLayerExit()) {
+        e.preventDefault();
+        closeTopLayer(el, () => setReading(false));
+      }
+    };
+    el.addEventListener('cancel', onCancel);
+    return () => el.removeEventListener('cancel', onCancel);
+  }, []);
 
   const toggleVoice = () => {
     setVoice((v) => {
@@ -460,7 +480,9 @@ export function CausalLesson({ data, geography }) {
             title={theme === 'dark' ? '切换到日间模式' : '切换到夜间模式'}
             onClick={toggleTheme}
           >
-            {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
+            <span key={theme} className="icon-swap">
+              {theme === 'dark' ? <Sun size={19} /> : <Moon size={19} />}
+            </span>
           </button>
         </div>
       </header>
@@ -526,7 +548,7 @@ export function CausalLesson({ data, geography }) {
         {!gate && !practice && captions && (
           <div className="lesson-subtitles" aria-label="配音字幕">
             <span>{frame.index === 2 ? '1927 → 1929 · 时间跨越' : '道路与建军'}</span>
-            <p>{NARRATION[frame.cue][2]}</p>
+            <p key={NARRATION[frame.cue][2]}>{NARRATION[frame.cue][2]}</p>
           </div>
         )}
 
@@ -777,7 +799,9 @@ export function CausalLesson({ data, geography }) {
               aria-label={playing ? '暂停播放' : '开始播放'}
               onClick={toggle}
             >
-              {playing ? <Pause size={21} weight="fill" /> : <Play size={21} weight="fill" />}
+              <span key={playing ? 'pause' : 'play'} className="icon-swap">
+                {playing ? <Pause size={21} weight="fill" /> : <Play size={21} weight="fill" />}
+              </span>
             </button>
           </div>
           <div className="playback-time">
@@ -889,12 +913,16 @@ export function CausalLesson({ data, geography }) {
         closedby="any"
         className="reading-dialog lesson-reading"
         aria-labelledby="lesson-reading-title"
-        onClose={() => setReading(false)}
+        onClose={() => {
+          if (!dialog.current?.open) setReading(false);
+        }}
         onPointerDown={(e) => {
           dialogBackdropPress.current = e.target === dialog.current;
         }}
         onPointerUp={(e) => {
-          if (dialogBackdropPress.current && e.target === dialog.current) setReading(false);
+          if (dialogBackdropPress.current && e.target === dialog.current) {
+            closeTopLayer(dialog.current, () => setReading(false));
+          }
           dialogBackdropPress.current = false;
         }}
       >

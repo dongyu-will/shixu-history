@@ -1,0 +1,620 @@
+/* ========================================================================== */
+/* Unified State-Change Motion System — Crisp, Interruptible, Compositor-First */
+/* ========================================================================== */
+
+/* -------------------------------------------------------------------------- */
+/* 1. Interactive Press, Hover, Focus & Micro State Swaps                     */
+/* -------------------------------------------------------------------------- */
+
+button {
+  transition:
+    color var(--motion-dur-micro) var(--motion-ease-standard),
+    background-color var(--motion-dur-micro) var(--motion-ease-standard),
+    border-color var(--motion-dur-micro) var(--motion-ease-standard),
+    box-shadow var(--motion-dur-micro) var(--motion-ease-standard),
+    transform var(--motion-dur-press) var(--motion-ease-standard),
+    opacity var(--motion-dur-micro) var(--motion-ease-standard);
+}
+
+button:active:not(:disabled) {
+  opacity: 1;
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--ui-focus);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button:active:not(:disabled) {
+    transform: scale(0.965);
+  }
+
+  .play-button:active:not(:disabled) {
+    transform: scale(0.93);
+  }
+
+  .question-option:active,
+  .directory-list > button:active:not(:disabled),
+  .related-list > button:active:not(:disabled),
+  .order-slots button:active:not(:disabled),
+  .prefs-row:active:not(:disabled),
+  .compare-card:has(.card-jump-btn:active) {
+    transform: scale(0.985);
+  }
+
+  .icon-swap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    animation: ui-icon-pop var(--motion-dur-micro) var(--motion-ease-tactile) both;
+  }
+
+  .narration-subtitles p,
+  .lesson-subtitles p {
+    animation: ui-subtitle-settle var(--motion-dur-micro) var(--motion-ease-standard) both;
+  }
+
+  .beat-title {
+    animation: ui-subtitle-settle 180ms var(--motion-ease-standard) both;
+  }
+
+  .timeline-track input::-webkit-slider-thumb {
+    transition:
+      transform var(--motion-dur-press) var(--motion-ease-tactile),
+      box-shadow var(--motion-dur-micro) var(--motion-ease-standard);
+  }
+
+  .timeline-track input:hover::-webkit-slider-thumb,
+  .timeline-track input:active::-webkit-slider-thumb {
+    transform: scale(1.35);
+    box-shadow: 0 0 0 6px var(--ui-accent-halo);
+  }
+
+  .timeline-track input::-moz-range-thumb {
+    transition:
+      transform var(--motion-dur-press) var(--motion-ease-tactile),
+      box-shadow var(--motion-dur-micro) var(--motion-ease-standard);
+  }
+
+  .timeline-track input:hover::-moz-range-thumb,
+  .timeline-track input:active::-moz-range-thumb {
+    transform: scale(1.35);
+    box-shadow: 0 0 0 6px var(--ui-accent-halo);
+  }
+}
+
+.timeline-fill {
+  transition: none;
+}
+
+@keyframes ui-icon-pop {
+  from {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ui-subtitle-settle {
+  from {
+    opacity: 0.45;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 2. Top-Layer Dialog Drawer & Popover (Bidirectional + Cross-Browser Exit)  */
+/* -------------------------------------------------------------------------- */
+
+.reading-dialog {
+  opacity: 0;
+  transform: translateX(24px);
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: var(--motion-dur-exit);
+  transition-timing-function: var(--motion-ease-exit);
+  transition-behavior: allow-discrete;
+}
+
+:is(.reading-dialog[open]):where(:not([data-closing])) {
+  animation: none;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition-duration: var(--motion-dur-sheet);
+  transition-timing-function: var(--motion-ease-standard);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
+.reading-dialog::backdrop {
+  background-color: transparent;
+  backdrop-filter: blur(0px);
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: var(--motion-dur-exit);
+  transition-timing-function: var(--motion-ease-exit);
+  transition-behavior: allow-discrete;
+}
+
+:is(.reading-dialog[open]):where(:not([data-closing]))::backdrop {
+  background-color: var(--ui-backdrop);
+  backdrop-filter: blur(3px);
+  transition-duration: var(--motion-dur-ui);
+  transition-timing-function: var(--motion-ease-standard);
+
+  @starting-style {
+    background-color: transparent;
+    backdrop-filter: blur(0px);
+  }
+}
+
+@media (max-width: 760px) {
+  .reading-dialog {
+    transform: translateY(20px);
+  }
+
+  :is(.reading-dialog[open]):where(:not([data-closing])) {
+    transform: translate3d(0, 0, 0);
+
+    @starting-style {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+}
+
+/* Preferences Popover opening seamlessly from bottom-right trigger corner */
+.prefs-popover {
+  opacity: 0;
+  transform-origin: bottom right;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 150ms;
+  transition-timing-function: var(--motion-ease-exit);
+  transition-behavior: allow-discrete;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .prefs-popover {
+    transform: translateY(8px) scale(0.95);
+  }
+}
+
+.prefs-popover:is(:popover-open, .\:popover-open) {
+  opacity: 1;
+  transition-duration: 210ms;
+  transition-timing-function: var(--motion-ease-standard);
+
+  @starting-style {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: translateY(0) scale(1);
+    transition-timing-function: var(--motion-ease-tactile);
+
+    @starting-style {
+      transform: translateY(8px) scale(0.95);
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 3. Floating Surfaces, Toasts & 90s Lesson Cards                            */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .return-context-pill,
+  .playlist-bar,
+  .verdict-banner,
+  .decision-scene,
+  .decision-feedback,
+  .reconstruction-feedback,
+  .review-return {
+    animation: ui-rise-in var(--motion-dur-ui) var(--motion-ease-standard) both;
+  }
+
+  .notice {
+    animation: ui-notice-in var(--motion-dur-ui) var(--motion-ease-standard) both;
+  }
+
+  .verdict-banner.is-wrong {
+    animation:
+      ui-rise-in var(--motion-dur-ui) var(--motion-ease-standard) both,
+      ui-wrong-shake 220ms var(--motion-ease-standard) 40ms;
+  }
+
+  .volume-pill.is-loading,
+  .narration-waiting {
+    animation: ui-soft-pulse 1.4s ease-in-out infinite alternate;
+  }
+
+  .order-slots button:not(:disabled) {
+    animation: ui-slot-pop var(--motion-dur-micro) var(--motion-ease-tactile) both;
+  }
+}
+
+@keyframes ui-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ui-notice-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes ui-wrong-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  65% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes ui-slot-pop {
+  from {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes ui-soft-pulse {
+  from {
+    opacity: 0.62;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 4. Sliding Indicators via CSS Anchor Positioning (with graceful fallback)  */
+/* -------------------------------------------------------------------------- */
+
+.volume-switch,
+.prefs-rate-row,
+.detail-tabs,
+.beat-navigation {
+  position: relative;
+  isolation: isolate;
+}
+
+.volume-pill,
+.prefs-rate-btn {
+  position: relative;
+  z-index: 1;
+}
+
+@supports (position-anchor: --active-vol-pill) {
+  .volume-switch .volume-pill.is-active,
+  .volume-switch .volume-pill.is-active:hover,
+  .volume-switch .volume-pill.is-active:focus,
+  .volume-switch .volume-pill[aria-pressed="true"],
+  .volume-switch .volume-pill[aria-pressed="true"]:hover,
+  .volume-switch .volume-pill[aria-pressed="true"]:focus {
+    anchor-name: --active-vol-pill;
+    background: transparent;
+  }
+
+  .volume-switch::before {
+    content: "";
+    position: absolute;
+    position-anchor: --active-vol-pill;
+    inset-block-start: anchor(top);
+    inset-block-end: anchor(bottom);
+    inset-inline-start: anchor(self-start);
+    inset-inline-end: anchor(self-end);
+    border-radius: 999px;
+    background: var(--ui-accent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .prefs-rate-row .prefs-rate-btn.is-active,
+  .prefs-rate-row .prefs-rate-btn[aria-pressed="true"] {
+    anchor-name: --active-rate-pill;
+    background: transparent;
+  }
+
+  .prefs-rate-row::before {
+    content: "";
+    position: absolute;
+    position-anchor: --active-rate-pill;
+    inset-block-start: anchor(top);
+    inset-block-end: anchor(bottom);
+    inset-inline-start: anchor(self-start);
+    inset-inline-end: anchor(self-end);
+    border-radius: 5px;
+    background: var(--ui-accent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .detail-tabs:not(.study-tabs) .active {
+    anchor-name: --active-detail-tab;
+    border-bottom-color: transparent;
+  }
+
+  .detail-tabs:not(.study-tabs)::before {
+    content: "";
+    position: absolute;
+    position-anchor: --active-detail-tab;
+    inset-block-start: anchor(bottom);
+    inset-block-end: auto;
+    inset-inline-start: anchor(self-start);
+    inset-inline-end: anchor(self-end);
+    margin-top: -2px;
+    border-block-end: 2px solid var(--ui-accent);
+    pointer-events: none;
+  }
+
+  .study-tabs [role="tab"][aria-selected="true"] {
+    anchor-name: --active-study-tab;
+  }
+
+  .study-tabs [role="tab"][aria-selected="true"]::after {
+    content: none;
+  }
+
+  .study-tabs::before {
+    content: "";
+    position: absolute;
+    position-anchor: --active-study-tab;
+    inset-block-start: anchor(bottom);
+    inset-block-end: auto;
+    inset-inline-start: anchor(self-start);
+    inset-inline-end: anchor(self-end);
+    margin-top: -2.5px;
+    border-block-end: 2.5px solid var(--ui-accent);
+    pointer-events: none;
+  }
+
+  .beat-navigation button[aria-current="step"] {
+    anchor-name: --active-beat-tab;
+  }
+
+  .beat-navigation button[aria-current="step"]::before {
+    content: none;
+  }
+
+  .beat-navigation::before {
+    content: "";
+    position: absolute;
+    position-anchor: --active-beat-tab;
+    inset-block-start: -1px;
+    inset-block-end: auto;
+    inset-inline-start: anchor(self-start);
+    inset-inline-end: calc(anchor(self-end) + 8px);
+    border-block-end: 2px solid var(--ui-accent);
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .volume-switch::before,
+    .prefs-rate-row::before,
+    .detail-tabs:not(.study-tabs)::before,
+    .study-tabs::before,
+    .beat-navigation::before {
+      transition: inset var(--motion-dur-ui) var(--motion-ease-tactile);
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 5. Cloze Reveal, Intrinsic Sizing, Evolution Progress & List Budget        */
+/* -------------------------------------------------------------------------- */
+
+.cloze-blank {
+  transition:
+    background-color var(--motion-dur-micro) var(--motion-ease-standard),
+    border-color var(--motion-dur-micro) var(--motion-ease-standard),
+    transform var(--motion-dur-press) var(--motion-ease-standard);
+}
+
+.cloze-blank span {
+  display: inline-block;
+  transition:
+    opacity var(--motion-dur-micro) var(--motion-ease-standard),
+    transform var(--motion-dur-micro) var(--motion-ease-standard);
+}
+
+.cloze-blank.is-hidden span {
+  visibility: visible;
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.cloze-blank.is-revealed span {
+  visibility: visible;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.evo-progress-fill {
+  width: 100%;
+  transform-origin: left center;
+  transition: transform var(--motion-dur-ui) var(--motion-ease-standard);
+}
+
+.question-dot {
+  transition:
+    transform var(--motion-dur-press) var(--motion-ease-tactile),
+    background-color var(--motion-dur-micro) var(--motion-ease-standard),
+    border-color var(--motion-dur-micro) var(--motion-ease-standard),
+    color var(--motion-dur-micro) var(--motion-ease-standard);
+}
+
+.question-dot.is-current {
+  transform: scale(1.06);
+}
+
+.decision-scene fieldset label,
+.question-option {
+  transition:
+    border-color var(--motion-dur-micro) var(--motion-ease-standard),
+    background-color var(--motion-dur-micro) var(--motion-ease-standard),
+    transform var(--motion-dur-press) var(--motion-ease-standard);
+}
+
+/* Intrinsic <details> expand/collapse where supported */
+@supports (interpolate-size: allow-keywords) {
+  details::details-content {
+    block-size: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition-property: block-size, opacity, content-visibility;
+    transition-duration: 220ms, 180ms, 220ms;
+    transition-timing-function: var(--motion-ease-standard);
+    transition-behavior: allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+}
+
+/* Smooth Grid-row collapse for Q36 skeleton blocks & mobile filter drawers */
+.skeleton-content {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows 220ms var(--motion-ease-standard),
+    opacity 180ms var(--motion-ease-standard);
+}
+
+.skeleton-block.is-masked .skeleton-content {
+  grid-template-rows: 1fr;
+}
+
+.skeleton-content-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 760px) {
+  .collapsible-study-filters {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 220ms var(--motion-ease-standard),
+      opacity 180ms var(--motion-ease-standard);
+  }
+
+  .collapsible-study-filters:not(.is-open) {
+    display: grid;
+    pointer-events: none;
+  }
+
+  .collapsible-study-filters.is-open {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .collapsible-study-filters .collapsible-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+/* Directory long-list performance virtualization */
+.directory-list > button {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 66px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* 6. Reduced Motion Accessibility Safeguards                                 */
+/* -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  .cloze-blank,
+  .cloze-blank span,
+  .evo-progress-fill,
+  .question-dot,
+  .skeleton-content,
+  .collapsible-study-filters {
+    transition-duration: 110ms !important;
+  }
+
+  button:active:not(:disabled),
+  .play-button:active:not(:disabled),
+  .question-dot.is-current {
+    transform: none !important;
+  }
+
+  .cloze-blank.is-hidden span {
+    transform: none;
+  }
+
+  .reading-dialog,
+  :is(.reading-dialog[open]):where(:not([data-closing])),
+  .prefs-popover,
+  .prefs-popover:is(:popover-open, .\:popover-open) {
+    transform: none !important;
+    transition-duration: 110ms !important;
+  }
+
+  .reading-dialog::backdrop,
+  :is(.reading-dialog[open]):where(:not([data-closing]))::backdrop {
+    backdrop-filter: none !important;
+    transition-duration: 110ms !important;
+  }
+
+  .icon-swap,
+  .narration-subtitles p,
+  .lesson-subtitles p,
+  .beat-title,
+  .return-context-pill,
+  .playlist-bar,
+  .notice,
+  .verdict-banner,
+  .verdict-banner.is-wrong,
+  .decision-scene,
+  .decision-feedback,
+  .reconstruction-feedback,
+  .review-return,
+  .volume-pill.is-loading,
+  .narration-waiting,
+  .order-slots button:not(:disabled) {
+    animation: none !important;
+  }
+
+  @supports (interpolate-size: allow-keywords) {
+    details::details-content {
+      transition: opacity 110ms ease, content-visibility 110ms;
+      transition-behavior: allow-discrete;
+    }
+  }
+}

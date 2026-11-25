@@ -255,64 +255,66 @@ export function ConfusionCompare({
             </button>
           </div>
           <div className={`collapsible-study-filters ${mobileFiltersOpen ? 'is-open' : ''}`}>
-            <div className="scope-filter-row" role="group" aria-label="按篇幅筛选易混专题">
-              {SCOPE_OPTIONS.map((opt) => {
-                const count =
-                  opt.id === 'all'
-                    ? CONFUSION_SETS.length
-                    : CONFUSION_SETS.filter((s) => setScopeOf(s) === opt.id).length;
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    className={`scope-pill ${scope === opt.id ? 'is-active' : ''}`}
-                    aria-pressed={scope === opt.id}
-                    onClick={() => {
-                      const nextList =
-                        opt.id === 'all'
-                          ? CONFUSION_SETS
-                          : CONFUSION_SETS.filter((s) => setScopeOf(s) === opt.id);
-                      const nextSetId =
-                        nextList.length && !nextList.some((s) => s.id === setId) ? nextList[0].id : setId;
-                      updateState({ scope: opt.id, setId: nextSetId });
-                      setRevealed({});
-                    }}
-                  >
-                    {opt.label}（{count}）
-                  </button>
-                );
-              })}
-            </div>
+            <div className="collapsible-inner">
+              <div className="scope-filter-row" role="group" aria-label="按篇幅筛选易混专题">
+                {SCOPE_OPTIONS.map((opt) => {
+                  const count =
+                    opt.id === 'all'
+                      ? CONFUSION_SETS.length
+                      : CONFUSION_SETS.filter((s) => setScopeOf(s) === opt.id).length;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      className={`scope-pill ${scope === opt.id ? 'is-active' : ''}`}
+                      aria-pressed={scope === opt.id}
+                      onClick={() => {
+                        const nextList =
+                          opt.id === 'all'
+                            ? CONFUSION_SETS
+                            : CONFUSION_SETS.filter((s) => setScopeOf(s) === opt.id);
+                        const nextSetId =
+                          nextList.length && !nextList.some((s) => s.id === setId) ? nextList[0].id : setId;
+                        updateState({ scope: opt.id, setId: nextSetId });
+                        setRevealed({});
+                      }}
+                    >
+                      {opt.label}（{count}）
+                    </button>
+                  );
+                })}
+              </div>
 
-            <div
-              ref={chipRowRef}
-              className="set-chips set-chips-scroll"
-              role="tablist"
-              aria-label="选择易混专题"
-            >
-              {visibleSets.map((set) => {
-                const selected = set.id === activeSet.id;
-                return (
-                  <button
-                    key={set.id}
-                    id={`compare-set-${set.id}`}
-                    type="button"
-                    role="tab"
-                    aria-selected={selected}
-                    tabIndex={selected ? 0 : -1}
-                    className={selected ? 'active' : ''}
-                    onKeyDown={(e) =>
-                      handleTablistKeyDown(e, visibleSetIds, activeSet.id, (next) => selectSet(next))
-                    }
-                    onClick={(e) => {
-                      selectSet(set.id, e.currentTarget);
-                      setMobileFiltersOpen(false);
-                    }}
-                  >
-                    {set.title}
-                  </button>
-                );
-              })}
+              <div
+                ref={chipRowRef}
+                className="set-chips set-chips-scroll"
+                role="tablist"
+                aria-label="选择易混专题"
+              >
+                {visibleSets.map((set) => {
+                  const selected = set.id === activeSet.id;
+                  return (
+                    <button
+                      key={set.id}
+                      id={`compare-set-${set.id}`}
+                      type="button"
+                      role="tab"
+                      aria-selected={selected}
+                      tabIndex={selected ? 0 : -1}
+                      className={selected ? 'active' : ''}
+                      onKeyDown={(e) =>
+                        handleTablistKeyDown(e, visibleSetIds, activeSet.id, (next) => selectSet(next))
+                      }
+                      onClick={(e) => {
+                        selectSet(set.id, e.currentTarget);
+                        setMobileFiltersOpen(false);
+                      }}
+                    >
+                      {set.title}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 

@@ -353,7 +353,7 @@ function EvoHeader({
         </div>
       </div>
       <div className="evo-progress-track" aria-hidden="true">
-        <div className="evo-progress-fill" style={{ width: `${pct}%` }} />
+        <div className="evo-progress-fill" style={{ transform: `scaleX(${pct / 100})` }} />
       </div>
     </>
   );

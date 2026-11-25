@@ -5,6 +5,7 @@ import "./styles.css";
 import "./motion.css";
 import "./layout-polish.css";
 import "./stage-cinema.css";
+import "./ui-motion.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

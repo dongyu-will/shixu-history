@@ -1,6 +1,15 @@
 /* Stage 1 visual & motion upgrades — archival documentary cartography, shared SVG craft, and YearRoll transitions. */
 
 :root {
+  interpolate-size: allow-keywords;
+  --motion-dur-press: 110ms;
+  --motion-dur-micro: 160ms;
+  --motion-dur-ui: 240ms;
+  --motion-dur-sheet: 320ms;
+  --motion-dur-exit: 190ms;
+  --motion-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-exit: cubic-bezier(0.32, 0, 0.67, 0);
+  --motion-ease-tactile: cubic-bezier(0.2, 0.9, 0.3, 1.04);
   --motion-ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
   /* Physics-based easing fallbacks (progressive enhancement via linear() below; never used on opacity) */
   --motion-ease-spring: cubic-bezier(0.34, 1.42, 0.64, 1);
@@ -42,6 +51,10 @@
     --motion-ease-stamp: linear(
       0, 0.012, 0.048 2%, 0.194 4.8%, 0.715 11.4%, 1.028 16.7%, 1.074 20.5%,
       1.053 25.6%, 0.994 35.1%, 0.988 41.5%, 1.003 55.6%, 1
+    );
+    --motion-ease-tactile: linear(
+      0, 0.009, 0.037 2.2%, 0.148 4.8%, 0.495 10.6%, 0.78 16.5%, 0.935 22.4%,
+      1.006 28.4%, 1.028 34.4%, 1.025 41.5%, 1.008 54%, 1.001 70%, 1
     );
   }
 }
@@ -143,7 +156,6 @@
 
 .year-roll-in {
   display: inline-block;
-  will-change: transform, opacity;
 }
 
 .year-roll-out {
@@ -154,23 +166,27 @@
   display: inline-block;
   pointer-events: none;
   user-select: none;
+}
+
+.year-roll-digit.is-rolling .year-roll-in,
+.year-roll-digit.is-rolling .year-roll-out {
   will-change: transform, opacity;
 }
 
 .year-roll[data-dir="up"] .year-roll-digit.is-rolling .year-roll-in {
-  animation: year-roll-in-up 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+  animation: year-roll-in-up 240ms var(--motion-ease-standard) calc(var(--digit-step, 0) * 20ms) both;
 }
 
 .year-roll[data-dir="up"] .year-roll-digit.is-rolling .year-roll-out {
-  animation: year-roll-out-up 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+  animation: year-roll-out-up 240ms var(--motion-ease-standard) calc(var(--digit-step, 0) * 20ms) both;
 }
 
 .year-roll[data-dir="down"] .year-roll-digit.is-rolling .year-roll-in {
-  animation: year-roll-in-down 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+  animation: year-roll-in-down 240ms var(--motion-ease-standard) calc(var(--digit-step, 0) * 20ms) both;
 }
 
 .year-roll[data-dir="down"] .year-roll-digit.is-rolling .year-roll-out {
-  animation: year-roll-out-down 260ms var(--motion-ease-editorial) calc(var(--digit-step, 0) * 24ms) both;
+  animation: year-roll-out-down 240ms var(--motion-ease-standard) calc(var(--digit-step, 0) * 20ms) both;
 }
 
 @keyframes year-roll-in-up {

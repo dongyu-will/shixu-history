@@ -525,15 +525,19 @@ export function ExamPractice({
                             <strong>{block.heading}</strong>
                             <span>{isOpen ? '点击收起' : '点击核对要点'}</span>
                           </button>
-                          {isOpen ? (
-                            <ul>
-                              {block.points.map((pt, j) => (
-                                <li key={j}>{pt}</li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="skeleton-placeholder">先试着自己说出该层论证的 {block.points.length} 个核心要点…</p>
-                          )}
+                          <div className="skeleton-content">
+                            <div className="skeleton-content-inner">
+                              {isOpen ? (
+                                <ul>
+                                  {block.points.map((pt, j) => (
+                                    <li key={j}>{pt}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="skeleton-placeholder">先试着自己说出该层论证的 {block.points.length} 个核心要点…</p>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
@@ -573,73 +577,75 @@ export function ExamPractice({
                 </button>
               </div>
               <div className={`collapsible-study-filters ${mobileFiltersOpen ? 'is-open' : ''}`}>
-                <div className="scope-filter-row" role="group" aria-label="按篇幅筛选真题">
-                  {[
-                    { id: 'all', label: `全部（${questions.length}）` },
-                    { id: 'modern', label: `上篇 · 近代史（${stats.modernCount}）` },
-                    { id: 'prc', label: `下篇 · 新中国史（${stats.prcCount}）` },
-                  ].map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      className={`scope-pill ${volFilter === opt.id ? 'is-active' : ''}`}
-                      aria-pressed={volFilter === opt.id}
-                      onClick={() => {
-                        updateExamState({ volFilter: opt.id, chapter: 'all', activeId: null, selected: [] });
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="set-chips set-chips-scroll" role="tablist" aria-label="按历史时期筛选真题">
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={chapter === 'all'}
-                    tabIndex={chapter === 'all' ? 0 : -1}
-                    className={chapter === 'all' ? 'active' : ''}
-                    onKeyDown={(e) =>
-                      handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
-                        updateExamState({ chapter: next, activeId: null, selected: [] });
-                      })
-                    }
-                    onClick={(e) => {
-                      updateExamState({ chapter: 'all', activeId: null, selected: [] });
-                      setMobileFiltersOpen(false);
-                      e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-                    }}
-                  >
-                    全部（{scopedQuestions.length}）
-                  </button>
-                  {visibleChapters.map((ch) => {
-                    const gIdx = ch.globalIndex;
-                    const count = scopedQuestions.filter((q) => q.chapter === gIdx).length;
-                    const isSelected = String(chapter) === String(gIdx);
-                    return (
+                <div className="collapsible-inner">
+                  <div className="scope-filter-row" role="group" aria-label="按篇幅筛选真题">
+                    {[
+                      { id: 'all', label: `全部（${questions.length}）` },
+                      { id: 'modern', label: `上篇 · 近代史（${stats.modernCount}）` },
+                      { id: 'prc', label: `下篇 · 新中国史（${stats.prcCount}）` },
+                    ].map((opt) => (
                       <button
-                        key={`${ch.volume || 'modern'}-${ch.title}`}
+                        key={opt.id}
                         type="button"
-                        role="tab"
-                        aria-selected={isSelected}
-                        tabIndex={isSelected ? 0 : -1}
-                        className={isSelected ? 'active' : ''}
-                        onKeyDown={(e) =>
-                          handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
-                            updateExamState({ chapter: next, activeId: null, selected: [] });
-                          })
-                        }
-                        onClick={(e) => {
-                          updateExamState({ chapter: String(gIdx), activeId: null, selected: [] });
-                          setMobileFiltersOpen(false);
-                          e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                        className={`scope-pill ${volFilter === opt.id ? 'is-active' : ''}`}
+                        aria-pressed={volFilter === opt.id}
+                        onClick={() => {
+                          updateExamState({ volFilter: opt.id, chapter: 'all', activeId: null, selected: [] });
                         }}
                       >
-                        {ch.title}（{count}）
+                        {opt.label}
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
+
+                  <div className="set-chips set-chips-scroll" role="tablist" aria-label="按历史时期筛选真题">
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={chapter === 'all'}
+                      tabIndex={chapter === 'all' ? 0 : -1}
+                      className={chapter === 'all' ? 'active' : ''}
+                      onKeyDown={(e) =>
+                        handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
+                          updateExamState({ chapter: next, activeId: null, selected: [] });
+                        })
+                      }
+                      onClick={(e) => {
+                        updateExamState({ chapter: 'all', activeId: null, selected: [] });
+                        setMobileFiltersOpen(false);
+                        e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                      }}
+                    >
+                      全部（{scopedQuestions.length}）
+                    </button>
+                    {visibleChapters.map((ch) => {
+                      const gIdx = ch.globalIndex;
+                      const count = scopedQuestions.filter((q) => q.chapter === gIdx).length;
+                      const isSelected = String(chapter) === String(gIdx);
+                      return (
+                        <button
+                          key={`${ch.volume || 'modern'}-${ch.title}`}
+                          type="button"
+                          role="tab"
+                          aria-selected={isSelected}
+                          tabIndex={isSelected ? 0 : -1}
+                          className={isSelected ? 'active' : ''}
+                          onKeyDown={(e) =>
+                            handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
+                              updateExamState({ chapter: next, activeId: null, selected: [] });
+                            })
+                          }
+                          onClick={(e) => {
+                            updateExamState({ chapter: String(gIdx), activeId: null, selected: [] });
+                            setMobileFiltersOpen(false);
+                            e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                          }}
+                        >
+                          {ch.title}（{count}）
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </>
