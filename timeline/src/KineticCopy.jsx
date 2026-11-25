@@ -6,7 +6,7 @@ import { buildClozeSegments } from './cloze.js';
  * restrained archival ink-brush highlight across core exam terms ("帽子词" & propositions)
  * in cadence with each beat transition.
  */
-export function KineticCopy({ text, beatKey, playing = false }) {
+export function KineticCopy({ text, beatKey, playing = false, reduce = false }) {
   const segments = useMemo(() => buildClozeSegments(text), [text]);
 
   if (!segments.length) return null;
@@ -15,7 +15,7 @@ export function KineticCopy({ text, beatKey, playing = false }) {
   return (
     <p
       key={beatKey}
-      className={`scene-summary kinetic-copy ${playing ? 'is-playing' : 'is-settled'}`}
+      className={`scene-summary kinetic-copy ${playing && !reduce ? 'is-playing' : 'is-settled'}`}
     >
       {segments.map((seg, idx) => {
         if (!seg.blank) {

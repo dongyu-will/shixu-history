@@ -184,6 +184,7 @@ export const LAND_EVOLUTION_STEPS = Object.freeze([
 
 const STRATEGIC_STEPS = Object.freeze([
   {
+    id: 'writing-88',
     step: 1,
     label: '第一阶段 · 起点一致',
     anti: { name: '战略防御', note: '1937.7—1938.10 · 敌强我弱，空间换时间' },
@@ -191,6 +192,7 @@ const STRATEGIC_STEPS = Object.freeze([
     alert: '两场战争第一阶段均称「战略防御」——真正分水岭从第二阶段开始！',
   },
   {
+    id: 'writing-88',
     step: 2,
     label: '第二阶段 · 高频陷阱分叉',
     anti: { name: '战略相持（最关键）', note: '敌后游击战成为主战场，扭转敌我力量对比' },
@@ -198,6 +200,7 @@ const STRATEGIC_STEPS = Object.freeze([
     alert: '易混锁定：抗日战争是「战略相持」，解放战争没有相持，直接转入「战略进攻」！',
   },
   {
+    id: 'e-45',
     step: 3,
     label: '第三阶段 · 终局命名各异',
     anti: { name: '战略反攻', note: '1945年局部反攻转全面反攻，赢得抗战胜利' },
@@ -238,102 +241,167 @@ const RESOLUTION_STEPS = Object.freeze([
 
 export const EVOLUTION_SET_IDS = Object.freeze(['land-evolution', 'strategic-stages', 'three-resolutions']);
 
-function LandEvolutionPlayer({ onInspectMap }) {
-  const [stepIdx, setStepIdx] = useState(0);
+function useStepController({ total, controlledStep, onStepChange, defaultStep = 0, intervalMs = 2400 }) {
+  const [localStep, setLocalStep] = useState(defaultStep);
   const [autoPlay, setAutoPlay] = useState(false);
 
-  const step = LAND_EVOLUTION_STEPS[stepIdx];
-  const total = LAND_EVOLUTION_STEPS.length;
+  const rawStep = typeof controlledStep === 'number' ? controlledStep : localStep;
+  const stepIdx = Math.max(0, Math.min(total - 1, rawStep));
+
+  const updateStep = (updater) => {
+    const next = typeof updater === 'function' ? updater(stepIdx) : updater;
+    const clamped = Math.max(0, Math.min(total - 1, next));
+    if (typeof controlledStep !== 'number') {
+      setLocalStep(clamped);
+    }
+    onStepChange?.(clamped);
+  };
 
   useEffect(() => {
     if (!autoPlay) return undefined;
     const timer = window.setInterval(() => {
-      setStepIdx((prev) => {
-        if (prev >= total - 1) {
-          setAutoPlay(false);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 2400);
+      if (stepIdx >= total - 1) {
+        setAutoPlay(false);
+        return;
+      }
+      const next = stepIdx + 1;
+      if (typeof controlledStep !== 'number') {
+        setLocalStep(next);
+      }
+      onStepChange?.(next);
+      if (next >= total - 1) {
+        setAutoPlay(false);
+      }
+    }, intervalMs);
     return () => window.clearInterval(timer);
-  }, [autoPlay, total]);
+  }, [autoPlay, stepIdx, total, intervalMs, controlledStep, onStepChange]);
 
   const togglePlay = () => {
     if (!autoPlay && stepIdx >= total - 1) {
-      setStepIdx(0);
+      updateStep(0);
       setAutoPlay(true);
     } else {
       setAutoPlay((v) => !v);
     }
   };
 
+  const goTo = (idx) => {
+    setAutoPlay(false);
+    updateStep(idx);
+  };
+
+  return { stepIdx, autoPlay, setAutoPlay, togglePlay, goTo };
+}
+
+function EvoHeader({
+  kicker,
+  title,
+  stepIdx,
+  total,
+  autoPlay,
+  onPrev,
+  onTogglePlay,
+  onNext,
+  playLabel,
+  onInspect,
+}) {
+  const pct = total > 1 ? ((stepIdx + 1) / total) * 100 : 100;
   return (
-    <section
-      className="evo-stage evo-land"
-      data-layers={step.layers}
-      data-mode={step.mode}
-      aria-label="土地政策12步连续变形演化短片"
-    >
+    <>
       <div className="evo-topbar">
         <div className="evo-title-group">
-          <span className="evo-kicker">连续变形演化短片 · 1853—2017</span>
-          <h4>
-            <strong>{step.year}</strong> · {step.name}
-          </h4>
+          <span className="evo-kicker">{kicker}</span>
+          <h4>{title}</h4>
         </div>
         <div className="evo-controls">
+          <span className="evo-step-count" aria-live="polite">
+            第 {stepIdx + 1} / {total} 步
+          </span>
           <button
             type="button"
             className="evo-icon-btn"
             aria-label="上一步"
             disabled={stepIdx === 0}
-            onClick={() => {
-              setAutoPlay(false);
-              setStepIdx((i) => Math.max(0, i - 1));
-            }}
+            onClick={onPrev}
           >
             <SkipBack size={14} weight="fill" />
           </button>
           <button
             type="button"
             className="evo-play-btn"
-            aria-label={autoPlay ? '暂停土地演变短片' : '播放土地演变短片'}
-            onClick={togglePlay}
+            aria-label={autoPlay ? `暂停${playLabel}` : `播放${playLabel}`}
+            onClick={onTogglePlay}
           >
             {autoPlay ? <Pause size={14} weight="fill" /> : <Play size={14} weight="fill" />}
-            <span>{autoPlay ? '暂停' : stepIdx >= total - 1 ? '重播 12 步' : '自动演化'}</span>
+            <span>{autoPlay ? '暂停' : stepIdx >= total - 1 ? `重播 ${total} 步` : '自动演示'}</span>
           </button>
           <button
             type="button"
             className="evo-icon-btn"
             aria-label="下一步"
             disabled={stepIdx === total - 1}
-            onClick={() => {
-              setAutoPlay(false);
-              setStepIdx((i) => Math.min(total - 1, i + 1));
-            }}
+            onClick={onNext}
           >
             <SkipForward size={14} weight="fill" />
           </button>
-          {onInspectMap && (
-            <button
-              type="button"
-              className="evo-jump-btn"
-              onClick={() =>
-                onInspectMap(step.id, {
-                  panel: 'compare',
-                  label: '返回土地演化对照',
-                  compareState: { mode: 'preset', scope: 'cross', setId: 'land-evolution' },
-                })
-              }
-            >
-              <span>定位此幕</span>
+          {onInspect && (
+            <button type="button" className="evo-jump-btn" onClick={onInspect}>
+              <span>播放此幕</span>
               <ArrowUpRight size={13} />
             </button>
           )}
         </div>
       </div>
+      <div className="evo-progress-track" aria-hidden="true">
+        <div className="evo-progress-fill" style={{ width: `${pct}%` }} />
+      </div>
+    </>
+  );
+}
+
+function LandEvolutionPlayer({ stepIdx: controlledStep, onStepChange, onInspectMap }) {
+  const total = LAND_EVOLUTION_STEPS.length;
+  const { stepIdx, autoPlay, togglePlay, goTo } = useStepController({
+    total,
+    controlledStep,
+    onStepChange,
+    intervalMs: 2400,
+  });
+
+  const step = LAND_EVOLUTION_STEPS[stepIdx];
+
+  return (
+    <section
+      className="evo-stage evo-land"
+      data-layers={step.layers}
+      data-mode={step.mode}
+      aria-label="土地政策12步演化对照"
+    >
+      <EvoHeader
+        kicker="土地制度演进 · 1853—2017"
+        title={
+          <>
+            <strong>{step.year}</strong> · {step.name}
+          </>
+        }
+        stepIdx={stepIdx}
+        total={total}
+        autoPlay={autoPlay}
+        playLabel="土地政策演示"
+        onPrev={() => goTo(stepIdx - 1)}
+        onTogglePlay={togglePlay}
+        onNext={() => goTo(stepIdx + 1)}
+        onInspect={
+          onInspectMap
+            ? () =>
+                onInspectMap(step.id, {
+                  panel: 'compare',
+                  label: '返回土地演化对照',
+                  compareState: { mode: 'preset', scope: 'cross', setId: 'land-evolution' },
+                })
+            : null
+        }
+      />
 
       {/* Persistent Architectural Morphing Strata Canvas */}
       <div className="evo-morph-canvas">
@@ -404,10 +472,7 @@ function LandEvolutionPlayer({ onInspectMap }) {
             role="tab"
             aria-selected={idx === stepIdx}
             className={`evo-rail-dot ${idx === stepIdx ? 'is-current' : idx < stepIdx ? 'is-past' : ''}`}
-            onClick={() => {
-              setAutoPlay(false);
-              setStepIdx(idx);
-            }}
+            onClick={() => goTo(idx)}
             title={`${item.year} · ${item.name}`}
           >
             <i />
@@ -431,39 +496,41 @@ function LandEvolutionPlayer({ onInspectMap }) {
   );
 }
 
-function StrategicStagesPlayer() {
-  const [stepIdx, setStepIdx] = useState(1);
-  const [autoPlay, setAutoPlay] = useState(false);
-
-  useEffect(() => {
-    if (!autoPlay) return undefined;
-    const timer = window.setInterval(() => {
-      setStepIdx((prev) => (prev + 1) % STRATEGIC_STEPS.length);
-    }, 2400);
-    return () => window.clearInterval(timer);
-  }, [autoPlay]);
+function StrategicStagesPlayer({ stepIdx: controlledStep, onStepChange, onInspectMap }) {
+  const total = STRATEGIC_STEPS.length;
+  const { stepIdx, autoPlay, togglePlay, goTo } = useStepController({
+    total,
+    controlledStep,
+    onStepChange,
+    defaultStep: 0,
+    intervalMs: 2400,
+  });
 
   const current = STRATEGIC_STEPS[stepIdx];
 
   return (
-    <section className="evo-stage evo-strategic" aria-label="抗战与解放战争三阶段同步推进对照">
-      <div className="evo-topbar">
-        <div className="evo-title-group">
-          <span className="evo-kicker">双轨同步推进 · 防混淆演练</span>
-          <h4>{current.label}</h4>
-        </div>
-        <div className="evo-controls">
-          <button
-            type="button"
-            className="evo-play-btn"
-            aria-label={autoPlay ? '暂停三阶段对照演示' : '播放三阶段对照演示'}
-            onClick={() => setAutoPlay((v) => !v)}
-          >
-            {autoPlay ? <Pause size={14} weight="fill" /> : <Play size={14} weight="fill" />}
-            <span>{autoPlay ? '暂停' : '同步推进'}</span>
-          </button>
-        </div>
-      </div>
+    <section className="evo-stage evo-strategic" aria-label="抗战与解放战争三阶段对照">
+      <EvoHeader
+        kicker="两场战争三阶段对照"
+        title={current.label}
+        stepIdx={stepIdx}
+        total={total}
+        autoPlay={autoPlay}
+        playLabel="三阶段对照演示"
+        onPrev={() => goTo(stepIdx - 1)}
+        onTogglePlay={togglePlay}
+        onNext={() => goTo(stepIdx + 1)}
+        onInspect={
+          onInspectMap
+            ? () =>
+                onInspectMap(current.id, {
+                  panel: 'compare',
+                  label: '返回三阶段对照',
+                  compareState: { mode: 'preset', scope: 'cross', setId: 'strategic-stages' },
+                })
+            : null
+        }
+      />
 
       <div className="evo-dual-tracks">
         <div className="evo-track-row">
@@ -474,10 +541,7 @@ function StrategicStagesPlayer() {
                 key={s.step}
                 type="button"
                 className={`evo-track-cell ${idx === stepIdx ? 'is-active' : idx < stepIdx ? 'is-passed' : ''}`}
-                onClick={() => {
-                  setAutoPlay(false);
-                  setStepIdx(idx);
-                }}
+                onClick={() => goTo(idx)}
               >
                 <strong>{s.anti.name}</strong>
                 <small>{s.anti.note}</small>
@@ -493,10 +557,7 @@ function StrategicStagesPlayer() {
                 key={s.step}
                 type="button"
                 className={`evo-track-cell ${idx === stepIdx ? 'is-active' : idx < stepIdx ? 'is-passed' : ''}`}
-                onClick={() => {
-                  setAutoPlay(false);
-                  setStepIdx(idx);
-                }}
+                onClick={() => goTo(idx)}
               >
                 <strong>{s.lib.name}</strong>
                 <small>{s.lib.note}</small>
@@ -511,39 +572,40 @@ function StrategicStagesPlayer() {
   );
 }
 
-function ResolutionsCorridorPlayer({ onInspectMap }) {
-  const [stepIdx, setStepIdx] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(false);
+function ResolutionsCorridorPlayer({ stepIdx: controlledStep, onStepChange, onInspectMap }) {
+  const total = RESOLUTION_STEPS.length;
+  const { stepIdx, autoPlay, togglePlay, goTo } = useStepController({
+    total,
+    controlledStep,
+    onStepChange,
+    intervalMs: 2800,
+  });
 
-  useEffect(() => {
-    if (!autoPlay) return undefined;
-    const timer = window.setInterval(() => {
-      setStepIdx((prev) => (prev + 1) % RESOLUTION_STEPS.length);
-    }, 2800);
-    return () => window.clearInterval(timer);
-  }, [autoPlay]);
+  const current = RESOLUTION_STEPS[stepIdx];
 
   return (
-    <section className="evo-stage evo-resolutions" aria-label="党的三个历史决议百年纵深长廊">
-      <div className="evo-topbar">
-        <div className="evo-title-group">
-          <span className="evo-kicker">百年 Z 轴档案长廊 · 1945 → 1981 → 2021</span>
-          <h4>
-            {RESOLUTION_STEPS[stepIdx].year} · {RESOLUTION_STEPS[stepIdx].ordinal}
-          </h4>
-        </div>
-        <div className="evo-controls">
-          <button
-            type="button"
-            className="evo-play-btn"
-            aria-label={autoPlay ? '暂停历史决议纵深演进' : '播放历史决议纵深演进'}
-            onClick={() => setAutoPlay((v) => !v)}
-          >
-            {autoPlay ? <Pause size={14} weight="fill" /> : <Play size={14} weight="fill" />}
-            <span>{autoPlay ? '暂停' : '百年推进'}</span>
-          </button>
-        </div>
-      </div>
+    <section className="evo-stage evo-resolutions" aria-label="党的三个历史决议百年对照">
+      <EvoHeader
+        kicker="党的三个历史决议 · 1945—2021"
+        title={`${current.year} · ${current.ordinal}`}
+        stepIdx={stepIdx}
+        total={total}
+        autoPlay={autoPlay}
+        playLabel="三个历史决议演示"
+        onPrev={() => goTo(stepIdx - 1)}
+        onTogglePlay={togglePlay}
+        onNext={() => goTo(stepIdx + 1)}
+        onInspect={
+          onInspectMap
+            ? () =>
+                onInspectMap(current.id, {
+                  panel: 'compare',
+                  label: '返回三个历史决议',
+                  compareState: { mode: 'preset', scope: 'cross', setId: 'three-resolutions' },
+                })
+            : null
+        }
+      />
 
       <div className="evo-corridor">
         {RESOLUTION_STEPS.map((item, idx) => {
@@ -554,10 +616,7 @@ function ResolutionsCorridorPlayer({ onInspectMap }) {
               type="button"
               className={`evo-tablet ${offset === 0 ? 'is-front' : offset < 0 ? 'is-behind-left' : 'is-behind-right'}`}
               style={{ '--depth-offset': offset }}
-              onClick={() => {
-                setAutoPlay(false);
-                setStepIdx(idx);
-              }}
+              onClick={() => goTo(idx)}
             >
               <span className="evo-tablet-year">{item.year}</span>
               <span className="evo-tablet-ord">{item.ordinal} · {item.meeting}</span>
@@ -575,44 +634,43 @@ function ResolutionsCorridorPlayer({ onInspectMap }) {
             key={item.id}
             type="button"
             className={`evo-year-chip ${idx === stepIdx ? 'is-active' : ''}`}
-            onClick={() => {
-              setAutoPlay(false);
-              setStepIdx(idx);
-            }}
+            onClick={() => goTo(idx)}
           >
             {item.year} · {item.ordinal}
           </button>
         ))}
-        {onInspectMap && (
-          <button
-            type="button"
-            className="evo-jump-btn"
-            onClick={() =>
-              onInspectMap(RESOLUTION_STEPS[stepIdx].id, {
-                panel: 'compare',
-                label: '返回三个历史决议',
-                compareState: { mode: 'preset', scope: 'cross', setId: 'three-resolutions' },
-              })
-            }
-          >
-            <span>定位此幕</span>
-            <ArrowUpRight size={13} />
-          </button>
-        )}
       </div>
     </section>
   );
 }
 
-export function EvolutionStage({ setId, onInspectMap }) {
+export function EvolutionStage({ setId, stepIdx, onStepChange, onInspectMap }) {
   if (setId === 'land-evolution') {
-    return <LandEvolutionPlayer onInspectMap={onInspectMap} />;
+    return (
+      <LandEvolutionPlayer
+        stepIdx={stepIdx}
+        onStepChange={onStepChange}
+        onInspectMap={onInspectMap}
+      />
+    );
   }
   if (setId === 'strategic-stages') {
-    return <StrategicStagesPlayer />;
+    return (
+      <StrategicStagesPlayer
+        stepIdx={stepIdx}
+        onStepChange={onStepChange}
+        onInspectMap={onInspectMap}
+      />
+    );
   }
   if (setId === 'three-resolutions') {
-    return <ResolutionsCorridorPlayer onInspectMap={onInspectMap} />;
+    return (
+      <ResolutionsCorridorPlayer
+        stepIdx={stepIdx}
+        onStepChange={onStepChange}
+        onInspectMap={onInspectMap}
+      />
+    );
   }
   return null;
 }

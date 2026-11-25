@@ -1,8 +1,7 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
-  ArrowUpRight,
   Check,
   ClockCounterClockwise,
   DownloadSimple,
@@ -22,6 +21,12 @@ import {
   nextDueTimestamp,
 } from './study-store.js';
 import { volumeIdForEvent } from './volumes.js';
+
+function shortAnalysisTitle(title) {
+  const clean = String(title || '').replace(/[“”《》「」]/g, '');
+  if (clean.length <= 9) return clean;
+  return `${clean.slice(0, 8)}…`;
+}
 
 function formatDueRelative(timestamp, now = Date.now()) {
   if (!timestamp) return '';
@@ -64,6 +69,7 @@ export function ExamPractice({
   onExportBackup,
   onImportBackup,
   onResetStudy,
+  onRetryExam = null,
   initialView = null,
   initialVolume = 'all',
   initialChapter = 'all',
@@ -71,26 +77,79 @@ export function ExamPractice({
   initialAnalysisId = null,
   submittedByQuestion: controlledSubmitted = null,
   onSubmittedChange = null,
+  examState: controlledExamState = null,
+  onExamStateChange = null,
 }) {
   const eventById = useMemo(() => Object.fromEntries(events.map((e) => [e.id, e])), [events]);
   const dueIds = useMemo(() => dueQuestionIds(studyState, questions), [studyState, questions]);
-  const [view, setView] = useState(() => initialView || (dueIds.length > 0 ? 'due' : 'chapters'));
-  const [volFilter, setVolFilter] = useState(initialVolume);
-  const [chapter, setChapter] = useState(initialChapter);
-  const [activeId, setActiveId] = useState(initialQuestionId);
-  const [analysisId, setAnalysisId] = useState(
-    () => initialAnalysisId || analysisQuestions[analysisQuestions.length - 1]?.id || null,
-  );
-  const [skeletonMasked, setSkeletonMasked] = useState(true);
+  const [sessionDueIds, setSessionDueIds] = useState(() => dueQuestionIds(studyState, questions));
+  const [localExamState, setLocalExamState] = useState(() => ({
+    view: initialView || (dueIds.length > 0 ? 'due' : 'chapters'),
+    volFilter: initialVolume,
+    chapter: initialChapter,
+    activeId: initialQuestionId,
+    analysisId: initialAnalysisId || analysisQuestions[analysisQuestions.length - 1]?.id || null,
+    selected: [],
+    assistedIds: {},
+  }));
+  const examState = controlledExamState ?? localExamState;
+  const updateExamState = (updater) => {
+    const apply = (prev) => (typeof updater === 'function' ? updater(prev) : { ...prev, ...updater });
+    if (onExamStateChange) onExamStateChange(apply);
+    else setLocalExamState(apply);
+  };
+  const {
+    view = dueIds.length > 0 ? 'due' : 'chapters',
+    volFilter = 'all',
+    chapter = 'all',
+    activeId = null,
+    analysisId: rawAnalysisId = null,
+    selected = [],
+    assistedIds = {},
+  } = examState;
+  const analysisId = rawAnalysisId || analysisQuestions[analysisQuestions.length - 1]?.id || null;
+
+  const setView = (next) => updateExamState({ view: next });
+  const setVolFilter = (next) => updateExamState({ volFilter: next });
+  const setChapter = (next) => updateExamState({ chapter: next });
+  const setActiveId = (next) => updateExamState({ activeId: next });
+  const setAnalysisId = (next) => updateExamState({ analysisId: next });
+  const setSelected = (nextOrFn) =>
+    updateExamState((prev) => ({
+      ...prev,
+      selected: typeof nextOrFn === 'function' ? nextOrFn(prev.selected || []) : nextOrFn,
+    }));
+  const setAssistedIds = (nextOrFn) =>
+    updateExamState((prev) => ({
+      ...prev,
+      assistedIds: typeof nextOrFn === 'function' ? nextOrFn(prev.assistedIds || {}) : nextOrFn,
+    }));
+
   const [skeletonRevealed, setSkeletonRevealed] = useState({});
-  const [selected, setSelected] = useState([]);
   const [localSubmitted, setLocalSubmitted] = useState({});
   const submittedByQuestion = controlledSubmitted ?? localSubmitted;
   const setSubmittedByQuestion = onSubmittedChange ?? setLocalSubmitted;
-  const [assistedIds, setAssistedIds] = useState({});
   const [backupMessage, setBackupMessage] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const fileInputRef = useRef(null);
+  const dotsRowRef = useRef(null);
+  const questionsLoadedRef = useRef(questions.length > 0);
+
+  // Initialize session queue once questions arrive (without shrinking mid-session).
+  useEffect(() => {
+    if (!questionsLoadedRef.current && questions.length > 0) {
+      questionsLoadedRef.current = true;
+      setSessionDueIds(dueIds);
+    }
+  }, [questions.length, dueIds]);
+
+  const switchView = (nextView) => {
+    if (nextView === 'due') {
+      setSessionDueIds(dueIds);
+    }
+    updateExamState({ view: nextView, selected: [] });
+  };
 
   const visibleChapters = useMemo(() => {
     return chapters
@@ -105,12 +164,12 @@ export function ExamPractice({
 
   const visibleQuestions = useMemo(() => {
     if (view === 'due') {
-      const dueSet = new Set(dueIds);
+      const dueSet = new Set(sessionDueIds);
       return questions.filter((q) => dueSet.has(q.id));
     }
     if (chapter === 'all') return scopedQuestions;
     return scopedQuestions.filter((q) => q.chapter === Number(chapter));
-  }, [view, chapter, dueIds, questions, scopedQuestions]);
+  }, [view, chapter, sessionDueIds, questions, scopedQuestions]);
 
   const currentIndex = useMemo(() => {
     if (!visibleQuestions.length) return -1;
@@ -148,9 +207,44 @@ export function ExamPractice({
   }, [studyState, questions]);
 
   const selectQuestion = (id) => {
-    setActiveId(id);
-    setSelected([]);
+    updateExamState({ activeId: id, selected: [] });
   };
+
+  // Keep active question dot centered in view when navigating through 72 questions.
+  useEffect(() => {
+    const activeDot = dotsRowRef.current?.querySelector('.question-dot.is-current');
+    activeDot?.scrollIntoView?.({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  }, [question?.id]);
+
+  // Desktop keyboard shortcuts: A-D to pick options, Enter to submit or advance.
+  useEffect(() => {
+    if (loading || error || view === 'analysis' || !question) return undefined;
+    const onKeyDown = (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const tag = e.target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      const key = e.key.toUpperCase();
+      if (['A', 'B', 'C', 'D'].includes(key) && !submitted) {
+        const hasLetter = question.options.some(([letter]) => letter === key);
+        if (hasLetter) {
+          e.preventDefault();
+          toggleOption(key);
+        }
+        return;
+      }
+      if (e.key === 'Enter' && tag !== 'BUTTON' && tag !== 'A') {
+        if (!submitted && selected.length > 0) {
+          e.preventDefault();
+          handleSubmit();
+        } else if (submitted && currentIndex < visibleQuestions.length - 1) {
+          e.preventDefault();
+          selectQuestion(visibleQuestions[currentIndex + 1].id);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  });
 
   const toggleOption = (letter) => {
     if (!question || submitted) return;
@@ -198,10 +292,12 @@ export function ExamPractice({
       label: customLabel,
       examState: {
         view,
-        volume: volFilter,
+        volFilter,
         chapter,
-        questionId: question?.id || null,
+        activeId: question?.id || null,
         analysisId: activeAnalysis?.id || null,
+        selected,
+        assistedIds,
       },
     });
   };
@@ -213,11 +309,12 @@ export function ExamPractice({
     try {
       const text = await file.text();
       const summary = onImportBackup(text);
+      if (summary?.state) setSessionDueIds(dueQuestionIds(summary.state, questions));
       setBackupMessage(
-        `已恢复备份：新增 ${summary.addedAttempts} 条作答，更新 ${summary.updatedMastery} 条掌握度。`,
+        `已合并记录：新增 ${summary?.addedAttempts ?? 0} 次作答、更新 ${summary?.updatedMastery ?? 0} 条掌握度。`,
       );
     } catch (err) {
-      setBackupMessage(err.message || '导入失败，请确认选择的是史序 JSON 备份文件。');
+      setBackupMessage(err.message || '无法识别该文件，请选择之前从「史序」导出的备份文件。');
     }
   };
 
@@ -232,9 +329,9 @@ export function ExamPractice({
       <div className="study-header">
         <p className="study-kicker">
           <Exam size={15} />
-          2017—2026 考研政治史纲真题复测（全卷贯通）
+          真题复测 · 2017—2026 史纲
         </p>
-        <h2 id="dialog-title">先作答提取，答错直接跨卷回地图看那一幕</h2>
+        <h2 id="dialog-title">先回忆作答，错题可直达对应画面回看</h2>
         <div className="study-summary-row">
           <span>
             已练 <strong>{stats.practiced}</strong> / {stats.total} 题
@@ -245,7 +342,7 @@ export function ExamPractice({
             </span>
           )}
           <span>
-            今日待巩固 <strong>{dueIds.length}</strong> 题
+            今日待复习 <strong>{dueIds.length}</strong> 题
           </span>
         </div>
       </div>
@@ -259,17 +356,11 @@ export function ExamPractice({
           tabIndex={view === 'due' ? 0 : -1}
           className={view === 'due' ? 'active' : ''}
           onKeyDown={(e) =>
-            handleTablistKeyDown(e, primaryViews, view, (next) => {
-              setView(next);
-              setSelected([]);
-            })
+            handleTablistKeyDown(e, primaryViews, view, switchView)
           }
-          onClick={() => {
-            setView('due');
-            setSelected([]);
-          }}
+          onClick={() => switchView('due')}
         >
-          今日待巩固（{dueIds.length}）
+          今日待复习（{dueIds.length}）
         </button>
         <button
           id="exam-tab-chapters"
@@ -279,15 +370,9 @@ export function ExamPractice({
           tabIndex={view === 'chapters' ? 0 : -1}
           className={view === 'chapters' ? 'active' : ''}
           onKeyDown={(e) =>
-            handleTablistKeyDown(e, primaryViews, view, (next) => {
-              setView(next);
-              setSelected([]);
-            })
+            handleTablistKeyDown(e, primaryViews, view, switchView)
           }
-          onClick={() => {
-            setView('chapters');
-            setSelected([]);
-          }}
+          onClick={() => switchView('chapters')}
         >
           选择题库（{questions.length}）
         </button>
@@ -300,23 +385,27 @@ export function ExamPractice({
             tabIndex={view === 'analysis' ? 0 : -1}
             className={view === 'analysis' ? 'active' : ''}
             onKeyDown={(e) =>
-              handleTablistKeyDown(e, primaryViews, view, (next) => {
-                setView(next);
-                setSelected([]);
-              })
+              handleTablistKeyDown(e, primaryViews, view, switchView)
             }
-            onClick={() => {
-              setView('analysis');
-              setSelected([]);
-            }}
+            onClick={() => switchView('analysis')}
           >
-            第36题骨架（{analysisQuestions.length}）
+            第36题分析题（{analysisQuestions.length}）
           </button>
         )}
       </div>
 
       {loading && <p className="study-empty">正在载入真题库…</p>}
-      {error && <p className="study-empty">{error}</p>}
+      {error && (
+        <div className="study-empty">
+          <h3>真题库暂时加载失败</h3>
+          <p>网络波动或资源加载中断，请检查网络后重试。</p>
+          {onRetryExam && (
+            <button type="button" className="reveal-button" onClick={onRetryExam}>
+              重新加载
+            </button>
+          )}
+        </div>
+      )}
 
       {!loading && !error && view === 'analysis' && activeAnalysis && (
         <div className="analysis-panel" role="tabpanel" aria-labelledby="exam-tab-analysis">
@@ -332,6 +421,7 @@ export function ExamPractice({
                   aria-selected={isSelected}
                   tabIndex={isSelected ? 0 : -1}
                   className={isSelected ? 'active' : ''}
+                  title={`${item.year}年 · ${item.title}`}
                   onKeyDown={(e) =>
                     handleTablistKeyDown(e, analysisIds, activeAnalysis.id, (next) => {
                       setAnalysisId(next);
@@ -344,109 +434,121 @@ export function ExamPractice({
                     e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
                   }}
                 >
-                  {item.year}年 · {item.title.slice(0, 8)}
+                  {item.year}年 · {shortAnalysisTitle(item.title)}
                 </button>
               );
             })}
           </div>
 
-          <article className="question-card analysis-card" role="tabpanel" aria-labelledby={`analysis-tab-${activeAnalysis.id}`}>
-            <div className="question-nav">
-              <span className="question-meta">
-                <strong>{activeAnalysis.year}年 · 第36题分析题</strong>
-                <span className="scope-tag">跨篇史论骨架 · 自测不打分</span>
-              </span>
-              <button
-                type="button"
-                className={`pill-toggle ${skeletonMasked ? 'is-active' : ''}`}
-                aria-pressed={skeletonMasked}
-                onClick={() => {
-                  setSkeletonMasked((v) => !v);
-                  setSkeletonRevealed({});
-                }}
-              >
-                {skeletonMasked ? <Eye size={15} /> : <EyeSlash size={15} />}
-                <span>{skeletonMasked ? '展开全部骨架要点' : '隐藏骨架要点自测'}</span>
-              </button>
-            </div>
+          {(() => {
+            const blockKeys = activeAnalysis.skeleton.map((_, idx) => `${activeAnalysis.id}-${idx}`);
+            const allBlocksOpen = blockKeys.length > 0 && blockKeys.every((k) => Boolean(skeletonRevealed[k]));
+            return (
+              <article className="question-card analysis-card" role="tabpanel" aria-labelledby={`analysis-tab-${activeAnalysis.id}`}>
+                <div className="question-nav">
+                  <span className="question-meta">
+                    <strong>{activeAnalysis.year}年 · 第36题分析题</strong>
+                    <span className="scope-tag">跨篇分析题 · 自主核对</span>
+                  </span>
+                  <button
+                    type="button"
+                    className={`pill-toggle ${!allBlocksOpen ? 'is-active' : ''}`}
+                    aria-pressed={!allBlocksOpen}
+                    onClick={() => {
+                      const nextValue = !allBlocksOpen;
+                      setSkeletonRevealed((prev) => {
+                        const next = { ...prev };
+                        blockKeys.forEach((k) => {
+                          next[k] = nextValue;
+                        });
+                        return next;
+                      });
+                    }}
+                  >
+                    {allBlocksOpen ? <EyeSlash size={15} /> : <Eye size={15} />}
+                    <span>{allBlocksOpen ? '隐藏要点自测' : '展开全部要点'}</span>
+                  </button>
+                </div>
 
-            <h3 className="analysis-title">{activeAnalysis.title}</h3>
-            <ol className="analysis-prompts">
-              {activeAnalysis.prompts.map((p, i) => (
-                <li key={i}>{p}</li>
-              ))}
-            </ol>
+                <h3 className="analysis-title">{activeAnalysis.title}</h3>
+                <ol className="analysis-prompts">
+                  {activeAnalysis.prompts.map((p, i) => (
+                    <li key={i}>{p}</li>
+                  ))}
+                </ol>
 
-            <section className="analysis-section">
-              <h4>一、跨篇因果链（点击任一节点直接看地图动画）</h4>
-              <ol className="analysis-chain">
-                {activeAnalysis.chain.map((node, i) => {
-                  const targetEvent = eventById[node.eventId];
-                  const isPrc = volumeIdForEvent(node.eventId) === 'prc';
-                  return (
-                    <li key={`${node.eventId}-${i}`} className="analysis-chain-item">
-                      <div className="analysis-chain-head">
-                        <span className="analysis-step-badge">{node.step}</span>
-                        <em className={`vol-badge ${isPrc ? 'is-prc' : ''}`}>{isPrc ? '下篇' : '上篇'}</em>
-                        <strong>{node.label}</strong>
-                        {targetEvent && (
+                <section className="analysis-section">
+                  <h4>一、跨篇因果链（点击任一史事直达画面）</h4>
+                  <ol className="analysis-chain">
+                    {activeAnalysis.chain.map((node, i) => {
+                      const targetEvent = eventById[node.eventId];
+                      const isPrc = volumeIdForEvent(node.eventId) === 'prc';
+                      return (
+                        <li key={`${node.eventId}-${i}`} className="analysis-chain-item">
+                          <div className="analysis-chain-head">
+                            <span className="analysis-step-badge">{node.step}</span>
+                            <em className={`vol-badge ${isPrc ? 'is-prc' : ''}`}>{isPrc ? '下篇' : '上篇'}</em>
+                            <strong>{node.label}</strong>
+                            {targetEvent && (
+                              <button
+                                type="button"
+                                className="text-button replay-link"
+                                onClick={() => jumpToMap(node.eventId, '返回第36题分析题')}
+                              >
+                                播放「{targetEvent.title}」
+                              </button>
+                            )}
+                          </div>
+                          <p>{node.summary}</p>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </section>
+
+                <section className="analysis-section">
+                  <h4>二、论证答题要点（先口头复述，再点击展开核对）</h4>
+                  <div className="analysis-skeleton-grid">
+                    {activeAnalysis.skeleton.map((block, idx) => {
+                      const key = `${activeAnalysis.id}-${idx}`;
+                      const isOpen = Boolean(skeletonRevealed[key]);
+                      return (
+                        <div key={key} className={`skeleton-block ${isOpen ? 'is-open' : 'is-masked'}`}>
                           <button
                             type="button"
-                            className="text-button replay-link"
-                            onClick={() => jumpToMap(node.eventId, '返回第36题骨架')}
+                            className="skeleton-toggle"
+                            aria-expanded={isOpen}
+                            onClick={() =>
+                              setSkeletonRevealed((prev) => ({ ...prev, [key]: !prev[key] }))
+                            }
                           >
-                            看「{targetEvent.title}」 <ArrowUpRight size={14} />
+                            <strong>{block.heading}</strong>
+                            <span>{isOpen ? '点击收起' : '点击核对要点'}</span>
                           </button>
-                        )}
-                      </div>
-                      <p>{node.summary}</p>
-                    </li>
-                  );
-                })}
-              </ol>
-            </section>
+                          {isOpen ? (
+                            <ul>
+                              {block.points.map((pt, j) => (
+                                <li key={j}>{pt}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="skeleton-placeholder">先试着自己说出该层论证的 {block.points.length} 个核心要点…</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
 
-            <section className="analysis-section">
-              <h4>二、论证答题骨架（先口头复述，再点击展开核对）</h4>
-              <div className="analysis-skeleton-grid">
-                {activeAnalysis.skeleton.map((block, idx) => {
-                  const key = `${activeAnalysis.id}-${idx}`;
-                  const isOpen = !skeletonMasked || Boolean(skeletonRevealed[key]);
-                  return (
-                    <div key={key} className={`skeleton-block ${isOpen ? 'is-open' : 'is-masked'}`}>
-                      <button
-                        type="button"
-                        className="skeleton-toggle"
-                        aria-expanded={isOpen}
-                        onClick={() =>
-                          setSkeletonRevealed((prev) => ({ ...prev, [key]: !prev[key] }))
-                        }
-                      >
-                        <strong>{block.heading}</strong>
-                        <span>{isOpen ? '已展开' : '点击核对要点'}</span>
-                      </button>
-                      {isOpen ? (
-                        <ul>
-                          {block.points.map((pt, j) => (
-                            <li key={j}>{pt}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="skeleton-placeholder">先试着自己说出该层论证的 {block.points.length} 个核心要点…</p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-
-            {activeAnalysis.caution && (
-              <p className="scope-note analysis-caution">
-                <WarningCircle size={15} />
-                <span>{activeAnalysis.caution}</span>
-              </p>
-            )}
-          </article>
+                {activeAnalysis.caution && (
+                  <p className="scope-note analysis-caution">
+                    <WarningCircle size={15} />
+                    <span>{activeAnalysis.caution}</span>
+                  </p>
+                )}
+              </article>
+            );
+          })()}
         </div>
       )}
 
@@ -454,82 +556,91 @@ export function ExamPractice({
         <div role="tabpanel" aria-labelledby={view === 'due' ? 'exam-tab-due' : 'exam-tab-chapters'}>
           {view === 'chapters' && (
             <>
-              <div className="scope-filter-row" role="group" aria-label="按历史分卷筛选真题">
-                {[
-                  { id: 'all', label: `全卷（${questions.length}）` },
-                  { id: 'modern', label: `上篇 · 1840—1949（${stats.modernCount}）` },
-                  { id: 'prc', label: `下篇 · 1949—新时代（${stats.prcCount}）` },
-                ].map((opt) => (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    className={`scope-pill ${volFilter === opt.id ? 'is-active' : ''}`}
-                    aria-pressed={volFilter === opt.id}
-                    onClick={() => {
-                      setVolFilter(opt.id);
-                      setChapter('all');
-                      setActiveId(null);
-                      setSelected([]);
-                    }}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="set-chips set-chips-scroll" role="tablist" aria-label="按历史时期筛选真题">
+              <div className="mobile-filter-bar">
+                <span className="mobile-filter-summary">
+                  {volFilter === 'all' ? '全部' : volFilter === 'modern' ? '上篇 · 近代史' : '下篇 · 新中国史'} ·{' '}
+                  {chapter === 'all'
+                    ? `全部章节（${scopedQuestions.length}）`
+                    : visibleChapters.find((c) => String(c.globalIndex) === String(chapter))?.title || '全部章节'}
+                </span>
                 <button
                   type="button"
-                  role="tab"
-                  aria-selected={chapter === 'all'}
-                  tabIndex={chapter === 'all' ? 0 : -1}
-                  className={chapter === 'all' ? 'active' : ''}
-                  onKeyDown={(e) =>
-                    handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
-                      setChapter(next);
-                      setActiveId(null);
-                      setSelected([]);
-                    })
-                  }
-                  onClick={(e) => {
-                    setChapter('all');
-                    setActiveId(null);
-                    setSelected([]);
-                    e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-                  }}
+                  className="mobile-filter-toggle"
+                  aria-expanded={mobileFiltersOpen}
+                  onClick={() => setMobileFiltersOpen((v) => !v)}
                 >
-                  全部（{scopedQuestions.length}）
+                  {mobileFiltersOpen ? '收起筛选 ▴' : '筛选章节 ▾'}
                 </button>
-                {visibleChapters.map((ch) => {
-                  const gIdx = ch.globalIndex;
-                  const count = scopedQuestions.filter((q) => q.chapter === gIdx).length;
-                  const isSelected = String(chapter) === String(gIdx);
-                  return (
+              </div>
+              <div className={`collapsible-study-filters ${mobileFiltersOpen ? 'is-open' : ''}`}>
+                <div className="scope-filter-row" role="group" aria-label="按篇幅筛选真题">
+                  {[
+                    { id: 'all', label: `全部（${questions.length}）` },
+                    { id: 'modern', label: `上篇 · 近代史（${stats.modernCount}）` },
+                    { id: 'prc', label: `下篇 · 新中国史（${stats.prcCount}）` },
+                  ].map((opt) => (
                     <button
-                      key={`${ch.volume || 'modern'}-${ch.title}`}
+                      key={opt.id}
                       type="button"
-                      role="tab"
-                      aria-selected={isSelected}
-                      tabIndex={isSelected ? 0 : -1}
-                      className={isSelected ? 'active' : ''}
-                      onKeyDown={(e) =>
-                        handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
-                          setChapter(next);
-                          setActiveId(null);
-                          setSelected([]);
-                        })
-                      }
-                      onClick={(e) => {
-                        setChapter(String(gIdx));
-                        setActiveId(null);
-                        setSelected([]);
-                        e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                      className={`scope-pill ${volFilter === opt.id ? 'is-active' : ''}`}
+                      aria-pressed={volFilter === opt.id}
+                      onClick={() => {
+                        updateExamState({ volFilter: opt.id, chapter: 'all', activeId: null, selected: [] });
                       }}
                     >
-                      {ch.title}（{count}）
+                      {opt.label}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+
+                <div className="set-chips set-chips-scroll" role="tablist" aria-label="按历史时期筛选真题">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={chapter === 'all'}
+                    tabIndex={chapter === 'all' ? 0 : -1}
+                    className={chapter === 'all' ? 'active' : ''}
+                    onKeyDown={(e) =>
+                      handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
+                        updateExamState({ chapter: next, activeId: null, selected: [] });
+                      })
+                    }
+                    onClick={(e) => {
+                      updateExamState({ chapter: 'all', activeId: null, selected: [] });
+                      setMobileFiltersOpen(false);
+                      e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                    }}
+                  >
+                    全部（{scopedQuestions.length}）
+                  </button>
+                  {visibleChapters.map((ch) => {
+                    const gIdx = ch.globalIndex;
+                    const count = scopedQuestions.filter((q) => q.chapter === gIdx).length;
+                    const isSelected = String(chapter) === String(gIdx);
+                    return (
+                      <button
+                        key={`${ch.volume || 'modern'}-${ch.title}`}
+                        type="button"
+                        role="tab"
+                        aria-selected={isSelected}
+                        tabIndex={isSelected ? 0 : -1}
+                        className={isSelected ? 'active' : ''}
+                        onKeyDown={(e) =>
+                          handleTablistKeyDown(e, chapterIds, String(chapter), (next) => {
+                            updateExamState({ chapter: next, activeId: null, selected: [] });
+                          })
+                        }
+                        onClick={(e) => {
+                          updateExamState({ chapter: String(gIdx), activeId: null, selected: [] });
+                          setMobileFiltersOpen(false);
+                          e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                        }}
+                      >
+                        {ch.title}（{count}）
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </>
           )}
@@ -537,22 +648,19 @@ export function ExamPractice({
           {!question && (
             <div className="study-empty">
               <ClockCounterClockwise size={28} weight="light" />
-              <h3>{view === 'due' ? '当前没有到期的复测题目' : '当前筛选下没有题目'}</h3>
+              <h3>{view === 'due' ? '今日暂无待复习题目' : '当前筛选下没有题目'}</h3>
               <p>
                 {nextDue
-                  ? `下次到期复测在 ${formatDueRelative(nextDue)}。间隔 1 / 3 / 7 天无提示答对，更能检验长期保持。`
-                  : '完成首次作答后，系统会自动按 1 / 3 / 7 天安排隔日复测。'}
+                  ? `下次复习在 ${formatDueRelative(nextDue)}，现在也可以先去题库刷几道新题。`
+                  : '做过题目后，系统会按 1 / 3 / 7 天自动提醒你复习。'}
               </p>
               {view === 'due' && (
                 <button
                   type="button"
                   className="reveal-button"
-                  onClick={() => {
-                    setView('chapters');
-                    setSelected([]);
-                  }}
+                  onClick={() => switchView('chapters')}
                 >
-                  进入 9 章全卷题库 <ArrowRight size={16} />
+                  浏览全部真题 <ArrowRight size={16} />
                 </button>
               )}
             </div>
@@ -598,7 +706,7 @@ export function ExamPractice({
                 </div>
               </div>
 
-              <div className="question-dots" aria-label="题号速跳">
+              <div ref={dotsRowRef} className="question-dots" aria-label="题号速跳">
                 {visibleQuestions.map((item, idx) => {
                   const latest = latestAttemptFor(studyState, item.id);
                   const stateClass = latest ? (latest.correct ? 'is-pass' : 'is-miss') : '';
@@ -672,13 +780,13 @@ export function ExamPractice({
                         </>
                       ) : (
                         <>
-                          <X size={16} /> 选了 {submitted.answer}，参考答案：{question.answer}
+                          <X size={16} /> 你选了 {submitted.answer}，正确答案：{question.answer}
                         </>
                       )}
                     </strong>
                     <span>
                       {firstAttempt ? `首次：${firstAttempt.correct ? '对' : '错'}` : ''}
-                      {schedule ? ` · 复测间隔 ${REVIEW_DAYS[schedule.step]} 天` : ''}
+                      {schedule ? ` · 下次复习：${REVIEW_DAYS[schedule.step]} 天后` : ''}
                     </span>
                   </div>
 
@@ -703,8 +811,7 @@ export function ExamPractice({
                               className="text-button replay-link"
                               onClick={() => jumpToMap(targetEvent.id)}
                             >
-                              {isTargetPrc ? '[下篇] ' : '[上篇] '}看「{targetEvent.title}」
-                              <ArrowUpRight size={14} />
+                              {isTargetPrc ? '下篇 · ' : '上篇 · '}播放「{targetEvent.title}」
                             </button>
                           )}
                         </li>
@@ -719,8 +826,8 @@ export function ExamPractice({
                         className="jump-button inline-jump"
                         onClick={() => jumpToMap(question.replay)}
                       >
-                        去地图看本题「{eventById[question.replay].title}」
-                        <ArrowUpRight size={16} />
+                        播放本题「{eventById[question.replay].title}」
+                        <ArrowRight size={16} />
                       </button>
                     )}
                     <div className="question-next-row">
@@ -746,26 +853,26 @@ export function ExamPractice({
       )}
 
       <details className="study-backup">
-        <summary>学习记录管理（本地存储 · 支持换设备导入导出）</summary>
+        <summary>备份与管理学习记录</summary>
         <div className="backup-body">
           <p>
             当前保存在本机浏览器：共 {studyState.attempts.length} 次真题作答、
-            {Object.keys(studyState.mastery).length} 条节点掌握度标记。
+            {Object.keys(studyState.mastery).length} 条史事掌握度标记。
           </p>
           <div className="backup-actions">
             <button
               type="button"
               onClick={() => {
                 onExportBackup();
-                setBackupMessage('已导出 JSON 备份文件，可在其他设备导入恢复。');
+                setBackupMessage('已保存记录备份文件，可在其他设备导入恢复。');
               }}
             >
               <DownloadSimple size={15} />
-              导出 JSON 备份
+              导出记录备份
             </button>
             <button type="button" onClick={() => fileInputRef.current?.click()}>
               <UploadSimple size={15} />
-              导入备份合并
+              从备份恢复（自动合并）
             </button>
             <input
               ref={fileInputRef}
@@ -781,27 +888,43 @@ export function ExamPractice({
                 onClick={() => setConfirmReset(true)}
               >
                 <Trash size={15} />
-                清空本地记录
+                清空全部记录
               </button>
             ) : (
-              <span className="reset-confirm">
-                <button
-                  type="button"
-                  className="danger-button"
-                  onClick={() => {
-                    onResetStudy();
-                    setSubmittedByQuestion({});
-                    setSelected([]);
-                    setConfirmReset(false);
-                    setBackupMessage('已清空本地学习记录。');
-                  }}
-                >
-                  确认清空
-                </button>
-                <button type="button" onClick={() => setConfirmReset(false)}>
-                  取消
-                </button>
-              </span>
+              <div className="reset-confirm-box" role="alert">
+                <p className="reset-confirm-warn">
+                  将永久清除本机 {studyState.attempts.length} 次作答与{' '}
+                  {Object.keys(studyState.mastery).length} 条掌握度标记（清空后 8 秒内可撤销）。
+                </p>
+                <span className="reset-confirm">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onExportBackup();
+                      setBackupMessage('已先为你导出记录备份。');
+                    }}
+                  >
+                    先导出备份
+                  </button>
+                  <button
+                    type="button"
+                    className="danger-button"
+                    onClick={() => {
+                      onResetStudy();
+                      setSessionDueIds([]);
+                      setSubmittedByQuestion({});
+                      setSelected([]);
+                      setConfirmReset(false);
+                      setBackupMessage('已清空本机学习记录。');
+                    }}
+                  >
+                    永久清空
+                  </button>
+                  <button type="button" onClick={() => setConfirmReset(false)}>
+                    取消
+                  </button>
+                </span>
+              </div>
             )}
           </div>
           {backupMessage && (

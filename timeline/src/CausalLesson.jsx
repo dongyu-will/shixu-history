@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BookOpen,
+  ClosedCaptioning,
   Compass,
   Moon,
   Pause,
@@ -44,8 +45,46 @@ import './lesson.css';
 const stamp = (t) =>
   `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 
+const VALID_RATES = new Set([0.5, 1, 1.5, 2]);
+
+function readPrefRate() {
+  try {
+    const parsed = Number(localStorage.getItem('shixu-rate'));
+    return VALID_RATES.has(parsed) ? parsed : 1;
+  } catch {
+    return 1;
+  }
+}
+
+function readPrefBool(key, fallback) {
+  try {
+    const val = localStorage.getItem(key);
+    if (val === null) return fallback;
+    return val !== '0' && val !== 'false';
+  } catch {
+    return fallback;
+  }
+}
+
+function writePref(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Ignore restricted storage contexts.
+  }
+}
+
 export function CausalLesson({ data, geography }) {
   const events = useMemo(() => lessonEvents(data.events), [data.events]);
+  const returnHref = useMemo(() => {
+    if (typeof window === 'undefined') return './?event=e-29';
+    const params = new URLSearchParams(window.location.search);
+    const vol = params.get('fromVol');
+    const ev = params.get('fromEvent') || 'e-29';
+    return vol
+      ? `./?vol=${encodeURIComponent(vol)}&event=${encodeURIComponent(ev)}`
+      : `./?event=${encodeURIComponent(ev)}`;
+  }, []);
   const clock = useRef({ time: 0 });
   const controller = useRef(null);
   const camera = useRef(null);
@@ -53,11 +92,13 @@ export function CausalLesson({ data, geography }) {
   const range = useRef(null);
   const elapsed = useRef(null);
   const dialog = useRef(null);
+  const dialogBackdropPress = useRef(false);
 
   const [frame, setFrame] = useState(() => lessonFrame(events, 0));
   const [playing, setPlaying] = useState(false);
-  const [rate, setRate] = useState(1);
-  const [voice, setVoice] = useState(true);
+  const [rate, setRate] = useState(readPrefRate);
+  const [voice, setVoice] = useState(() => readPrefBool('shixu-voice', true));
+  const [captions, setCaptions] = useState(() => readPrefBool('shixu-captions', true));
   const [sfx, setSfx] = useState(() => readSfxPreference());
   const [theme, toggleTheme] = useTheme();
   const [decision, setDecision] = useState(null);
@@ -147,10 +188,10 @@ export function CausalLesson({ data, geography }) {
   );
 
   const navigate = useCallback(
-    (time) => {
+    (time, pause = true) => {
       replayEnd.current = null;
       setReview(null);
-      seek(time);
+      seek(time, pause);
     },
     [seek],
   );
@@ -277,11 +318,11 @@ export function CausalLesson({ data, geography }) {
       }
       if (e.key === 'ArrowRight') {
         e.preventDefault();
-        navigate(clock.current.time + 5);
+        navigate(clock.current.time + 5, false);
       }
       if (e.key === 'ArrowLeft') {
         e.preventDefault();
-        navigate(clock.current.time - 5);
+        navigate(clock.current.time - 5, false);
       }
     };
     window.addEventListener('keydown', key);
@@ -295,12 +336,27 @@ export function CausalLesson({ data, geography }) {
 
   const toggleVoice = () => {
     setVoice((v) => {
-      if (!v) {
+      const next = !v;
+      writePref('shixu-voice', next ? '1' : '0');
+      if (next) {
         setAudioError(false);
         if (audio.current?.error) audio.current.load();
       }
-      return !v;
+      return next;
     });
+  };
+
+  const toggleCaptions = () => {
+    setCaptions((v) => {
+      const next = !v;
+      writePref('shixu-captions', next ? '1' : '0');
+      return next;
+    });
+  };
+
+  const updateRate = (nextRate) => {
+    setRate(nextRate);
+    writePref('shixu-rate', String(nextRate));
   };
 
   const toggleSfx = useCallback(() => {
@@ -348,10 +404,23 @@ export function CausalLesson({ data, geography }) {
   const restart = () => {
     setPractice(false);
     setReview(null);
+    setOrder([]);
+    setMatches({});
+    setResult(null);
     replayEnd.current = null;
     seek(0, false);
     setPlaying(true);
   };
+
+  const blurMouseTarget = (e) => {
+    if (e.pointerType === 'mouse' && e.target instanceof Element) {
+      e.target.closest('button')?.blur();
+    }
+  };
+
+  const missingOrderCount = Math.max(0, 3 - order.length);
+  const missingMatchCount = Math.max(0, 3 - Object.values(matches).filter(Boolean).length);
+  const missingTotalCount = missingOrderCount + missingMatchCount;
 
   return (
     <main className={`experience causal-lesson ${practice ? 'is-reconstructing' : ''}`}>
@@ -370,14 +439,14 @@ export function CausalLesson({ data, geography }) {
       />
 
       <header className="masthead">
-        <a className="brand" href="./">
+        <a className="brand" href={returnHref}>
           <Compass weight="light" size={24} />
           <span>史序</span>
           <i />
-          <span className="brand-sub">道路与建军 · 90秒样片</span>
+          <span className="brand-sub">道路与建军 · 90秒精讲</span>
         </a>
         <div className="header-actions">
-          <a href="./?event=e-29">
+          <a href={returnHref}>
             <ArrowLeft size={15} />
             完整时间轴
           </a>
@@ -454,8 +523,8 @@ export function CausalLesson({ data, geography }) {
           </article>
         )}
 
-        {!gate && !practice && (
-          <div className="lesson-subtitles" aria-label="旁白字幕">
+        {!gate && !practice && captions && (
+          <div className="lesson-subtitles" aria-label="配音字幕">
             <span>{frame.index === 2 ? '1927 → 1929 · 时间跨越' : '道路与建军'}</span>
             <p>{NARRATION[frame.cue][2]}</p>
           </div>
@@ -491,7 +560,7 @@ export function CausalLesson({ data, geography }) {
                 <fieldset>
                   <legend className="sr-only">选择接下来的实际调整</legend>
                   {DECISIONS.map((d, i) => (
-                    <label key={d.id}>
+                    <label key={d.id} className={choice === d.id ? 'is-picked' : ''}>
                       <input
                         type="radio"
                         name="decision"
@@ -562,6 +631,7 @@ export function CausalLesson({ data, geography }) {
                 {[0, 1, 2].map((i) => (
                   <button
                     key={i}
+                    disabled={!order[i]}
                     aria-label={`顺序${i + 1}${order[i] ? `：${events.find((e) => e.id === order[i]).title}，点击移除` : '：未填写'}`}
                     className={result ? (result.ordered[i] ? 'answer-correct' : 'answer-wrong') : ''}
                     onClick={() => {
@@ -570,59 +640,92 @@ export function CausalLesson({ data, geography }) {
                     }}
                   >
                     <small>{i + 1}</small>
-                    {order[i] ? events.find((e) => e.id === order[i]).title : '选择事件'}
+                    <span>{order[i] ? events.find((e) => e.id === order[i]).title : '待选事件'}</span>
+                    {order[i] && <span className="slot-remove" aria-hidden="true">×</span>}
                   </button>
                 ))}
               </div>
-              <div className="event-bank">
-                {QUIZ_BANK.map((id) => (
-                  <button
-                    key={id}
-                    disabled={order.includes(id)}
-                    onClick={() => {
-                      setOrder((o) => [...o, id]);
-                      setResult(null);
-                    }}
-                  >
-                    {events.find((e) => e.id === id).title}
-                    <span>＋</span>
-                  </button>
-                ))}
-              </div>
+              {order.length < 3 ? (
+                <div className="event-bank">
+                  {QUIZ_BANK.map((id) => (
+                    <button
+                      key={id}
+                      disabled={order.includes(id)}
+                      onClick={() => {
+                        setOrder((o) => [...o, id]);
+                        setResult(null);
+                      }}
+                    >
+                      {events.find((e) => e.id === id).title}
+                      <span>＋</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="bank-complete-hint">已选满 3 项，点击上方槽位可调整顺序</p>
+              )}
 
               <h2>
                 <span>02</span> 它着重解决什么问题？
               </h2>
               <div className="problem-matches">
-                {QUIZ_BANK.map((id) => (
-                  <label key={id}>
-                    <span>{events.find((e) => e.id === id).title}</span>
-                    <select
-                      aria-label={`${events.find((e) => e.id === id).title}解决的问题`}
-                      value={matches[id] || ''}
-                      onChange={(e) => {
-                        setMatches((m) => ({ ...m, [id]: e.target.value }));
-                        setResult(null);
-                      }}
+                {QUIZ_BANK.map((id, idx) => {
+                  const usedByOthers = new Set(
+                    Object.entries(matches)
+                      .filter(([otherId, val]) => otherId !== id && val)
+                      .map(([, val]) => val),
+                  );
+                  const availableProblems = PROBLEMS.filter((p) => matches[id] === p.id || !usedByOthers.has(p.id));
+                  return (
+                    <label
+                      key={id}
+                      className={result ? (result.matched[idx] ? 'answer-correct' : 'answer-wrong') : ''}
                     >
-                      <option value="">请选择</option>
-                      {PROBLEMS.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.text}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                ))}
+                      <span>{events.find((e) => e.id === id).title}</span>
+                      <select
+                        aria-label={`${events.find((e) => e.id === id).title}解决的问题`}
+                        value={matches[id] || ''}
+                        onChange={(e) => {
+                          const picked = e.target.value;
+                          setMatches((prev) => {
+                            const next = { ...prev, [id]: picked };
+                            if (picked) {
+                              const unfilled = QUIZ_BANK.filter((qId) => !next[qId]);
+                              const chosenSet = new Set(Object.values(next).filter(Boolean));
+                              const unused = PROBLEMS.filter((p) => !chosenSet.has(p.id));
+                              if (unfilled.length === 1 && unused.length === 1) {
+                                next[unfilled[0]] = unused[0].id;
+                              }
+                            }
+                            return next;
+                          });
+                          setResult(null);
+                        }}
+                      >
+                        <option value="">请选择</option>
+                        {availableProblems.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.text}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  );
+                })}
               </div>
 
-              <button
-                className="lesson-primary"
-                disabled={order.length !== 3 || Object.values(matches).filter(Boolean).length !== 3}
-                onClick={check}
-              >
-                检查复原 <ArrowRight size={17} />
-              </button>
+              <div className="lesson-check-row">
+                <button
+                  className="lesson-primary"
+                  disabled={missingTotalCount > 0}
+                  onClick={check}
+                >
+                  检查复原 <ArrowRight size={17} />
+                </button>
+                {missingTotalCount > 0 && (
+                  <span className="check-hint">还差 {missingTotalCount} 项待填</span>
+                )}
+              </div>
 
               {result && (
                 <div className="reconstruction-feedback" role="status">
@@ -653,7 +756,10 @@ export function CausalLesson({ data, geography }) {
                   <ArrowCounterClockwise size={16} />
                   重播90秒
                 </button>
-                <a href="./?event=e-29">
+                <a href="./?panel=exam&chapter=2">
+                  刷本专题真题 <ArrowRight size={16} />
+                </a>
+                <a href={returnHref}>
                   进入完整时间轴 <ArrowRight size={16} />
                 </a>
               </div>
@@ -668,7 +774,7 @@ export function CausalLesson({ data, geography }) {
             <button
               className="play-button"
               disabled={gate || practice}
-              aria-label={playing ? '暂停样片' : '播放样片'}
+              aria-label={playing ? '暂停播放' : '开始播放'}
               onClick={toggle}
             >
               {playing ? <Pause size={21} weight="fill" /> : <Play size={21} weight="fill" />}
@@ -681,37 +787,52 @@ export function CausalLesson({ data, geography }) {
           </div>
           <span className="lesson-play-state">
             {gate
-              ? '决策暂停 · 不计入片长'
+              ? '请先完成上方判断'
               : practice
                 ? '章末复原'
                 : playing
                   ? '正在播放'
-                  : '点击播放 · 含旁白'}
+                  : '点击播放 · 含配音'}
           </span>
-          <div className="transport-secondary">
-            <button aria-label={voice ? '关闭旁白' : '开启旁白'} aria-pressed={voice} onClick={toggleVoice}>
+          <div className="transport-secondary" onPointerUp={blurMouseTarget}>
+            <button
+              type="button"
+              aria-label={voice ? '关闭配音' : '开启配音'}
+              aria-pressed={voice}
+              onClick={toggleVoice}
+            >
               {voice ? <SpeakerHigh size={19} /> : <SpeakerSlash size={19} />}
-              <span>{voice ? '旁白开' : '旁白关'}</span>
+              <span>{voice ? '配音' : '静音'}</span>
+            </button>
+            <button
+              type="button"
+              className={`narration-toggle ${captions ? 'is-active' : ''}`}
+              aria-label={captions ? '隐藏字幕' : '显示字幕'}
+              aria-pressed={captions}
+              onClick={toggleCaptions}
+            >
+              <ClosedCaptioning size={18} />
+              <span>字幕</span>
             </button>
             <button
               type="button"
               className={`narration-toggle sfx-toggle ${sfx ? 'is-active' : ''}`}
               aria-label={sfx ? '关闭音效' : '开启音效'}
               aria-pressed={sfx}
-              title={sfx ? '关闭微音效' : '开启微音效'}
+              title={sfx ? '关闭音效' : '开启音效'}
               onClick={toggleSfx}
             >
               <Waveform size={18} />
               <span>音效</span>
             </button>
             <label className="speed-label">
-              <span>速度</span>
+              <span>倍速</span>
               <select
-                aria-label="样片播放速度"
+                aria-label="播放倍速"
                 value={rate}
-                onChange={(e) => setRate(Number(e.target.value))}
+                onChange={(e) => updateRate(Number(e.target.value))}
               >
-                <option value="0.75">0.75×</option>
+                <option value="0.5">0.5×</option>
                 <option value="1">1×</option>
                 <option value="1.5">1.5×</option>
                 <option value="2">2×</option>
@@ -728,26 +849,30 @@ export function CausalLesson({ data, geography }) {
           step="0.05"
           defaultValue="0"
           disabled={practice || gate}
-          aria-label="样片播放进度"
+          aria-label="精讲播放进度"
           onChange={(e) => {
             manualSeekUntilRef.current = performance.now() + 300;
             navigate(Number(e.target.value));
           }}
         />
-        <nav className="lesson-chapters" aria-label="样片章节">
-          {CHAPTERS.map((c, i) => (
-            <button
-              key={c.id}
-              disabled={gate || practice}
-              aria-current={i === frame.index ? 'step' : undefined}
-              onClick={() => navigate(c.start)}
-            >
-              <span>{i === 0 ? '00:00' : i === 1 ? '00:36' : '01:06'}</span>
-              {events[i].title}
-            </button>
-          ))}
+        <nav className="lesson-chapters" aria-label="精讲章节">
+          {CHAPTERS.map((c, i) => {
+            const locked = i > 0 && !resolved.current;
+            return (
+              <button
+                key={c.id}
+                disabled={gate || practice || locked}
+                aria-current={i === frame.index ? 'step' : undefined}
+                onClick={() => navigate(c.start)}
+              >
+                <span>{i === 0 ? '00:00' : i === 1 ? '00:36' : '01:06'}</span>
+                {locked ? '决策后解锁' : events[i].title}
+              </button>
+            );
+          })}
           <button
             disabled={gate || !resolved.current}
+            aria-current={practice ? 'step' : undefined}
             onClick={() => {
               navigate(90);
               setPractice(true);
@@ -756,16 +881,21 @@ export function CausalLesson({ data, geography }) {
             01:30 · 章末复原
           </button>
         </nav>
-        {audioError && <p role="status" className="audio-notice">旁白暂不可用，可继续观看地图与完整字幕。</p>}
+        {audioError && <p role="status" className="audio-notice">配音暂时无法播放，已自动保留字幕。</p>}
       </footer>
 
       <dialog
         ref={dialog}
+        closedby="any"
         className="reading-dialog lesson-reading"
         aria-labelledby="lesson-reading-title"
         onClose={() => setReading(false)}
-        onClick={(e) => {
-          if (e.target === dialog.current) setReading(false);
+        onPointerDown={(e) => {
+          dialogBackdropPress.current = e.target === dialog.current;
+        }}
+        onPointerUp={(e) => {
+          if (dialogBackdropPress.current && e.target === dialog.current) setReading(false);
+          dialogBackdropPress.current = false;
         }}
       >
         <div className="dialog-content">
@@ -775,29 +905,35 @@ export function CausalLesson({ data, geography }) {
             </button>
           </div>
           <h2 id="lesson-reading-title">道路与建军 · 完整内容</h2>
-          <p>样片只调整讲述节奏，以下保留全部分段说明及资料原文。</p>
-          {events.map((e) => (
-            <section key={e.id} className="lesson-source">
-              <h3>
-                {e.title} <small>{CHAPTERS.find((c) => c.id === e.id).date}</small>
-              </h3>
-              <details open={e.id === scene.id}>
-                <summary>完整分段讲解</summary>
-                {AUTHORED_STORIES[e.id].beats.map((b) => (
-                  <div key={b.at}>
-                    <h4>{b.title}</h4>
-                    <p>{b.text}</p>
-                  </div>
-                ))}
-              </details>
-              <details>
-                <summary>资料原文</summary>
-                {e.original.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </details>
-            </section>
-          ))}
+          <p>精讲仅浓缩讲述节奏，以下保留全部分段讲解与资料原文。</p>
+          {events.map((e, eventIdx) => {
+            const lockedSpoiler = !resolved.current && eventIdx > 0;
+            return (
+              <section key={e.id} className="lesson-source">
+                <h3>
+                  {lockedSpoiler ? `第 ${eventIdx + 1} 段史实（决策后解锁）` : e.title}{' '}
+                  <small>{CHAPTERS.find((c) => c.id === e.id).date}</small>
+                </h3>
+                <details open={resolved.current && e.id === scene.id}>
+                  <summary>
+                    分段讲解{!resolved.current ? '（含 00:20 决策后史实，点击展开）' : ''}
+                  </summary>
+                  {AUTHORED_STORIES[e.id].beats.map((b) => (
+                    <div key={b.at}>
+                      <h4>{b.title}</h4>
+                      <p>{b.text}</p>
+                    </div>
+                  ))}
+                </details>
+                <details>
+                  <summary>资料原文</summary>
+                  {e.original.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </details>
+              </section>
+            );
+          })}
         </div>
       </dialog>
     </main>

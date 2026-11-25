@@ -66,7 +66,7 @@ export async function loadVolumeBundle(volumeId) {
   const meta = VOLUMES[id];
   const promise = (async () => {
     const res = await fetch(sitePath(meta.dataUrl));
-    if (!res.ok) throw new Error(`无法载入${meta.label}数据（${res.status}）`);
+    if (!res.ok) throw new Error(`无法载入${meta.label}数据，请稍后重试。`);
     const raw = await res.json();
 
     if (id === 'modern') {

@@ -55,7 +55,7 @@ dialog::backdrop {
   position: absolute;
   right: 35px;
   top: 72px;
-  z-index: 4;
+  z-index: 5;
   display: inline-flex;
   align-items: center;
   gap: 2px;
@@ -459,6 +459,22 @@ dialog::backdrop {
   gap: 10px;
   margin: 18px 0 16px;
 }
+.free-picker-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.free-picker-search {
+  width: 100%;
+  min-height: 34px;
+  padding: 5px 10px;
+  border: 1px solid var(--ui-line-soft);
+  border-radius: 3px;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  font-size: 12px;
+}
 .free-pickers label {
   display: flex;
   flex-direction: column;
@@ -558,9 +574,12 @@ dialog::backdrop {
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 20px), transparent 100%);
   gap: 5px;
   margin-bottom: 16px;
   padding-bottom: 12px;
+  padding-right: 18px;
   border-bottom: 1px solid var(--ui-line-soft);
 }
 .question-dots::-webkit-scrollbar {
@@ -799,6 +818,37 @@ dialog::backdrop {
   align-items: center;
   gap: 8px;
 }
+.reset-confirm-box {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--ui-accent-line);
+  border-radius: 6px;
+  background: var(--ui-accent-halo);
+  font-size: 12px;
+  color: var(--ui-heading);
+}
+.detail-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: auto;
+  min-height: 32px;
+  padding: 2px 8px;
+  border: 1px solid var(--ui-line-soft);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--ui-accent);
+}
+.mobile-filter-bar {
+  display: none;
+}
+.authored-layer .diagram-note,
+.process-graphic .process-diagram-note {
+  opacity: 0.72;
+}
 .backup-status {
   margin: 10px 0 0;
   font-size: 12px;
@@ -1023,8 +1073,11 @@ dialog::backdrop {
   scroll-snap-type: inline proximity;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 20px), transparent 100%);
   gap: 6px;
   padding-bottom: 4px;
+  padding-right: 18px;
 }
 
 .set-chips-scroll::-webkit-scrollbar {
@@ -1303,6 +1356,22 @@ dialog::backdrop {
   .narrated-experience .narration-subtitles p {
     font-size: 12.5px;
     line-height: 1.5;
+  }
+
+  .mobile-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 10px 0 8px;
+  }
+
+  .collapsible-study-filters:not(.is-open) {
+    display: none;
+  }
+
+  .free-picker-search {
+    font-size: 16px;
   }
 }
 

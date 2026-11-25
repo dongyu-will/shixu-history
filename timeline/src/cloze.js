@@ -87,6 +87,44 @@ const PRIORITY_TERMS = [
   '南京条约',
   '马关条约',
   '辛丑条约',
+  '抗美援朝',
+  '土地改革法',
+  '保存富农经济',
+  '农民土地所有制',
+  '一化三改',
+  '社会主义工业化',
+  '合作社经济',
+  '和平赎买',
+  '四马分肥',
+  '定息',
+  '人民代表大会制度',
+  '政治协商制度',
+  '民族区域自治制度',
+  '和平共处五项原则',
+  '论十大关系',
+  '中共八大',
+  '两弹一星',
+  '实践是检验真理的唯一标准',
+  '十一届三中全会',
+  '解放思想、实事求是',
+  '改革开放',
+  '经济特区',
+  '家庭联产承包责任制',
+  '社会主义初级阶段',
+  '一个中心、两个基本点',
+  '南方谈话',
+  '社会主义市场经济体制',
+  '一国两制',
+  '加入世界贸易组织',
+  '科学发展观',
+  '精准扶贫',
+  '农村土地三权分置',
+  '集体所有权',
+  '农户承包权',
+  '土地经营权',
+  '两个确立',
+  '中国式现代化',
+  '人类命运共同体',
 ];
 
 function escapeRegex(value) {
@@ -146,8 +184,15 @@ export function buildClozeSegments(text, explicitTerms = null) {
 
   // Fallback for texts without explicit hat terms: split at punctuation or a natural verb boundary.
   if (blankCount === 0 && source.length >= 10) {
-    const punctIdx = Math.max(source.lastIndexOf('，'), source.lastIndexOf('、'), source.lastIndexOf('：'));
-    const verbMatch = source.match(/(确立了?|提出了?|肯定了?|规定了?|实现了?|标志著?|标志着?|推动了?|反对|转向|废除|实行|决定|坚持|纠正|成立)/);
+    const punctIdx = Math.max(
+      source.lastIndexOf('，'),
+      source.lastIndexOf('、'),
+      source.lastIndexOf('：'),
+      source.lastIndexOf('；'),
+    );
+    const verbMatch = source.match(
+      /(确立了?|提出了?|肯定了?|规定了?|实现了?|标志著?|标志着?|推动了?|阐明了?|开创了?|标志着|反对|转向|废除|实行|决定|坚持|纠正|成立|召开|颁布|完成|建立)/,
+    );
     let splitAt = -1;
     if (punctIdx >= 2 && punctIdx <= source.length - 4) {
       splitAt = punctIdx + 1;
@@ -157,9 +202,19 @@ export function buildClozeSegments(text, explicitTerms = null) {
       splitAt = Math.floor(source.length * 0.5);
     }
     const head = source.slice(0, splitAt);
-    const tail = source.slice(splitAt).replace(/[。！？]$/, '');
-    const punct = source.slice(head.length + tail.length);
-    if (tail.length >= 3 && tail.length < source.length * 0.8) {
+    const rawTail = source.slice(splitAt);
+    let tail = rawTail.replace(/[。！？]$/, '');
+    let punct = source.slice(head.length + tail.length);
+    // Never trap an unmatched closing quote/bracket inside the cloze blank.
+    if (/[”」》]$/.test(tail)) {
+      const opener = tail.endsWith('”') ? '“' : tail.endsWith('」') ? '「' : '《';
+      const closer = tail.slice(-1);
+      if (!tail.includes(opener) && head.includes(opener)) {
+        tail = tail.slice(0, -1);
+        punct = closer + punct;
+      }
+    }
+    if (tail.length >= 3 && tail.length < source.length * 0.85) {
       const fallback = [];
       if (head) fallback.push({ text: head, blank: false });
       fallback.push({ text: tail, blank: true, id: 'b-0' });

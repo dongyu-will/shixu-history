@@ -14,16 +14,16 @@ export const PILOT_STAGES = Object.freeze({
     kind: 'manuscript',
     title: '《论持久战》',
     shortLabel: '文献手稿',
-    badge: '文献典籍 · 油印手稿与三阶折页',
-    anchorLabel: '延安 · 1938.5 · 战略预见（非逐日战线）',
+    badge: '文献典籍 · 延安油印手稿',
+    anchorLabel: '延安 · 1938.5 · 战略预见',
   }),
   'e-36': Object.freeze({
     id: 'e-36',
     volumeId: 'modern',
     kind: 'dossier',
     title: '遵义会议',
-    shortLabel: '纵深档案',
-    badge: '纵深档案 · Z轴纠偏与罗盘定舵',
+    shortLabel: '历史档案',
+    badge: '历史档案 · 路线纠偏与罗盘定舵',
     anchorLabel: '贵州遵义 · 1935.1 · 中央政治局扩大会议',
   }),
   'e-47': Object.freeze({
@@ -31,9 +31,9 @@ export const PILOT_STAGES = Object.freeze({
     volumeId: 'modern',
     kind: 'woodcut',
     title: '新中国成立',
-    shortLabel: '木刻版画',
-    badge: '近代套色木刻 · 2.5D 五层剪影视差',
-    anchorLabel: '北京天安门 · 1949.10.1 · 套色版刻意象',
+    shortLabel: '套色木刻',
+    badge: '开国大典 · 套色木刻',
+    anchorLabel: '北京天安门 · 1949.10.1 · 开国大典',
   }),
   'prc-m-6': Object.freeze({
     id: 'prc-m-6',
@@ -41,8 +41,8 @@ export const PILOT_STAGES = Object.freeze({
     kind: 'broadsheet',
     title: '中共十一届三中全会',
     shortLabel: '号外公报',
-    badge: '报刊号外 · 双栏路线交锋与重心转移',
-    anchorLabel: '北京 · 1978.12 · 历史转折公报特刊',
+    badge: '历史公报 · 路线交锋与重心转移',
+    anchorLabel: '北京 · 1978.12 · 十一届三中全会公报',
   }),
 });
 
@@ -59,15 +59,15 @@ export function computeBeatProgress(story, localSeconds, reduce = false, playing
   const overall = clamp(t / duration, 0, 1);
 
   const activeIdx = Math.max(0, beats.findLastIndex((beat) => beat.at <= t + 1e-6));
-  const activeStart = beats[activeIdx]?.at ?? 0;
-  const pausedAtBeatHead = !playing && t - activeStart <= 0.45;
 
   const b = beats.map((beat, i) => {
     const start = beat.at;
     const end = beats[i + 1]?.at ?? duration;
     if (t < start) return 0;
-    if (reduce || (pausedAtBeatHead && i === activeIdx)) return 0.92;
-    return clamp((t - start) / Math.max(0.2, end - start), 0, 1);
+    if (reduce) return 1;
+    const raw = clamp((t - start) / Math.max(0.2, end - start), 0, 1);
+    if (!playing && i === activeIdx) return Math.max(0.96, raw);
+    return raw;
   });
 
   return { t, overall, b };
@@ -535,7 +535,7 @@ function WoodcutStage({ phase }) {
       </div>
 
       <footer className="wc-edition-strip">
-        <span>套色木刻版画意象 · 五层景别视差</span>
+        <span>套色木刻 · 1949 开国大典</span>
         <span>北京 · 天安门</span>
       </footer>
     </div>
@@ -687,18 +687,35 @@ export function StageCinema({
 
   if (!pilot) return null;
 
-  // Deterministic SSR/initial CSS custom properties matching current phase
-  const initialStyle = {
-    '--p': (phase / Math.max(1, (story?.beats?.length || 3) - 1)).toFixed(3),
-    '--b0': phase >= 0 ? '1' : '0',
-    '--b1': phase >= 1 ? '1' : '0',
-    '--b2': phase >= 2 ? '1' : '0',
-    '--b3': phase >= 3 ? '1' : '0',
-    '--b0-ease': phase >= 0 ? '1' : '0',
-    '--b1-ease': phase >= 1 ? '1' : '0',
-    '--b2-ease': phase >= 2 ? '1' : '0',
-    '--b3-ease': phase >= 3 ? '1' : '0',
-  };
+  // Deterministic SSR/initial CSS custom properties without 1-frame flash
+  const initialStyle = (() => {
+    if (clock && story) {
+      const localSec = storyTimeFor(story, scene, Math.max(0, (clock.current?.time ?? sceneStart) - sceneStart));
+      const { overall, b } = computeBeatProgress(story, localSec, reduce, playing);
+      return {
+        '--p': overall.toFixed(4),
+        '--b0': (b[0] ?? 0).toFixed(4),
+        '--b1': (b[1] ?? 0).toFixed(4),
+        '--b2': (b[2] ?? 0).toFixed(4),
+        '--b3': (b[3] ?? 0).toFixed(4),
+        '--b0-ease': smoothstep(0, 0.72, b[0] ?? 0).toFixed(4),
+        '--b1-ease': smoothstep(0, 0.76, b[1] ?? 0).toFixed(4),
+        '--b2-ease': smoothstep(0, 0.72, b[2] ?? 0).toFixed(4),
+        '--b3-ease': smoothstep(0, 0.68, b[3] ?? 0).toFixed(4),
+      };
+    }
+    return {
+      '--p': (phase / Math.max(1, (story?.beats?.length || 3) - 1)).toFixed(3),
+      '--b0': phase >= 0 ? '1' : '0',
+      '--b1': phase >= 1 ? '1' : '0',
+      '--b2': phase >= 2 ? '1' : '0',
+      '--b3': phase >= 3 ? '1' : '0',
+      '--b0-ease': phase >= 0 ? '1' : '0',
+      '--b1-ease': phase >= 1 ? '1' : '0',
+      '--b2-ease': phase >= 2 ? '1' : '0',
+      '--b3-ease': phase >= 3 ? '1' : '0',
+    };
+  })();
 
   return (
     <div

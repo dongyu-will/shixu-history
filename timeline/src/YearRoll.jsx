@@ -1,14 +1,4 @@
-import { useEffect, useState } from 'react';
-
-let lastCommittedYear = null;
-
-function prefersReducedMotion() {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  );
-}
+import { useEffect, useRef, useState } from 'react';
 
 function directionFor(from, to) {
   const prevNum = Number(from);
@@ -19,42 +9,27 @@ function directionFor(from, to) {
   return to < from ? 'down' : 'up';
 }
 
-function buildInitialRoll(current) {
-  const prev = lastCommittedYear;
-  if (!prev || prev === current || prefersReducedMotion()) {
-    return { from: null, to: current, dir: 'up', seq: 0 };
-  }
-  return {
-    from: prev,
-    to: current,
-    dir: directionFor(prev, current),
-    seq: 1,
-  };
-}
-
-export function YearRoll({ year, className = '' }) {
+export function YearRoll({ year, className = '', reduce = false }) {
   const current = year == null ? '' : String(year);
-  const [roll, setRoll] = useState(() => buildInitialRoll(current));
+  const prevYearRef = useRef(current);
+  const [roll, setRoll] = useState({ from: null, to: current, dir: 'up', seq: 0 });
 
-  if (roll.to !== current) {
-    const prev = roll.to;
-    const reduce = prefersReducedMotion();
-    setRoll({
+  useEffect(() => {
+    const prev = prevYearRef.current;
+    if (prev === current) return undefined;
+    prevYearRef.current = current;
+    setRoll((state) => ({
       from: reduce ? null : prev,
       to: current,
       dir: directionFor(prev, current),
-      seq: roll.seq + 1,
-    });
-  }
-
-  useEffect(() => {
-    lastCommittedYear = current;
-    if (!roll.from) return undefined;
+      seq: state.seq + 1,
+    }));
+    if (reduce) return undefined;
     const timer = window.setTimeout(() => {
       setRoll((state) => (state.from ? { ...state, from: null } : state));
     }, 360);
     return () => window.clearTimeout(timer);
-  }, [current, roll.from, roll.seq]);
+  }, [current, reduce]);
 
   const toChars = Array.from(roll.to);
   const fromChars = roll.from ? Array.from(roll.from) : null;

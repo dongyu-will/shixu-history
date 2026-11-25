@@ -11,11 +11,11 @@ import {
   Check,
   ClosedCaptioning,
   Compass,
+  DownloadSimple,
   Exam,
   Eye,
   EyeSlash,
   FileText,
-  FilmStrip,
   Flag,
   GithubLogo,
   Headphones,
@@ -36,6 +36,7 @@ import {
   SpeakerSlash,
   Stack,
   Sun,
+  UploadSimple,
   Waveform,
   X,
 } from '@phosphor-icons/react';
@@ -65,11 +66,14 @@ const ExamPractice = lazy(() =>
   import('./ExamPractice.jsx').then((m) => ({ default: m.ExamPractice })),
 );
 import { captionAt } from './narration.js';
+import { buildClozeSegments } from './cloze.js';
+import { CONFUSION_SETS } from './confusion-sets.js';
 import {
   buildPlaylist,
   chapterBounds,
   nextInPlaylist,
   playlistDuration,
+  playlistElapsed,
   playlistPosition,
   prevInPlaylist,
 } from './playlist.js';
@@ -112,12 +116,12 @@ const TYPES = {
 const MASTERY_OPTIONS = [
   { id: 'known', label: '已掌握' },
   { id: 'fuzzy', label: '有点模糊' },
-  { id: 'forgot', label: '需要再练' },
+  { id: 'forgot', label: '未掌握' },
 ];
 
 const MASTERY_FILTER_LABELS = [
   { id: 'all', label: '全部状态' },
-  { id: 'review', label: '待巩固' },
+  { id: 'review', label: '需巩固' },
   { id: 'unmarked', label: '未标记' },
   { id: 'known', label: '已掌握' },
 ];
@@ -125,6 +129,37 @@ const MASTERY_FILTER_LABELS = [
 // Temporarily hide attribution controls at the user's request; retain source data.
 const SHOW_SOURCE_METADATA = false;
 const WALKMAN_KEY = 'shixu-walkman';
+const RATE_KEY = 'shixu-rate';
+const RATE_OPTIONS = [0.5, 1, 1.5, 2];
+
+function readSavedRate() {
+  try {
+    const raw = Number(localStorage.getItem(RATE_KEY));
+    return RATE_OPTIONS.includes(raw) ? raw : 1;
+  } catch {
+    return 1;
+  }
+}
+const LAST_POS_KEY = 'shixu-last-pos-v1';
+
+function readVolumePositions() {
+  try {
+    const raw = localStorage.getItem(LAST_POS_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeVolumePositions(positions) {
+  try {
+    localStorage.setItem(LAST_POS_KEY, JSON.stringify(positions));
+  } catch {
+    // Ignore storage failures in restricted contexts.
+  }
+}
 
 const formatClock = (seconds) =>
   `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${Math.floor(seconds % 60).toString().padStart(2, '0')}`;
@@ -151,8 +186,11 @@ function HistoryExperience({
   bundle,
   allBundles,
   onSwitchVolume,
+  switchingVolume,
   pendingNav,
   onConsumePendingNav,
+  externalNotice,
+  onClearExternalNotice,
 }) {
   const { data, events, stories, fallbackCues, meta } = bundle;
   const allEvents = useMemo(() => {
@@ -177,7 +215,18 @@ function HistoryExperience({
   );
   const allEventIds = useMemo(() => new Set(allEvents.map((e) => e.id)), [allEvents]);
 
-  const initialId = new URLSearchParams(location.search).get('event') || events[0].id;
+  const initialSearch = new URLSearchParams(location.search);
+  const initialId = initialSearch.get('event') || events[0].id;
+  const initialPanelParam = initialSearch.get('panel');
+  const initialChapterParam = initialSearch.get('chapter');
+  const initialPanel =
+    initialPanelParam === 'exam' || initialPanelParam === 'compare' || initialPanelParam === 'directory'
+      ? initialPanelParam
+      : null;
+  const initialExamState =
+    initialPanel === 'exam' && initialChapterParam
+      ? { view: 'chapters', chapter: initialChapterParam }
+      : null;
   const initialIndex = Math.max(
     0,
     events.findIndex((e) => e.id === initialId),
@@ -194,11 +243,13 @@ function HistoryExperience({
 
   const [index, setIndex] = useState(initialIndex);
   const [playing, setPlaying] = useState(false);
-  const [rate, setRate] = useState(1);
+  const [hasStartedPlayback, setHasStartedPlayback] = useState(false);
+  const [rate, setRate] = useState(readSavedRate);
   const [overview, setOverview] = useState(false);
   const [zoom, setZoom] = useState(1);
-  const [panel, setPanel] = useState(null);
+  const [panel, setPanel] = useState(initialPanel);
   const [detailId, setDetailId] = useState(events[initialIndex].id);
+  const [detailHistory, setDetailHistory] = useState([]);
   const [detailTab, setDetailTab] = useState('summary');
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState('all');
@@ -211,32 +262,63 @@ function HistoryExperience({
   const [beatIndex, setBeatIndex] = useState(0);
   const [nextVolDismissed, setNextVolDismissed] = useState(false);
   const [stageView, setStageView] = useState('cinema');
+  const [suppressIntertitle, setSuppressIntertitle] = useState(false);
+  const intertitleTimerRef = useRef(null);
   const [reduceMotion, setReduceMotion] = useState(() =>
     Boolean(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches),
+  );
+  const [isCompactViewport, setIsCompactViewport] = useState(() =>
+    Boolean(typeof window !== 'undefined' && window.matchMedia?.('(max-width: 760px)')?.matches),
   );
 
   useEffect(() => {
     const media = typeof window !== 'undefined' ? window.matchMedia?.('(prefers-reduced-motion: reduce)') : null;
-    if (!media) return undefined;
-    const sync = () => setReduceMotion(media.matches);
-    media.addEventListener('change', sync);
-    return () => media.removeEventListener('change', sync);
+    const compact = typeof window !== 'undefined' ? window.matchMedia?.('(max-width: 760px)') : null;
+    const syncMotion = () => media && setReduceMotion(media.matches);
+    const syncCompact = () => compact && setIsCompactViewport(compact.matches);
+    media?.addEventListener('change', syncMotion);
+    compact?.addEventListener('change', syncCompact);
+    return () => {
+      media?.removeEventListener('change', syncMotion);
+      compact?.removeEventListener('change', syncCompact);
+    };
   }, []);
 
-  // Study upgrade states: topic playlist, loop, walkman background audio, exam bank, mastery.
-  const [playlistKind, setPlaylistKind] = useState('all');
+  useEffect(() => {
+    try {
+      localStorage.setItem(RATE_KEY, String(rate));
+    } catch {
+      // Ignore storage errors.
+    }
+  }, [rate]);
+
+  // Study upgrade states: topic/filtered queue, loop, walkman background audio, exam bank, mastery.
+  const [playlistMeta, setPlaylistMeta] = useState({ kind: 'all', label: '', ids: null });
+  const playlistKind = playlistMeta.kind;
   const [loopMode, setLoopMode] = useState(false);
   const [backgroundAudio, setBackgroundAudio] = useState(() => readBoolPref(WALKMAN_KEY, false));
   const [sfx, setSfx] = useState(() => readSfxPreference());
   const [returnContext, setReturnContext] = useState(null);
-  const [compareResume, setCompareResume] = useState(null);
-  const [examResume, setExamResume] = useState(null);
+  const [compareState, setCompareState] = useState(null);
+  const [examState, setExamState] = useState(initialExamState);
   const [examQuestions, setExamQuestions] = useState([]);
   const [analysisQuestions, setAnalysisQuestions] = useState([]);
   const [examLoading, setExamLoading] = useState(true);
   const [examError, setExamError] = useState('');
   const [examSubmitted, setExamSubmitted] = useState({});
-  const [studyState, setStudyState] = useState(() => readStudyState(globalThis.localStorage, null, allEventIds).state);
+  const [studyState, setStudyState] = useState(() => readStudyState(globalThis.localStorage, null, null).state);
+  const studyStateRef = useRef(studyState);
+  studyStateRef.current = studyState;
+  const lastClearedStudyRef = useRef(null);
+  const lastPlaylistRef = useRef(null);
+  const [undoPlaylistAvailable, setUndoPlaylistAvailable] = useState(false);
+  const undoTimerRef = useRef(null);
+  const noticeTimerRef = useRef(null);
+  const [undoResetAvailable, setUndoResetAvailable] = useState(false);
+  const wasPlayingBeforePanelRef = useRef(false);
+  const jumpedInPanelRef = useRef(false);
+  const directoryListRef = useRef(null);
+  const prefsBackupInputRef = useRef(null);
 
   const beatRef = useRef(0);
   const lastFoleyKeyRef = useRef(`${events[initialIndex].id}:0`);
@@ -245,7 +327,26 @@ function HistoryExperience({
   const clock = useRef({ time: starts[initialIndex] });
   const indexRef = useRef(index);
   const prevVolumeRef = useRef(volumeId);
-  const safeIndex = Math.min(index, events.length - 1);
+  const volumePositionsRef = useRef(readVolumePositions());
+
+  // Resolve target index synchronously on volume transition to avoid a 1-frame stale index/chapter flash.
+  const hasPendingForHere = Boolean(pendingNav && pendingNav.volumeId === volumeId);
+  const volumeTransitioned = prevVolumeRef.current !== volumeId;
+  let resolvedIndex = Math.min(index, events.length - 1);
+  if (volumeTransitioned || hasPendingForHere) {
+    const targetId = hasPendingForHere ? pendingNav.eventId : null;
+    const savedPos = !targetId ? volumePositionsRef.current[volumeId] : null;
+    if (targetId) {
+      const found = events.findIndex((e) => e.id === targetId);
+      resolvedIndex = found >= 0 ? found : 0;
+    } else if (savedPos?.eventId) {
+      const found = events.findIndex((e) => e.id === savedPos.eventId);
+      resolvedIndex = found >= 0 ? found : 0;
+    } else {
+      resolvedIndex = 0;
+    }
+  }
+  const safeIndex = resolvedIndex;
   indexRef.current = safeIndex;
   const animationRef = useRef(null);
   const storyController = useRef(null);
@@ -255,10 +356,34 @@ function HistoryExperience({
   const elapsedRef = useRef(null);
   const dialogRef = useRef(null);
 
-  const playlist = useMemo(() => buildPlaylist(events, playlistKind), [events, playlistKind]);
+  const playlist = useMemo(() => {
+    if (playlistMeta.kind === 'custom' && Array.isArray(playlistMeta.ids)) {
+      const idSet = new Set(playlistMeta.ids);
+      const indices = [];
+      for (let i = 0; i < events.length; i += 1) {
+        if (idSet.has(events[i].id)) indices.push(i);
+      }
+      return indices;
+    }
+    return buildPlaylist(events, playlistMeta.kind);
+  }, [events, playlistMeta]);
   const playlistSet = useMemo(() => new Set(playlist), [playlist]);
   const playlistTotalSeconds = useMemo(() => playlistDuration(events, playlist), [events, playlist]);
   const playlistPos = useMemo(() => playlistPosition(playlist, safeIndex), [playlist, safeIndex]);
+  const isQueued = playlistMeta.kind !== 'all';
+
+  // Auto-dismiss transient notices while keeping undoable alerts visible long enough.
+  useEffect(() => {
+    if (!notice) return undefined;
+    if (noticeTimerRef.current) window.clearTimeout(noticeTimerRef.current);
+    if (undoResetAvailable) return undefined;
+    const ms = undoPlaylistAvailable ? 4500 : 3800;
+    noticeTimerRef.current = window.setTimeout(() => {
+      setNotice('');
+      setUndoPlaylistAvailable(false);
+    }, ms);
+    return () => window.clearTimeout(noticeTimerRef.current);
+  }, [notice, undoResetAvailable, undoPlaylistAvailable]);
 
   const narration = useNarration({
     clock,
@@ -279,6 +404,9 @@ function HistoryExperience({
   const activeCaption = captions[captionIndex];
   const pilotStage = getPilotStage(scene.id);
   const cinemaActive = Boolean(pilotStage && !overview && stageView === 'cinema');
+  const isDiagramScene = Boolean(
+    authored?.kind === 'process' && !['geography', 'rendezvous'].includes(authored.mode),
+  );
   const sceneAtmosphere = useMemo(
     () => getSceneAtmosphere({ volumeId, scene, authored }),
     [volumeId, scene, authored],
@@ -287,69 +415,82 @@ function HistoryExperience({
   const questionIds = useMemo(() => new Set(examQuestions.map((q) => q.id)), [examQuestions]);
   const dueIds = useMemo(() => dueQuestionIds(studyState, examQuestions), [studyState, examQuestions]);
 
-  // Load curated exam questions & Q36 analysis skeletons asynchronously without blocking initial map paint.
-  useEffect(() => {
-    let alive = true;
-    fetch(sitePath('/data/exam-questions.json'))
+  // Load curated exam questions & Q36 analysis skeletons once without truncating sibling-volume mastery.
+  const loadExamQuestions = useCallback(() => {
+    setExamLoading(true);
+    setExamError('');
+    return fetch(sitePath('/data/exam-questions.json'))
       .then((res) => {
-        if (!res.ok) throw new Error(`真题库载入失败：${res.status}`);
+        if (!res.ok) throw new Error('真题库暂时加载失败');
         return res.json();
       })
       .then((payload) => {
-        if (!alive) return;
         const list = Array.isArray(payload.questions) ? payload.questions : [];
         const analysis = Array.isArray(payload.analysisQuestions) ? payload.analysisQuestions : [];
         setExamQuestions(list);
         setAnalysisQuestions(analysis);
         const validQ = new Set(list.map((q) => q.id));
-        const restored = readStudyState(globalThis.localStorage, validQ, allEventIds);
-        setStudyState(restored.state);
+        const restored = readStudyState(globalThis.localStorage, validQ, null);
+        // Merge in case user interacted before fetch completed.
+        const current = studyStateRef.current;
+        const merged =
+          current.attempts.length || Object.keys(current.mastery).length
+            ? {
+                version: 1,
+                attempts: current.attempts.filter((a) => validQ.has(a.questionId)),
+                schedules: Object.fromEntries(
+                  Object.entries(current.schedules).filter(([id]) => validQ.has(id)),
+                ),
+                mastery: current.mastery,
+              }
+            : restored.state;
+        studyStateRef.current = merged;
+        setStudyState(merged);
         if (restored.error) setNotice(restored.error);
       })
       .catch((err) => {
-        if (alive) setExamError(err.message);
+        setExamError(err.message || '真题库暂时加载失败');
       })
       .finally(() => {
-        if (alive) setExamLoading(false);
+        setExamLoading(false);
       });
-    return () => {
-      alive = false;
-    };
-  }, [allEventIds]);
+  }, []);
 
-  const persistStudy = useCallback((updater) => {
-    setStudyState((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : updater;
-      writeStudyState(next);
-      return next;
-    });
+  useEffect(() => {
+    loadExamQuestions();
+  }, [loadExamQuestions]);
+
+  const persistStudy = useCallback((nextOrUpdater) => {
+    const next = typeof nextOrUpdater === 'function' ? nextOrUpdater(studyStateRef.current) : nextOrUpdater;
+    studyStateRef.current = next;
+    const saved = writeStudyState(next);
+    setStudyState(next);
+    if (!saved) {
+      setNotice('当前浏览器无法写入本地存储（如隐私模式或空间已满），刷新后进度可能无法保留。');
+    }
+    return next;
   }, []);
 
   const handleRecordAttempt = useCallback(
     (question, answer, opts) => {
-      let recorded = null;
-      persistStudy((prev) => {
-        const next = recordQuestionAttempt(prev, question, answer, opts);
-        recorded = next.attempts.at(-1);
-        return next;
-      });
-      return recorded;
+      const next = recordQuestionAttempt(studyStateRef.current, question, answer, opts);
+      persistStudy(next);
+      return next.attempts.at(-1) || null;
     },
     [persistStudy],
   );
 
   const handleSetMastery = useCallback(
     (eventId, level) => {
-      persistStudy((prev) => {
-        const nextLevel = prev.mastery[eventId]?.level === level ? null : level;
-        return setNodeMastery(prev, eventId, nextLevel);
-      });
+      const prev = studyStateRef.current;
+      const nextLevel = prev.mastery[eventId]?.level === level ? null : level;
+      persistStudy(setNodeMastery(prev, eventId, nextLevel));
     },
     [persistStudy],
   );
 
   const handleExportBackup = useCallback(() => {
-    const content = exportStudyBackup(studyState);
+    const content = exportStudyBackup(studyStateRef.current);
     const blob = new Blob([content], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -359,30 +500,48 @@ function HistoryExperience({
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-  }, [studyState]);
+  }, []);
 
   const handleImportBackup = useCallback(
     (jsonText) => {
-      let summary = null;
-      persistStudy((prev) => {
-        const result = importStudyBackup(jsonText, prev, questionIds, allEventIds);
-        summary = result.summary;
-        return result.state;
-      });
-      return summary;
+      const validEvents = allBundles.modern && allBundles.prc ? allEventIds : null;
+      const result = importStudyBackup(jsonText, studyStateRef.current, questionIds, validEvents);
+      persistStudy(result.state);
+      return { ...result.summary, state: result.state };
     },
-    [persistStudy, questionIds, allEventIds],
+    [persistStudy, questionIds, allBundles, allEventIds],
   );
 
   const handleResetStudy = useCallback(() => {
+    lastClearedStudyRef.current = studyStateRef.current;
     persistStudy(emptyStudyState());
     setExamSubmitted({});
+    setUndoResetAvailable(true);
+    setNotice('已清空本机学习记录。');
+    if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = window.setTimeout(() => {
+      lastClearedStudyRef.current = null;
+      setUndoResetAvailable(false);
+    }, 8000);
+  }, [persistStudy]);
+
+  const handleUndoResetStudy = useCallback(() => {
+    if (!lastClearedStudyRef.current) return;
+    persistStudy(lastClearedStudyRef.current);
+    lastClearedStudyRef.current = null;
+    setUndoResetAvailable(false);
+    if (undoTimerRef.current) window.clearTimeout(undoTimerRef.current);
+    setNotice('已恢复刚才清空的学习记录。');
   }, [persistStudy]);
 
   const paintTime = useCallback(() => {
     const time = clock.current.time;
     if (progressRef.current) progressRef.current.style.transform = `scaleX(${time / total})`;
+    const displayElapsed = isQueued
+      ? playlistElapsed(events, starts, playlist, indexRef.current, time)
+      : time;
     const stamp = formatClock(time);
+    const displayStamp = formatClock(displayElapsed);
     if (sliderRef.current) {
       const value = time.toFixed(1);
       const label = `${stamp}，当前${events[indexRef.current].title}`;
@@ -391,8 +550,8 @@ function HistoryExperience({
         sliderRef.current.setAttribute('aria-valuetext', label);
       }
     }
-    if (elapsedRef.current && elapsedRef.current.textContent !== stamp) {
-      elapsedRef.current.textContent = stamp;
+    if (elapsedRef.current && elapsedRef.current.textContent !== displayStamp) {
+      elapsedRef.current.textContent = displayStamp;
     }
     const active = events[indexRef.current];
     if (!active) return;
@@ -433,6 +592,8 @@ function HistoryExperience({
     captions,
     playing,
     rate,
+    isQueued,
+    playlist,
     narration.voice,
     narration.manifest,
     narration.audioRef,
@@ -458,22 +619,48 @@ function HistoryExperience({
     [total, starts, events, paintTime, narration.syncSeek],
   );
 
+  const markManualChapterJump = useCallback(() => {
+    setSuppressIntertitle(true);
+    if (intertitleTimerRef.current) window.clearTimeout(intertitleTimerRef.current);
+    intertitleTimerRef.current = window.setTimeout(() => {
+      setSuppressIntertitle(false);
+    }, 120);
+  }, []);
+
+  const switchVolumeWithMemory = useCallback(
+    (nextVolId, targetEventId = null, autoPlay = false) => {
+      markManualChapterJump();
+      const currentScene = events[indexRef.current];
+      if (currentScene) {
+        volumePositionsRef.current = {
+          ...volumePositionsRef.current,
+          [volumeId]: { eventId: currentScene.id, time: clock.current.time },
+        };
+        writeVolumePositions(volumePositionsRef.current);
+      }
+      onSwitchVolume(nextVolId, targetEventId, autoPlay);
+    },
+    [events, volumeId, onSwitchVolume, markManualChapterJump],
+  );
+
   const selectEvent = useCallback(
     (id, pause = true) => {
+      markManualChapterJump();
       const targetVol = volumeIdForEvent(id);
       if (targetVol !== volumeId) {
-        onSwitchVolume(targetVol, id, !pause);
+        switchVolumeWithMemory(targetVol, id, !pause);
         return;
       }
       const next = events.findIndex((e) => e.id === id);
       if (next !== -1) seek(starts[next], pause);
     },
-    [volumeId, onSwitchVolume, events, starts, seek],
+    [volumeId, switchVolumeWithMemory, events, starts, seek, markManualChapterJump],
   );
 
   const step = useCallback(
     (delta) => {
-      if (playlistKind !== 'all') {
+      markManualChapterJump();
+      if (isQueued) {
         const target =
           delta > 0
             ? nextInPlaylist(playlist, indexRef.current, { loop: loopMode })
@@ -481,26 +668,42 @@ function HistoryExperience({
         if (target !== null) seek(starts[target]);
         return;
       }
+      if (loopMode) {
+        const bounds = chapterBounds(events, starts, events[indexRef.current].chapter);
+        if (bounds) {
+          const i = indexRef.current + delta;
+          if (i < bounds.firstIndex) {
+            seek(starts[bounds.lastIndex]);
+            return;
+          }
+          if (i > bounds.lastIndex) {
+            seek(starts[bounds.firstIndex]);
+            return;
+          }
+        }
+      }
       const i = Math.max(0, Math.min(events.length - 1, indexRef.current + delta));
       seek(starts[i]);
     },
-    [playlistKind, playlist, loopMode, starts, events.length, seek],
+    [isQueued, playlist, loopMode, starts, events, seek, markManualChapterJump],
   );
 
   const toggle = useCallback(() => {
-    if (playlistKind !== 'all' && !playlistSet.has(indexRef.current)) {
-      seek(starts[playlist[0]], false);
+    setHasStartedPlayback(true);
+    if (isQueued && playlist.length > 0 && !playlistSet.has(indexRef.current)) {
+      const nearest = playlist.find((idx) => idx >= indexRef.current) ?? playlist[0];
+      seek(starts[nearest], false);
       setPlaying(true);
       return;
     }
     if (clock.current.time >= total) seek(0);
     setPlaying((v) => !v);
-  }, [playlistKind, playlistSet, playlist, starts, total, seek]);
+  }, [isQueued, playlistSet, playlist, starts, total, seek]);
 
   const enforcePlaybackBoundary = useCallback(() => {
     const cur = indexRef.current;
     const sceneEnd = starts[cur] + events[cur].duration;
-    if (playlistKind !== 'all') {
+    if (isQueued) {
       if (clock.current.time >= sceneEnd - 0.05) {
         const nextIdx = nextInPlaylist(playlist, cur, { loop: loopMode });
         if (nextIdx !== null) {
@@ -520,21 +723,54 @@ function HistoryExperience({
       }
     }
     return false;
-  }, [events, starts, playlistKind, playlist, loopMode, seek]);
+  }, [events, starts, isQueued, playlist, loopMode, seek]);
 
   const startPlaylist = useCallback(
-    (nextKind) => {
-      setPlaylistKind(nextKind);
-      const nextList = buildPlaylist(events, nextKind);
+    (nextKind, { ids = null, label = '', fromStart = false } = {}) => {
+      markManualChapterJump();
+      const nextMeta = {
+        kind: nextKind,
+        label: label || (TYPES[nextKind]?.label ?? ''),
+        ids,
+      };
+      setPlaylistMeta(nextMeta);
+      const nextList =
+        nextKind === 'custom' && Array.isArray(ids)
+          ? events.map((e, i) => (ids.includes(e.id) ? i : -1)).filter((i) => i >= 0)
+          : buildPlaylist(events, nextKind);
       if (nextList.length) {
-        const startIdx = nextList.includes(indexRef.current) ? indexRef.current : nextList[0];
+        const startIdx = !fromStart && nextList.includes(indexRef.current) ? indexRef.current : nextList[0];
         seek(starts[startIdx], false);
+        setHasStartedPlayback(true);
         setPlaying(true);
       }
+      jumpedInPanelRef.current = true;
       setPanel(null);
     },
-    [events, starts, seek],
+    [events, starts, seek, markManualChapterJump],
   );
+
+  const exitPlaylist = useCallback(
+    (quiet = false) => {
+      if (playlistMeta.kind === 'all') return;
+      lastPlaylistRef.current = playlistMeta;
+      setPlaylistMeta({ kind: 'all', label: '', ids: null });
+      if (!quiet) {
+        setUndoPlaylistAvailable(true);
+        setNotice(`已退出「${playlistMeta.label || '专题'}」连播。`);
+      }
+    },
+    [playlistMeta],
+  );
+
+  const restorePlaylist = useCallback(() => {
+    if (!lastPlaylistRef.current) return;
+    const prev = lastPlaylistRef.current;
+    lastPlaylistRef.current = null;
+    setUndoPlaylistAvailable(false);
+    setNotice('');
+    setPlaylistMeta(prev);
+  }, []);
 
   const toggleWalkman = useCallback(() => {
     setBackgroundAudio((prev) => {
@@ -544,14 +780,17 @@ function HistoryExperience({
       } catch {
         // Keep current session switchable if storage is unavailable.
       }
+      if (next && narration.hasAudioTrack && !narration.voice) {
+        narration.enableVoice();
+      }
       setNotice(
         next
-          ? '已开启随身听：切后台或锁屏将继续播放配音，支持耳机切幕。'
-          : '已关闭随身听：切换标签页或锁屏将自动暂停。',
+          ? '已开启随身听：切后台或锁屏后将继续播放，可用耳机切换上下幕。'
+          : '已关闭随身听：切后台或锁屏时将自动暂停。',
       );
       return next;
     });
-  }, []);
+  }, [narration]);
 
   const toggleSfx = useCallback(() => {
     setSfx((prev) => {
@@ -563,36 +802,67 @@ function HistoryExperience({
 
   const inspectOnMap = useCallback(
     (eventId, context) => {
-      setPlaylistKind('all');
-      if (context.compareState) setCompareResume(context.compareState);
-      if (context.examState) setExamResume(context.examState);
+      exitPlaylist(true);
+      if (context.compareState) setCompareState((prev) => ({ ...(prev || {}), ...context.compareState }));
+      if (context.examState) setExamState((prev) => ({ ...(prev || {}), ...context.examState }));
       setReturnContext({ panel: context.panel, label: context.label });
+      jumpedInPanelRef.current = true;
       setPanel(null);
       const targetVol = volumeIdForEvent(eventId);
       if (targetVol !== volumeId) {
-        onSwitchVolume(targetVol, eventId, true);
+        switchVolumeWithMemory(targetVol, eventId, true);
         return;
       }
       selectEvent(eventId, false);
+      setHasStartedPlayback(true);
       setPlaying(true);
     },
-    [volumeId, onSwitchVolume, selectEvent],
+    [volumeId, switchVolumeWithMemory, selectEvent, exitPlaylist],
   );
+
+  // Reset stage view to default per-node presentation whenever moving to another event.
+  useEffect(() => {
+    setStageView('cinema');
+  }, [scene.id]);
+
+  // Auto-scroll active event into view when Directory opens.
+  useEffect(() => {
+    if (panel !== 'directory') return;
+    const timer = window.setTimeout(() => {
+      directoryListRef.current?.querySelector('.current')?.scrollIntoView({ block: 'center' });
+    }, 30);
+    return () => window.clearTimeout(timer);
+  }, [panel]);
 
   // Sync clock, index, URL, and document title when switching volumes or fulfilling a cross-volume jump.
   useEffect(() => {
     const volumeChanged = prevVolumeRef.current !== volumeId;
-    const hasPendingForHere = pendingNav && pendingNav.volumeId === volumeId;
-    if (!volumeChanged && !hasPendingForHere) return;
+    const hasPending = pendingNav && pendingNav.volumeId === volumeId;
+    if (!volumeChanged && !hasPending) return;
     prevVolumeRef.current = volumeId;
 
-    const targetId = hasPendingForHere ? pendingNav.eventId : null;
-    const autoPlay = hasPendingForHere ? Boolean(pendingNav.autoPlay) : false;
-    if (hasPendingForHere) onConsumePendingNav();
+    const targetId = hasPending ? pendingNav.eventId : null;
+    const autoPlay = hasPending ? Boolean(pendingNav.autoPlay) : false;
+    if (hasPending) onConsumePendingNav();
 
-    const nextIdx = targetId ? Math.max(0, events.findIndex((e) => e.id === targetId)) : 0;
-    const nextStart = starts[nextIdx] ?? 0;
-    setPlaylistKind('all');
+    const savedPos = !targetId ? volumePositionsRef.current[volumeId] : null;
+    let nextIdx = 0;
+    let nextStart = 0;
+    if (targetId) {
+      nextIdx = Math.max(0, events.findIndex((e) => e.id === targetId));
+      nextStart = starts[nextIdx] ?? 0;
+    } else if (savedPos?.eventId) {
+      const foundIdx = events.findIndex((e) => e.id === savedPos.eventId);
+      if (foundIdx >= 0) {
+        nextIdx = foundIdx;
+        nextStart =
+          Number.isFinite(savedPos.time) && savedPos.time >= starts[foundIdx] && savedPos.time < total
+            ? savedPos.time
+            : starts[foundIdx];
+      }
+    }
+
+    setPlaylistMeta({ kind: 'all', label: '', ids: null });
     setNextVolDismissed(false);
     setOverview(false);
     clock.current.time = nextStart;
@@ -601,14 +871,19 @@ function HistoryExperience({
     captionRef.current = -1;
     setIndex(nextIdx);
     setDetailId(events[nextIdx].id);
+    setDetailHistory([]);
     setBeatIndex(0);
     setCaptionIndex(-1);
     lastFoleyKeyRef.current = `${events[nextIdx].id}:0`;
     manualSeekUntilRef.current = performance.now() + 300;
     narration.syncSeek(nextStart);
+    if (autoPlay) setHasStartedPlayback(true);
     setPlaying(autoPlay);
     paintTime();
-  }, [volumeId, pendingNav, onConsumePendingNav, events, starts, narration.syncSeek, paintTime]);
+    if (volumeChanged && !targetId && nextIdx > 0) {
+      setNotice(`已回到上次观看的「${events[nextIdx].title}」`);
+    }
+  }, [volumeId, pendingNav, onConsumePendingNav, events, starts, total, narration.syncSeek, paintTime]);
 
   useEffect(() => {
     document.title = `史序 · ${meta.label}（${meta.range}）`;
@@ -710,9 +985,9 @@ function HistoryExperience({
           title: `${scene.year}年 · ${scene.title}`,
           artist: `史序 · ${meta.label}`,
           album:
-            playlistKind === 'all'
+            !isQueued
               ? data.chapters[scene.chapter]?.title || meta.label
-              : `专题连播 · ${TYPES[playlistKind].label}`,
+              : `专题连播 · ${playlistMeta.label || TYPES[playlistKind]?.label || '精选'}`,
         });
       }
       navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
@@ -725,18 +1000,87 @@ function HistoryExperience({
     }
   }, [scene, playing, playlistKind, data.chapters, step]);
 
+  const canFullscreen = Boolean(
+    typeof document !== 'undefined' &&
+      document.documentElement?.requestFullscreen &&
+      !window.matchMedia?.('(max-width: 760px)')?.matches,
+  );
+
+  const openPanel = useCallback(
+    (nextPanel) => {
+      if (!panel) {
+        wasPlayingBeforePanelRef.current = playing;
+        jumpedInPanelRef.current = false;
+      }
+      setPlaying(false);
+      setPanel(nextPanel);
+    },
+    [panel, playing],
+  );
+
+  const closePanel = useCallback((allowAutoResume = true) => {
+    setPanel(null);
+    if (allowAutoResume && wasPlayingBeforePanelRef.current && !jumpedInPanelRef.current) {
+      setPlaying(true);
+    }
+    wasPlayingBeforePanelRef.current = false;
+    jumpedInPanelRef.current = false;
+  }, []);
+
+  const openDetails = (id = scene.id, tab = 'summary', { pushHistory = false } = {}) => {
+    if (pushHistory && panel === 'detail' && id !== detailId) {
+      setDetailHistory((prev) => [...prev, detailId]);
+    } else if (panel !== 'detail') {
+      setDetailHistory([]);
+    }
+    if (id !== detailId) {
+      setClozeMasked(true);
+      setClozeRevealed({});
+    }
+    setDetailId(id);
+    setDetailTab(tab);
+    openPanel('detail');
+  };
+  const openDirectory = () => openPanel('directory');
+  const openCompare = () => {
+    setCompareState((prev) => {
+      if (prev) return prev;
+      const matchedSet = CONFUSION_SETS.find((s) => s.items.some((item) => item.id === scene.id));
+      const fallbackId = volumeId === 'prc' ? 'three-transformations' : 'land-evolution';
+      return {
+        mode: 'preset',
+        scope: 'all',
+        setId: matchedSet?.id || fallbackId,
+        pair: ['land-74', 'land-75'],
+        evoSteps: {},
+      };
+    });
+    openPanel('compare');
+  };
+  const openExam = () => openPanel('exam');
+  const full = async () => {
+    document.getElementById('player-prefs-popover')?.hidePopover?.();
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await document.documentElement.requestFullscreen();
+    } catch {
+      setNotice('当前浏览器不支持自动全屏，可按 F11（Mac 为 Control+Command+F）手动切换。');
+    }
+  };
+
   useEffect(() => {
     const handler = (e) => {
       if (
         dialogRef.current?.open ||
-        /INPUT|SELECT|TEXTAREA|BUTTON|A/.test(e.target.tagName) ||
+        /INPUT|SELECT|TEXTAREA/.test(e.target.tagName) ||
         e.altKey ||
         e.ctrlKey ||
         e.metaKey
       ) {
         return;
       }
-      if (e.code === 'Space') {
+      const isInteractiveTarget = /BUTTON|A/.test(e.target.tagName);
+      if (e.code === 'Space' && !isInteractiveTarget) {
         e.preventDefault();
         toggle();
       }
@@ -747,6 +1091,22 @@ function HistoryExperience({
       if (e.code === 'ArrowLeft') {
         e.preventDefault();
         step(-1);
+      }
+      if ((e.key === 'm' || e.key === 'M') && !isInteractiveTarget) {
+        e.preventDefault();
+        narration.toggleVoice();
+      }
+      if ((e.key === 'c' || e.key === 'C') && !isInteractiveTarget) {
+        e.preventDefault();
+        narration.toggleCaptions();
+      }
+      if ((e.key === 'f' || e.key === 'F') && !isInteractiveTarget && canFullscreen) {
+        e.preventDefault();
+        full();
+      }
+      if (e.key === '/' && !isInteractiveTarget) {
+        e.preventDefault();
+        openDirectory();
       }
     };
     const visibility = () => {
@@ -775,7 +1135,7 @@ function HistoryExperience({
       document.removeEventListener('visibilitychange', visibility);
       document.removeEventListener('fullscreenchange', fs);
     };
-  }, [toggle, step, backgroundAudio, playing, narration.voice, narration.audioRef, total, starts, paintTime]);
+  }, [toggle, step, backgroundAudio, playing, narration, total, starts, paintTime, canFullscreen]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -814,35 +1174,6 @@ function HistoryExperience({
     };
   }, []);
 
-  const openDetails = (id = scene.id, tab = 'summary') => {
-    setPlaying(false);
-    setDetailId(id);
-    setDetailTab(tab);
-    setClozeMasked(true);
-    setClozeRevealed({});
-    setPanel('detail');
-  };
-  const openDirectory = () => {
-    setPlaying(false);
-    setPanel('directory');
-  };
-  const openCompare = () => {
-    setPlaying(false);
-    setPanel('compare');
-  };
-  const openExam = () => {
-    setPlaying(false);
-    setPanel('exam');
-  };
-  const full = async () => {
-    try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await document.documentElement.requestFullscreen();
-    } catch {
-      setNotice('当前浏览器未开启全屏，可使用浏览器的全屏功能。');
-    }
-  };
-
   const chapterStarts = data.chapters.map((c, i) => {
     const n = events.findIndex((e) => e.chapter === i);
     return { ...c, index: n, time: starts[n] };
@@ -858,7 +1189,8 @@ function HistoryExperience({
   const storyboardEvidence = (allStories[detail.id]?.evidence || [])
     .map((id) => allEvents.find((e) => e.id === id))
     .filter(Boolean);
-  const searchingAllVolumes = query.trim().length > 0;
+  const searchingAllVolumes = query.trim().length > 0 || masteryFilter !== 'all';
+  const hasDirectoryFilters = Boolean(query.trim() || kind !== 'all' || masteryFilter !== 'all');
   const directoryResults = useMemo(
     () =>
       searchEvents(searchingAllVolumes ? allEvents : events, searchingAllVolumes ? allStories : stories, {
@@ -869,14 +1201,25 @@ function HistoryExperience({
       }),
     [searchingAllVolumes, allEvents, events, allStories, stories, query, kind, masteryFilter, studyState.mastery],
   );
+  const currentVolFilteredIds = useMemo(
+    () =>
+      directoryResults
+        .filter((r) => volumeIdForEvent(r.event.id) === volumeId)
+        .map((r) => r.event.id),
+    [directoryResults, volumeId],
+  );
 
   const canStepPrev =
-    playlistKind === 'all'
-      ? safeIndex > 0
+    !isQueued
+      ? loopMode
+        ? true
+        : safeIndex > 0
       : prevInPlaylist(playlist, safeIndex, { loop: loopMode }) !== null;
   const canStepNext =
-    playlistKind === 'all'
-      ? safeIndex < events.length - 1
+    !isQueued
+      ? loopMode
+        ? true
+        : safeIndex < events.length - 1
       : nextInPlaylist(playlist, safeIndex, { loop: loopMode }) !== null;
 
   const showNextVolumeBanner =
@@ -888,8 +1231,31 @@ function HistoryExperience({
 
   const isWideDialog = panel === 'compare' || panel === 'exam';
 
+  const detailAllBlankKeys = useMemo(() => {
+    if (panel !== 'detail' || detailTab !== 'review') return [];
+    const keys = [];
+    buildClozeSegments(detail.headline).forEach((s) => {
+      if (s.blank) keys.push(`rev-h-${detail.id}-${s.id}`);
+    });
+    buildClozeSegments(detail.summary).forEach((s) => {
+      if (s.blank) keys.push(`rev-s-${detail.id}-${s.id}`);
+    });
+    return keys;
+  }, [panel, detailTab, detail.id, detail.headline, detail.summary]);
+  const detailAllRevealed =
+    clozeMasked && detailAllBlankKeys.length > 0 && detailAllBlankKeys.every((k) => clozeRevealed[k]);
+
   return (
-    <main className="experience narrated-experience">
+    <main
+      className="experience narrated-experience"
+      onPointerUp={(e) => {
+        // Release focus after mouse/touch clicks on toolbar/player buttons so global Space/Arrow shortcuts stay usable.
+        if (e.pointerType !== 'keyboard') {
+          const btn = e.target.closest?.('button');
+          if (btn && !btn.closest('dialog')) btn.blur();
+        }
+      }}
+    >
       <audio
         ref={narration.audioRef}
         className="narration-audio"
@@ -933,38 +1299,45 @@ function HistoryExperience({
             <span>史序</span>
             <i />
           </a>
-          <div className="volume-switch" role="group" aria-label="切换历史分卷">
+          <div className="volume-switch" role="group" aria-label="切换上下篇">
             {VOLUME_ORDER.map((vid) => {
               const v = VOLUMES[vid];
               const active = vid === volumeId;
+              const loadingThis = switchingVolume === vid;
+              const volPrefix = vid === 'modern' ? '上篇 · ' : '下篇 · ';
               return (
                 <button
                   key={vid}
                   type="button"
-                  className={`volume-pill ${active ? 'is-active' : ''}`}
+                  className={`volume-pill ${active ? 'is-active' : ''} ${loadingThis ? 'is-loading' : ''}`}
                   aria-pressed={active}
-                  title={`${v.label}（${v.range}）`}
+                  aria-busy={loadingThis || undefined}
+                  disabled={Boolean(switchingVolume)}
+                  title={`${volPrefix}${v.label}（${v.range}）`}
                   onClick={() => {
-                    if (vid !== volumeId) onSwitchVolume(vid, null, false);
+                    if (vid !== volumeId) switchVolumeWithMemory(vid, null, false);
                   }}
                 >
-                  <span>{v.shortLabel}</span>
+                  <span>
+                    <em className="vol-prefix">{volPrefix}</em>
+                    {loadingThis ? `${v.shortLabel}…` : v.shortLabel}
+                  </span>
                 </button>
               );
             })}
           </div>
         </div>
         <div className="header-actions">
-          <button type="button" onClick={openCompare} title="高频易混同屏对照">
+          <button type="button" onClick={openCompare} title="高频易混史事同屏对照">
             <Scales size={17} />
             <span className="label-wide">易混对照</span>
             <span className="label-narrow">对照</span>
           </button>
-          <button type="button" className="exam-entry" onClick={openExam} title="2017—2026 考研政治史纲真题复测">
+          <button type="button" className="exam-entry" onClick={openExam} title="2017—2026 史纲真题复测">
             <Exam size={17} />
             <span className="label-wide">真题复测</span>
             <span className="label-narrow">真题</span>
-            {dueIds.length > 0 && <em className="due-badge" aria-label={`${dueIds.length}题待巩固`}>{dueIds.length}</em>}
+            {dueIds.length > 0 && <em className="due-badge" aria-label={`${dueIds.length}题待复习`}>{dueIds.length}</em>}
           </button>
           <button type="button" onClick={openDirectory}>
             <List size={18} />
@@ -982,7 +1355,10 @@ function HistoryExperience({
         </div>
       </header>
 
-      <section className="stage" aria-label="地图叙事主画面">
+      <section
+        className={`stage ${playing ? 'is-playing' : 'is-paused'}`}
+        aria-label="历史叙事主画面"
+      >
         <div
           className={`map-viewport ${cinemaActive ? 'has-cinema-stage' : ''} ${playing ? 'is-playing' : 'is-paused'}`}
         >
@@ -1003,6 +1379,7 @@ function HistoryExperience({
             onPick={(id) => (id === scene.id ? openDetails() : selectEvent(id))}
             overview={overview}
             zoom={zoom}
+            reduceMotion={reduceMotion}
           />
 
           <EraCanvas
@@ -1010,7 +1387,7 @@ function HistoryExperience({
             theme={theme}
             playing={playing}
             reduce={reduceMotion}
-            active={!overview}
+            active={!overview && !cinemaActive && !isDiagramScene && !isCompactViewport}
           />
 
           {cinemaActive && (
@@ -1027,100 +1404,61 @@ function HistoryExperience({
           )}
 
           <div className="map-tools">
-            <button
-              type="button"
-              className="pilot-switcher-btn"
-              popoverTarget="pilot-showcase-popover"
-              aria-label="切换多形式动画样片"
-              title="直达 5 种非地图动画样片：文献手稿 / 纵深档案 / 木刻视差 / 号外公报 / 土地演化"
-            >
-              <FilmStrip size={15} />
-              <span>样片</span>
-            </button>
-            {pilotStage && !overview && (
+            {cinemaActive ? (
               <button
                 type="button"
-                className={`stage-mode-btn ${stageView === 'cinema' ? 'is-cinema' : ''}`}
-                aria-pressed={stageView === 'cinema'}
-                title={stageView === 'cinema' ? '切回地图图解视角对比' : '切回多维影院画布'}
-                onClick={() => setStageView((v) => (v === 'cinema' ? 'map' : 'cinema'))}
+                className="stage-mode-btn"
+                title="切到地图图解视角对比"
+                onClick={() => setStageView('map')}
               >
                 <Stack size={14} />
-                <span>{stageView === 'cinema' ? '地图' : '画布'}</span>
+                <span>切到地图</span>
               </button>
-            )}
-            <button
-              type="button"
-              className={overview ? 'selected' : ''}
-              onClick={() => setOverview((v) => !v)}
-              aria-pressed={overview}
-            >
-              <Compass size={15} />
-              <span>{overview ? '跟随' : '全图'}</span>
-            </button>
-            {!cinemaActive && (
+            ) : (
               <>
-                <button type="button" aria-label="放大地图" onClick={() => setZoom((z) => Math.min(1.6, z + 0.15))}>
+                {pilotStage && !overview && (
+                  <button
+                    type="button"
+                    className="stage-mode-btn is-cinema"
+                    title="切回本幕视觉特写"
+                    onClick={() => setStageView('cinema')}
+                  >
+                    <Stack size={14} />
+                    <span>切回特写</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className={overview ? 'selected' : ''}
+                  onClick={() => setOverview((v) => !v)}
+                  title={overview ? '回到当前幕局部视图' : '查看全国总览'}
+                >
+                  <Compass size={15} />
+                  <span>{overview ? '回到本幕' : '查看全图'}</span>
+                </button>
+                <button
+                  type="button"
+                  aria-label="放大地图"
+                  disabled={zoom >= 1.6}
+                  onClick={() => setZoom((z) => Math.min(1.6, Math.round((z + 0.15) * 100) / 100))}
+                >
                   <Plus size={14} />
                 </button>
-                <button type="button" aria-label="缩小地图" onClick={() => setZoom((z) => Math.max(0.7, z - 0.15))}>
+                <button
+                  type="button"
+                  aria-label="缩小地图"
+                  disabled={zoom <= 0.7}
+                  onClick={() => setZoom((z) => Math.max(0.7, Math.round((z - 0.15) * 100) / 100))}
+                >
                   <Minus size={14} />
                 </button>
+                {Math.abs(zoom - 1) > 0.01 && (
+                  <button type="button" aria-label="复原地图比例" onClick={() => setZoom(1)}>
+                    <span>复原</span>
+                  </button>
+                )}
               </>
             )}
-          </div>
-
-          <div id="pilot-showcase-popover" popover="auto" className="pilot-popover" aria-label="多形式动画样片直达">
-            <div className="pilot-popover-head">
-              <strong>多形式动画样片</strong>
-              <span>脱离地图 · 5 种镜头形态</span>
-            </div>
-            <div className="pilot-popover-list">
-              {PILOT_STAGE_LIST.map((item) => {
-                const isCurrent = scene.id === item.id && cinemaActive;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={`pilot-popover-item ${isCurrent ? 'is-active' : ''}`}
-                    onClick={() => {
-                      document.getElementById('pilot-showcase-popover')?.hidePopover?.();
-                      setOverview(false);
-                      setStageView('cinema');
-                      setPlaylistKind('all');
-                      if (volumeIdForEvent(item.id) !== volumeId) {
-                        onSwitchVolume(item.volumeId, item.id, true);
-                      } else {
-                        selectEvent(item.id, false);
-                        setPlaying(true);
-                      }
-                    }}
-                  >
-                    <span className="pilot-popover-item-copy">
-                      <strong>{item.title}</strong>
-                      <small>{item.badge}</small>
-                    </span>
-                    <span className="pilot-popover-tag">{item.shortLabel}</span>
-                  </button>
-                );
-              })}
-              <button
-                type="button"
-                className="pilot-popover-item"
-                onClick={() => {
-                  document.getElementById('pilot-showcase-popover')?.hidePopover?.();
-                  setPlaying(false);
-                  setCompareResume({ mode: 'preset', scope: 'cross', setId: 'land-evolution' });
-                  setPanel('compare');
-                }}
-              >
-                <span className="pilot-popover-item-copy">
-                  <strong>土地政策演进（1853—2017）</strong>
-                  <small>易混对照 · 12 步产权分层连续变形短片</small>
-                </span>
-                <span className="pilot-popover-tag">演化短片</span>
-              </button>
-            </div>
           </div>
         </div>
 
@@ -1131,37 +1469,52 @@ function HistoryExperience({
           chapterTitle={data.chapters[scene.chapter]?.title}
           playing={playing}
           overview={overview}
+          reduce={reduceMotion}
+          suppress={suppressIntertitle}
         />
 
         <article className="story" key={scene.id}>
           <div className="story-head-meta">
             <div className="year-line">
-              <YearRoll year={scene.year} />
+              <YearRoll year={scene.year} reduce={reduceMotion} />
               <span className="year-unit">年</span>
               {scene.endYear && <span className="period-end">— {scene.endYear}</span>}
             </div>
             <div className="story-category" style={{ color: type.color }}>
               <type.Icon size={14} />
               {type.label}
-              <span>·</span>
-              <span>{currentBeat?.date || readableDate(scene)}</span>
+              {(() => {
+                const beatDateText = currentBeat?.date || readableDate(scene);
+                return beatDateText && beatDateText !== `${scene.year}年` ? (
+                  <>
+                    <span>·</span>
+                    <span>{beatDateText}</span>
+                  </>
+                ) : null;
+              })()}
             </div>
           </div>
-          <h1 className={scene.title.length > 20 ? 'long-title' : ''}>{scene.title}</h1>
+          <div className="story-title-row">
+            <h1 className={scene.title.length > 20 ? 'long-title' : ''}>{scene.title}</h1>
+            <button type="button" className="details-trigger details-trigger-compact" onClick={() => openDetails()}>
+              详情
+            </button>
+          </div>
           {currentBeat && <h2 className="beat-title">{currentBeat.title}</h2>}
           <KineticCopy
             text={currentBeat?.text || scene.summary}
             beatKey={`${scene.id}:${beatIndex}`}
             playing={playing}
+            reduce={reduceMotion}
           />
           {authored && (
-            <nav className="beat-navigation" aria-label="事件阶段">
+            <nav className="beat-navigation" aria-label="本幕阶段">
               {authored.beats.map((beat, i) => (
                 <button
                   key={beat.at}
                   type="button"
                   aria-current={i === beatIndex ? 'step' : undefined}
-                  onClick={() => seek(starts[safeIndex] + playbackTimeFor(authored, scene, beat.at) + 0.12, true)}
+                  onClick={() => seek(starts[safeIndex] + playbackTimeFor(authored, scene, beat.at) + 0.12, false)}
                   title={beat.title}
                 >
                   {beat.short}
@@ -1171,13 +1524,19 @@ function HistoryExperience({
           )}
           <div className="story-bottom">
             <button type="button" className="details-trigger" onClick={() => openDetails()}>
-              详情 <ArrowUpRight size={15} />
+              详情与自测
             </button>
+            {!hasStartedPlayback && !playing && safeIndex === 0 && (
+              <button type="button" className="hero-start-cta" onClick={toggle}>
+                <Play size={13} weight="fill" />
+                <span>开始播放 · {Math.round(total / 60)} 分钟</span>
+              </button>
+            )}
           </div>
         </article>
 
         {returnContext && (
-          <div className="return-context-pill" role="region" aria-label="返回刷题或对照">
+          <div className="return-context-pill" role="region" aria-label={returnContext.label}>
             <button
               type="button"
               className="return-context-action"
@@ -1207,7 +1566,7 @@ function HistoryExperience({
             <button
               type="button"
               className="return-context-action"
-              onClick={() => onSwitchVolume(meta.nextVolumeId, null, true)}
+              onClick={() => switchVolumeWithMemory(meta.nextVolumeId, null, true)}
             >
               <span>{meta.nextPrompt}</span>
               <ArrowRight size={15} />
@@ -1223,7 +1582,7 @@ function HistoryExperience({
           </div>
         )}
 
-        {narration.captionsVisible && activeCaption && (
+        {narration.captionsVisible && activeCaption && (hasStartedPlayback || playing || clock.current.time > 0.2) && (
           <div className="narration-subtitles" aria-label="配音字幕">
             <p>{activeCaption.text}</p>
           </div>
@@ -1231,24 +1590,50 @@ function HistoryExperience({
       </section>
 
       <footer className="player">
-        {playlistKind !== 'all' && (
+        {(isQueued || loopMode || backgroundAudio) && (
           <div className="playlist-bar" role="status">
-            <span>
-              专题连播 · <strong>{TYPES[playlistKind].label}</strong>
-              <small>
-                {playlistPos >= 0 ? `${playlistPos + 1} / ${playlist.length}` : `${playlist.length} 条`} · 约{' '}
-                {formatClock(playlistTotalSeconds)}
-              </small>
+            <span className="playlist-status-pills">
+              {isQueued && (
+                <span>
+                  连播队列 · <strong>{playlistMeta.label || TYPES[playlistKind]?.label}</strong>
+                  <small>
+                    {playlistPos >= 0 ? `${playlistPos + 1} / ${playlist.length}` : `${playlist.length} 幕`} · 约{' '}
+                    {formatClock(playlistTotalSeconds)}
+                  </small>
+                </span>
+              )}
+              {loopMode && (
+                <button
+                  type="button"
+                  className="status-chip"
+                  onClick={() => setLoopMode(false)}
+                  title="点击关闭循环"
+                >
+                  {isQueued ? '专题循环' : '单章循环'} ×
+                </button>
+              )}
+              {backgroundAudio && (
+                <button
+                  type="button"
+                  className="status-chip"
+                  onClick={toggleWalkman}
+                  title="点击关闭随身听"
+                >
+                  随身听 ×
+                </button>
+              )}
             </span>
-            <button type="button" onClick={() => setPlaylistKind('all')}>
-              退出专题 <X size={13} />
-            </button>
+            {isQueued && (
+              <button type="button" onClick={() => exitPlaylist(false)}>
+                退出连播 <X size={13} />
+              </button>
+            )}
           </div>
         )}
 
         <div className="timeline-track">
           <div ref={progressRef} className="timeline-fill" />
-          <div className={`scene-ticks ${playlistKind !== 'all' ? 'is-filtered' : ''}`} aria-hidden="true">
+          <div className={`scene-ticks ${isQueued ? 'is-filtered' : ''}`} aria-hidden="true">
             {events.map((e, i) => (
               <span
                 key={e.id}
@@ -1267,7 +1652,18 @@ function HistoryExperience({
             aria-label="叙事播放进度"
             onChange={(e) => {
               manualSeekUntilRef.current = performance.now() + 300;
+              markManualChapterJump();
               seek(Number(e.target.value));
+            }}
+            onPointerUp={() => {
+              if (isQueued && playlist.length && !playlistSet.has(indexRef.current)) {
+                const nearest = playlist.reduce(
+                  (best, idx) =>
+                    Math.abs(idx - indexRef.current) < Math.abs(best - indexRef.current) ? idx : best,
+                  playlist[0],
+                );
+                seek(starts[nearest], !playing);
+              }
             }}
           />
         </div>
@@ -1305,24 +1701,30 @@ function HistoryExperience({
             </button>
           </div>
           <div className="playback-time">
-            <span ref={elapsedRef}>{formatClock(clock.current.time)}</span>
+            <span ref={elapsedRef}>
+              {formatClock(
+                isQueued
+                  ? playlistElapsed(events, starts, playlist, safeIndex, clock.current.time)
+                  : clock.current.time,
+              )}
+            </span>
             <span>/</span>
-            <span>{formatClock(total)}</span>
+            <span>{formatClock(isQueued ? playlistTotalSeconds : total)}</span>
           </div>
           <div className="transport-secondary">
             <button
               type="button"
               className={`narration-toggle ${narration.voice ? 'is-active' : ''}`}
-              aria-label={narration.voice ? '关闭配音讲解' : '开启配音讲解'}
+              aria-label={narration.voice ? '关闭配音' : '开启配音'}
               aria-pressed={narration.voice}
               aria-description={narration.manifest?.disclosure}
               title={
                 !narration.hasAudioTrack
-                  ? '下篇当前为字幕与拟音模式，配音将于文案定稿后接入'
+                  ? '本篇暂未提供配音，可开启字幕配合观看'
                   : narration.loading
                     ? '配音载入中'
-                    : `${narration.voice ? '关闭' : '开启'}配音讲解${
-                        narration.manifest?.engine === 'GPT-SoVITS' ? ' · AI合成 · 已确认音色' : ''
+                    : `${narration.voice ? '关闭' : '开启'}配音${
+                        narration.manifest?.engine === 'GPT-SoVITS' ? '（AI合成）' : ''
                       }`
               }
               disabled={narration.loading}
@@ -1342,7 +1744,7 @@ function HistoryExperience({
               className={`narration-toggle ${narration.captionsVisible ? 'is-active' : ''}`}
               aria-label={narration.captionsVisible ? '关闭字幕' : '开启字幕'}
               aria-pressed={narration.captionsVisible}
-              title={narration.captionsVisible ? '关闭字幕' : '开启字幕'}
+              title="配音字幕（C）"
               onClick={narration.toggleCaptions}
             >
               <ClosedCaptioning size={18} />
@@ -1350,13 +1752,14 @@ function HistoryExperience({
             </button>
             <button
               type="button"
-              className="read-toggle"
-              aria-label="考点回忆"
-              onClick={() => openDetails(scene.id, 'review')}
+              className={`narration-toggle rate-cycle-btn ${rate !== 1 ? 'is-active' : ''}`}
+              aria-label={`当前倍速 ${rate}×，点击切换倍速`}
+              title="切换播放倍速"
+              onClick={() =>
+                setRate((r) => RATE_OPTIONS[(RATE_OPTIONS.indexOf(r) + 1) % RATE_OPTIONS.length])
+              }
             >
-              <BookOpen size={16} />
-              <span className="label-wide">考点回忆</span>
-              <span className="label-narrow">回忆</span>
+              <span>{rate}×</span>
             </button>
             <button
               type="button"
@@ -1365,10 +1768,10 @@ function HistoryExperience({
               }`}
               popoverTarget="player-prefs-popover"
               aria-label="播放设置与更多工具"
-              title="倍速、循环、音效、随身听与全屏"
+              title="倍速、循环、音效、随身听与备份"
             >
               <SlidersHorizontal size={18} />
-              <span>{rate !== 1 ? `${rate}×` : '设置'}</span>
+              <span>设置</span>
               {(loopMode || backgroundAudio) && <i className="pref-dot" aria-hidden="true" />}
             </button>
           </div>
@@ -1378,7 +1781,7 @@ function HistoryExperience({
           <div className="prefs-section">
             <span className="prefs-label">播放速度</span>
             <div className="prefs-rate-row" role="group" aria-label="选择播放速度">
-              {[0.5, 1, 1.5, 2].map((v) => (
+              {RATE_OPTIONS.map((v) => (
                 <button
                   key={v}
                   type="button"
@@ -1394,13 +1797,15 @@ function HistoryExperience({
           <div className="prefs-toggles">
             <button
               type="button"
-              className={`prefs-row sfx-toggle ${sfx ? 'is-active' : ''}`}
+              className={`prefs-row sfx-toggle ${sfx && !reduceMotion ? 'is-active' : ''}`}
               aria-pressed={sfx}
+              disabled={reduceMotion}
+              title={reduceMotion ? '系统已开启减弱动态效果，音效已自动静音' : undefined}
               onClick={toggleSfx}
             >
               <Waveform size={17} />
-              <span>微音效</span>
-              <em>{sfx ? '已开' : '已关'}</em>
+              <span>音效</span>
+              <em>{reduceMotion ? '减动效已静音' : sfx ? '已开' : '已关'}</em>
             </button>
             <button
               type="button"
@@ -1409,7 +1814,7 @@ function HistoryExperience({
               onClick={() => setLoopMode((v) => !v)}
             >
               <Repeat size={17} />
-              <span>{playlistKind === 'all' ? '单章循环' : '专题循环'}</span>
+              <span>{isQueued ? '专题循环' : '单章循环'}</span>
               <em>{loopMode ? '已开' : '已关'}</em>
             </button>
             <button
@@ -1427,24 +1832,64 @@ function HistoryExperience({
             <button
               type="button"
               onClick={() => {
-                setPlaylistKind('all');
-                seek(0, true);
+                document.getElementById('player-prefs-popover')?.hidePopover?.();
+                setPlaylistMeta({ kind: 'all', label: '', ids: null });
+                setHasStartedPlayback(true);
+                seek(0, false);
+                setPlaying(true);
               }}
             >
               <ArrowCounterClockwise size={15} />
-              <span>从 {events[0].year} 重播</span>
+              <span>从头播放本篇</span>
             </button>
-            <button type="button" onClick={full}>
-              <ArrowsOut size={15} />
-              <span>{fullScreen ? '退出全屏' : '全屏'}</span>
+            {canFullscreen && (
+              <button type="button" onClick={full}>
+                <ArrowsOut size={15} />
+                <span>{fullScreen ? '退出全屏' : '全屏'}</span>
+              </button>
+            )}
+          </div>
+          <div className="prefs-footer">
+            <button
+              type="button"
+              onClick={() => {
+                handleExportBackup();
+                setNotice('已保存记录备份文件，可在其他设备导入恢复。');
+              }}
+            >
+              <DownloadSimple size={14} />
+              <span>导出备份</span>
             </button>
-            <a href="./?lesson=road">
-              <span>90秒样片</span>
+            <button type="button" onClick={() => prefsBackupInputRef.current?.click()}>
+              <UploadSimple size={14} />
+              <span>导入备份</span>
+            </button>
+            <input
+              ref={prefsBackupInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="sr-only"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                e.target.value = '';
+                if (!file) return;
+                try {
+                  const summary = handleImportBackup(await file.text());
+                  setNotice(
+                    `已合并记录：新增 ${summary.addedAttempts} 次作答、更新 ${summary.updatedMastery} 条掌握度。`,
+                  );
+                } catch (err) {
+                  setNotice(err.message || '无法识别该文件，请选择之前从「史序」导出的备份文件。');
+                }
+              }}
+            />
+          </div>
+          <div className="prefs-footer prefs-footer-links">
+            <a href={`./?lesson=road&fromVol=${volumeId}&fromEvent=${scene.id}`}>
+              <span>打开 90 秒互动精讲</span>
               <ArrowUpRight size={14} />
             </a>
-          </div>
-          {REPO.url && (
-            <div className="prefs-footer">
+            {REPO.url && (
               <a
                 href={REPO.url}
                 target="_blank"
@@ -1455,9 +1900,8 @@ function HistoryExperience({
                 <span>{REPO.label}</span>
                 <ArrowUpRight size={14} aria-hidden="true" />
               </a>
-              <span className="prefs-label">{REPO.license}</span>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {narration.voice && playing && narration.waiting && (
@@ -1467,21 +1911,30 @@ function HistoryExperience({
         )}
 
         <div className="chapter-track">
-          {chapterStarts.map((c, i) => (
-            <button
-              key={c.title}
-              type="button"
-              className={scene.chapter === i ? 'active' : ''}
-              style={{ width: `${(((chapterStarts[i + 1]?.time || total) - c.time) / total) * 100}%` }}
-              onClick={() => {
-                setPlaylistKind('all');
-                seek(c.time);
-              }}
-            >
-              <span>{c.range}</span>
-              <strong>{c.title}</strong>
-            </button>
-          ))}
+          {chapterStarts.map((c, i) => {
+            const firstInQueue = isQueued ? playlist.find((idx) => events[idx].chapter === i) : null;
+            const disabledInQueue = isQueued && firstInQueue === undefined;
+            return (
+              <button
+                key={c.title}
+                type="button"
+                className={scene.chapter === i ? 'active' : ''}
+                disabled={disabledInQueue}
+                style={{ width: `${(((chapterStarts[i + 1]?.time || total) - c.time) / total) * 100}%` }}
+                onClick={() => {
+                  markManualChapterJump();
+                  if (isQueued) {
+                    if (firstInQueue !== undefined) seek(starts[firstInQueue]);
+                    return;
+                  }
+                  seek(c.time);
+                }}
+              >
+                <span>{c.range}</span>
+                <strong>{c.title}</strong>
+              </button>
+            );
+          })}
         </div>
       </footer>
 
@@ -1489,12 +1942,12 @@ function HistoryExperience({
         ref={dialogRef}
         closedby="any"
         className={`reading-dialog ${panel === 'directory' ? 'directory-dialog' : ''} ${isWideDialog ? 'wide-dialog' : ''}`}
-        onClose={() => setPanel(null)}
+        onClose={() => closePanel(true)}
         aria-labelledby="dialog-title"
       >
         <div className="dialog-content">
           <div className="dialog-top">
-            <button type="button" className="icon-button" aria-label="关闭弹窗" onClick={() => setPanel(null)}>
+            <button type="button" className="icon-button" aria-label="关闭弹窗" onClick={() => closePanel(true)}>
               <X size={21} />
             </button>
           </div>
@@ -1507,13 +1960,8 @@ function HistoryExperience({
                 stories={allStories}
                 masteryMap={studyState.mastery}
                 onInspectMap={inspectOnMap}
-                initialMode={compareResume?.mode || 'preset'}
-                initialScope={compareResume?.scope || 'all'}
-                initialSetId={
-                  compareResume?.setId ||
-                  (volumeId === 'prc' ? 'three-transformations' : 'land-evolution')
-                }
-                initialPair={compareResume?.pair}
+                compareState={compareState}
+                onCompareStateChange={setCompareState}
               />
             </Suspense>
           )}
@@ -1533,11 +1981,9 @@ function HistoryExperience({
                 onExportBackup={handleExportBackup}
                 onImportBackup={handleImportBackup}
                 onResetStudy={handleResetStudy}
-                initialView={examResume?.view || null}
-                initialVolume={examResume?.volume ?? 'all'}
-                initialChapter={examResume?.chapter ?? 'all'}
-                initialQuestionId={examResume?.questionId || null}
-                initialAnalysisId={examResume?.analysisId || null}
+                onRetryExam={loadExamQuestions}
+                examState={examState}
+                onExamStateChange={setExamState}
                 submittedByQuestion={examSubmitted}
                 onSubmittedChange={setExamSubmitted}
               />
@@ -1546,19 +1992,56 @@ function HistoryExperience({
 
           {panel === 'directory' && (
             <>
-              <h2 id="dialog-title">事件目录与专题连播</h2>
-              <a className="directory-sample-card" href="./?lesson=road">
-                <div>
-                  <strong>道路与建军 · 90 秒因果精讲样片</strong>
-                  <span>秋收起义 → 三湾改编 → 古田会议，含决策冻结与章末复原</span>
+              <h2 id="dialog-title">史事目录与导览</h2>
+              <div className="directory-featured">
+                <a className="directory-sample-card" href={`./?lesson=road&fromVol=${volumeId}&fromEvent=${scene.id}`}>
+                  <div>
+                    <strong>道路与建军 · 90 秒互动精讲</strong>
+                    <span>秋收起义 → 三湾改编 → 古田会议，含决策判断与章末复原</span>
+                  </div>
+                  <ArrowUpRight size={17} />
+                </a>
+                <div className="directory-spotlight-row" aria-label="精选视觉特写与演化">
+                  {PILOT_STAGE_LIST.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`spotlight-chip ${scene.id === item.id && cinemaActive ? 'is-active' : ''}`}
+                      onClick={() =>
+                        inspectOnMap(item.id, {
+                          panel: 'directory',
+                          label: '返回目录',
+                        })
+                      }
+                    >
+                      <strong>{item.title}</strong>
+                      <span>{item.shortLabel}</span>
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="spotlight-chip"
+                    onClick={() => {
+                      setCompareState({
+                        mode: 'preset',
+                        scope: 'cross',
+                        setId: 'land-evolution',
+                        pair: ['land-74', 'land-75'],
+                        evoSteps: {},
+                      });
+                      setPanel('compare');
+                    }}
+                  >
+                    <strong>土地政策演进</strong>
+                    <span>12 步演化</span>
+                  </button>
                 </div>
-                <ArrowUpRight size={17} />
-              </a>
+              </div>
               <div className="search-field">
                 <MagnifyingGlass size={18} />
                 <input
-                  aria-label="搜索事件或原文考词"
-                  placeholder="搜事件、年份、地点，或“第一枪 / 使用权 / 两个务必”等考词"
+                  aria-label="搜索史事、年份、地点或关键词"
+                  placeholder="搜索史事、年份、地点或关键词"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
@@ -1599,34 +2082,64 @@ function HistoryExperience({
                     {item.label}
                   </button>
                 ))}
+                {hasDirectoryFilters && (
+                  <button
+                    type="button"
+                    className="clear-filters-btn"
+                    onClick={() => {
+                      setQuery('');
+                      setKind('all');
+                      setMasteryFilter('all');
+                    }}
+                  >
+                    清除筛选
+                  </button>
+                )}
               </div>
               <div className="directory-count">
                 <span>
-                  {directoryResults.length} 条{searchingAllVolumes ? '（全卷命中）' : `（${meta.shortLabel}）`}
+                  {directoryResults.length} 条{searchingAllVolumes ? '（全部两篇）' : `（${meta.shortLabel}）`}
                 </span>
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => startPlaylist(kind)}
-                >
-                  <Play size={13} weight="fill" />
-                  {kind === 'all'
-                    ? `播完整 ${Math.round(total / 60)} 分钟`
-                    : `连播「${TYPES[kind].label}」专题`}
-                </button>
+                {currentVolFilteredIds.length > 0 && (
+                  <button
+                    type="button"
+                    className="text-button"
+                    onClick={() => {
+                      if (query.trim() || masteryFilter !== 'all') {
+                        startPlaylist('custom', {
+                          ids: currentVolFilteredIds,
+                          label: masteryFilter === 'review' ? '需巩固史事' : '筛选结果',
+                        });
+                      } else {
+                        startPlaylist(kind, { fromStart: kind === 'all' });
+                      }
+                    }}
+                  >
+                    <Play size={13} weight="fill" />
+                    {query.trim() || masteryFilter !== 'all'
+                      ? `连播当前 ${currentVolFilteredIds.length} 幕`
+                      : kind === 'all'
+                        ? `从头连播本篇（约 ${Math.round(total / 60)} 分钟）`
+                        : `连播「${TYPES[kind].label}」专题`}
+                  </button>
+                )}
               </div>
-              <div className="directory-list">
+              <div ref={directoryListRef} className="directory-list">
                 {directoryResults.map(({ event: e, snippet }) => {
                   const mastery = studyState.mastery[e.id]?.level;
+                  const masteryLabel = MASTERY_OPTIONS.find((m) => m.id === mastery)?.label;
                   const eventVol = volumeIdForEvent(e.id);
                   return (
                     <button
                       type="button"
                       key={e.id}
                       onClick={() => {
-                        if (playlistKind !== 'all' && e.kind !== playlistKind) setPlaylistKind('all');
+                        if (isQueued && !playlistSet.has(events.findIndex((item) => item.id === e.id))) {
+                          exitPlaylist(true);
+                        }
+                        jumpedInPanelRef.current = true;
                         selectEvent(e.id);
-                        setPanel(null);
+                        closePanel(false);
                       }}
                       className={e.id === scene.id ? 'current' : ''}
                     >
@@ -1640,10 +2153,12 @@ function HistoryExperience({
                             </em>
                           )}
                           {mastery && (
-                            <i
-                              className={`mastery-dot mastery-${mastery}`}
-                              title={MASTERY_OPTIONS.find((m) => m.id === mastery)?.label}
-                            />
+                            <span
+                              className={`mastery-pill mastery-${mastery}`}
+                              aria-label={`掌握度：${masteryLabel}`}
+                            >
+                              {masteryLabel}
+                            </span>
                           )}
                         </span>
                         <small>{snippet || e.headline}</small>
@@ -1656,7 +2171,26 @@ function HistoryExperience({
                   );
                 })}
                 {directoryResults.length === 0 && (
-                  <div className="empty-search">没有找到相关内容。试试事件名、年份、地点或核心考词。</div>
+                  <div className="empty-search">
+                    {hasDirectoryFilters ? (
+                      <>
+                        <p>当前筛选下没有匹配史事。</p>
+                        <button
+                          type="button"
+                          className="pill-toggle"
+                          onClick={() => {
+                            setQuery('');
+                            setKind('all');
+                            setMasteryFilter('all');
+                          }}
+                        >
+                          清除筛选
+                        </button>
+                      </>
+                    ) : (
+                      <p>未找到相关史事，可换年份、地点或简称试试。</p>
+                    )}
+                  </div>
                 )}
               </div>
             </>
@@ -1664,38 +2198,63 @@ function HistoryExperience({
 
           {panel === 'detail' && (
             <>
+              {detailHistory.length > 0 && (() => {
+                const prevDetailId = detailHistory.at(-1);
+                const prevDetail = allEvents.find((e) => e.id === prevDetailId);
+                return (
+                  <button
+                    type="button"
+                    className="detail-back-link"
+                    onClick={() => {
+                      setDetailHistory((prev) => prev.slice(0, -1));
+                      setDetailId(prevDetailId);
+                      setClozeMasked(true);
+                      setClozeRevealed({});
+                    }}
+                  >
+                    <ArrowLeft size={14} />
+                    <span>返回「{prevDetail?.title || '上一史事'}」</span>
+                  </button>
+                );
+              })()}
               <h2 id="dialog-title">{detail.title}</h2>
               <div className="detail-date">
                 {readableDate(detail)}
                 <span>·</span>
                 {detail.location}
               </div>
-              <nav className="detail-tabs" aria-label="考点详情">
-                <button
-                  type="button"
-                  className={detailTab === 'summary' ? 'active' : ''}
-                  onClick={() => setDetailTab('summary')}
-                >
-                  事件解读
-                </button>
-                <button
-                  type="button"
-                  className={detailTab === 'review' ? 'active' : ''}
-                  onClick={() => {
-                    setDetailTab('review');
-                    setClozeMasked(true);
-                    setClozeRevealed({});
-                  }}
-                >
-                  考点回忆
-                </button>
-                <button
-                  type="button"
-                  className={detailTab === 'original' ? 'active' : ''}
-                  onClick={() => setDetailTab('original')}
-                >
-                  资料原文
-                </button>
+              <nav className="detail-tabs" role="tablist" aria-label="史事详情">
+                {[
+                  { id: 'summary', label: '史事解读' },
+                  { id: 'review', label: '遮词自测' },
+                  { id: 'original', label: '资料原文' },
+                ].map((tabItem) => {
+                  const selected = detailTab === tabItem.id;
+                  const tabIds = ['summary', 'review', 'original'];
+                  return (
+                    <button
+                      key={tabItem.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={selected}
+                      tabIndex={selected ? 0 : -1}
+                      className={selected ? 'active' : ''}
+                      onKeyDown={(e) => {
+                        const idx = tabIds.indexOf(detailTab);
+                        let nextIdx = -1;
+                        if (e.key === 'ArrowRight') nextIdx = (idx + 1) % tabIds.length;
+                        else if (e.key === 'ArrowLeft') nextIdx = (idx - 1 + tabIds.length) % tabIds.length;
+                        if (nextIdx >= 0) {
+                          e.preventDefault();
+                          setDetailTab(tabIds[nextIdx]);
+                        }
+                      }}
+                      onClick={() => setDetailTab(tabItem.id)}
+                    >
+                      {tabItem.label}
+                    </button>
+                  );
+                })}
               </nav>
 
               {detailTab === 'summary' && (
@@ -1716,13 +2275,17 @@ function HistoryExperience({
                   <h3>同期内容</h3>
                   <div className="related-list">
                     {related.map((e) => (
-                      <button type="button" key={e.id} onClick={() => openDetails(e.id)}>
+                      <button
+                        type="button"
+                        key={e.id}
+                        onClick={() => openDetails(e.id, 'summary', { pushHistory: true })}
+                      >
                         <span className="related-type">{TYPES[e.kind].label}</span>
                         <span>
                           {e.title}
                           <small>{e.year}年</small>
                         </span>
-                        <ArrowUpRight size={16} />
+                        <CaretRight size={15} />
                       </button>
                     ))}
                   </div>
@@ -1733,12 +2296,12 @@ function HistoryExperience({
                 <div className="detail-body review-body">
                   <h3>“{detail.title}”的核心内容和历史意义是什么？</h3>
                   <p className="cloze-tip">
-                    已自动遮住核心“帽子词”与定性短语，先尝试口头复述，再点击阴影词块逐个核对。
+                    已遮挡核心关键词，先尝试回忆，点击遮挡块即可核对。
                   </p>
                   <div className="recalled-answer cloze-card">
                     <span>
                       <Check size={16} />
-                      挖空自测
+                      遮词自测
                     </span>
                     <h4>
                       <ClozeText
@@ -1765,27 +2328,33 @@ function HistoryExperience({
                     <div className="cloze-actions">
                       <button
                         type="button"
-                        className="pill-toggle"
+                        className={`pill-toggle ${clozeMasked && !detailAllRevealed ? 'is-active' : ''}`}
+                        aria-pressed={clozeMasked && !detailAllRevealed}
                         onClick={() => {
-                          setClozeMasked((v) => !v);
-                          setClozeRevealed({});
+                          if (detailAllRevealed) {
+                            setClozeMasked(true);
+                            setClozeRevealed({});
+                          } else {
+                            setClozeMasked((v) => !v);
+                            setClozeRevealed({});
+                          }
                         }}
                       >
-                        {clozeMasked ? <Eye size={15} /> : <EyeSlash size={15} />}
-                        <span>{clozeMasked ? '显示全部关键词' : '重新遮挡自测'}</span>
+                        {clozeMasked && !detailAllRevealed ? <Eye size={15} /> : <EyeSlash size={15} />}
+                        <span>{clozeMasked && !detailAllRevealed ? '显示全部关键词' : '重新遮挡自测'}</span>
                       </button>
                       <button
                         type="button"
                         className="text-button"
                         onClick={() => setDetailTab('original')}
                       >
-                        核对原文 <ArrowUpRight size={15} />
+                        核对原文
                       </button>
                     </div>
                   </div>
 
                   <div className="mastery-box">
-                    <span className="mastery-label">标记掌握度（同步至目录“待巩固”筛选）</span>
+                    <span className="mastery-label">本幕掌握度</span>
                     <div className="mastery-buttons">
                       {MASTERY_OPTIONS.map((opt) => {
                         const active = studyState.mastery[detail.id]?.level === opt.id;
@@ -1820,10 +2389,10 @@ function HistoryExperience({
                           type="button"
                           className="text-button"
                           key={e.id}
-                          onClick={() => openDetails(e.id, 'original')}
+                          onClick={() => openDetails(e.id, 'original', { pushHistory: true })}
                         >
                           {e.title}
-                          <ArrowUpRight size={14} />
+                          <CaretRight size={14} />
                         </button>
                       ))}
                     </div>
@@ -1874,11 +2443,16 @@ function HistoryExperience({
                 type="button"
                 className="jump-button"
                 onClick={() => {
+                  if (detail.id === scene.id) {
+                    closePanel(true);
+                    return;
+                  }
+                  jumpedInPanelRef.current = true;
                   selectEvent(detail.id);
-                  setPanel(null);
+                  closePanel(false);
                 }}
               >
-                在地图上查看
+                {detail.id === scene.id ? '返回继续观看' : '切到此幕'}
                 <ArrowRight size={17} />
               </button>
             </>
@@ -1886,10 +2460,28 @@ function HistoryExperience({
         </div>
       </dialog>
 
-      {notice && (
+      {(externalNotice || notice) && (
         <div className="notice" role="status">
-          {notice}
-          <button type="button" onClick={() => setNotice('')} aria-label="关闭提示">
+          <span>{externalNotice || notice}</span>
+          {undoResetAvailable && (
+            <button type="button" className="notice-action" onClick={handleUndoResetStudy}>
+              撤销清空
+            </button>
+          )}
+          {undoPlaylistAvailable && (
+            <button type="button" className="notice-action" onClick={restorePlaylist}>
+              恢复连播
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setNotice('');
+              setUndoPlaylistAvailable(false);
+              onClearExternalNotice?.();
+            }}
+            aria-label="关闭提示"
+          >
             <X size={15} />
           </button>
         </div>
@@ -1910,6 +2502,8 @@ export function App() {
   const [volumeId, setVolumeId] = useState(initialVol);
   const [bundles, setBundles] = useState({});
   const [pendingNav, setPendingNav] = useState(null);
+  const [switchingVolume, setSwitchingVolume] = useState(null);
+  const [switchNotice, setSwitchNotice] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -1919,7 +2513,7 @@ export function App() {
 
     Promise.all([
       fetch(sitePath('/data/china-d3.json')).then((r) => {
-        if (!r.ok) throw new Error(`地图底图载入失败：${r.status}`);
+        if (!r.ok) throw new Error('地图底图暂时加载失败，请检查网络后重试。');
         return r.json();
       }),
       loadVolumeBundle(primaryVol),
@@ -1939,8 +2533,8 @@ export function App() {
             });
         }
       })
-      .catch((e) => {
-        if (alive) setError(e.message);
+      .catch(() => {
+        if (alive) setError('网络波动或资源加载中断，请稍后重试。');
       });
 
     return () => {
@@ -1950,27 +2544,34 @@ export function App() {
 
   const handleSwitchVolume = useCallback((nextVolId, targetEventId = null, autoPlay = false) => {
     const id = normalizeVolumeId(nextVolId);
+    setSwitchNotice('');
+    setSwitchingVolume(id);
     setPendingNav({ volumeId: id, eventId: targetEventId, autoPlay });
     loadVolumeBundle(id)
       .then((bundle) => {
         setBundles((prev) => (prev[id] ? prev : { ...prev, [id]: bundle }));
         setVolumeId(id);
       })
-      .catch((err) => {
-        setError(err.message);
+      .catch(() => {
+        setPendingNav(null);
+        setSwitchNotice(`网络波动，「${VOLUMES[id].label}」暂时无法载入，请重试。`);
+      })
+      .finally(() => {
+        setSwitchingVolume((cur) => (cur === id ? null : cur));
       });
   }, []);
 
   const consumePendingNav = useCallback(() => setPendingNav(null), []);
+  const clearSwitchNotice = useCallback(() => setSwitchNotice(''), []);
 
   if (error) {
     return (
       <main className="load-screen">
         <Compass size={36} />
-        <h1>资料暂时没有载入</h1>
+        <h1>页面暂时加载失败</h1>
         <p>{error}</p>
         <button type="button" onClick={() => location.reload()}>
-          重新载入
+          重新加载
         </button>
       </main>
     );
@@ -1993,7 +2594,7 @@ export function App() {
         <main className="load-screen">
           <Compass size={36} weight="light" />
           <span>史序</span>
-          <p>正在载入 90 秒样片…</p>
+          <p>正在载入 90 秒互动精讲…</p>
         </main>
       }
     >
@@ -2006,8 +2607,11 @@ export function App() {
       bundle={activeBundle}
       allBundles={bundles}
       onSwitchVolume={handleSwitchVolume}
+      switchingVolume={switchingVolume}
       pendingNav={pendingNav}
       onConsumePendingNav={consumePendingNav}
+      externalNotice={switchNotice}
+      onClearExternalNotice={clearSwitchNotice}
     />
   );
 }

@@ -18,7 +18,7 @@ export const emptyStudyState = () => ({
 
 function sanitizeState(raw, validQuestionIds, validEventIds) {
   if (!raw || typeof raw !== 'object' || raw.version !== 1) {
-    throw new Error('学习记录格式无效');
+    throw new Error('无法识别该备份文件的记录结构，请确认文件未损坏。');
   }
   const hasQFilter = validQuestionIds && validQuestionIds.size > 0;
   const hasEFilter = validEventIds && validEventIds.size > 0;
@@ -56,6 +56,8 @@ function sanitizeState(raw, validQuestionIds, validEventIds) {
       ? Object.fromEntries(
           Object.entries(raw.mastery).filter(
             ([id, entry]) =>
+              typeof id === 'string' &&
+              id.length > 0 &&
               (!hasEFilter || validEventIds.has(id)) &&
               entry &&
               MASTERY_LEVELS.includes(entry.level) &&
@@ -88,7 +90,7 @@ export function readStudyState(storage = globalThis.localStorage, validQuestionI
   } catch {
     return {
       state: emptyStudyState(),
-      error: '本地学习记录读取异常，本次练习仍可在当前页面继续。',
+      error: '本机旧记录读取失败，已开启全新记录，不影响本次继续练习。',
     };
   }
 }
@@ -207,7 +209,7 @@ export function importStudyBackup(jsonText, currentState, validQuestionIds = nul
   try {
     parsed = JSON.parse(String(jsonText || ''));
   } catch {
-    throw new Error('备份文件不是有效的 JSON 格式。');
+    throw new Error('无法识别该文件，请选择之前从「史序」导出的备份文件。');
   }
   const payload = parsed?.app === 'shixu' && parsed?.state ? parsed.state : parsed;
   const incoming = sanitizeState(payload, validQuestionIds, validEventIds);
@@ -258,7 +260,7 @@ export function searchEvents(
   stories,
   { query = '', kind = 'all', masteryFilter = 'all', masteryMap = {} } = {},
 ) {
-  const term = query.trim().toLowerCase();
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const results = [];
 
   for (const event of events) {
@@ -268,28 +270,39 @@ export function searchEvents(
     if (masteryFilter === 'unmarked' && level !== null) continue;
     if (masteryFilter === 'known' && level !== 'known') continue;
 
-    if (!term) {
+    if (!terms.length) {
       results.push({ event, snippet: '' });
       continue;
     }
 
     const base = `${event.title} ${event.year} ${event.headline} ${event.summary} ${event.location}`.toLowerCase();
-    if (base.includes(term)) {
+    if (terms.every((t) => base.includes(t))) {
       results.push({ event, snippet: '' });
       continue;
     }
 
     const beats = stories?.[event.id]?.beats || [];
-    const beatMatch = beats.find((b) => `${b.title} ${b.text}`.toLowerCase().includes(term));
+    const beatsJoined = beats.map((b) => `${b.title} ${b.text}`).join(' ').toLowerCase();
+    const originals = event.original || [];
+    const originalsJoined = originals.join(' ').toLowerCase();
+    const combined = `${base} ${beatsJoined} ${originalsJoined}`;
+    if (!terms.every((t) => combined.includes(t))) continue;
+
+    const beatMatch = beats.find((b) => terms.some((t) => `${b.title} ${b.text}`.toLowerCase().includes(t)));
     if (beatMatch) {
-      results.push({ event, snippet: makeSnippet(`${beatMatch.title}：${beatMatch.text}`, term) });
+      const matchedTerm = terms.find((t) => `${beatMatch.title} ${beatMatch.text}`.toLowerCase().includes(t)) || terms[0];
+      results.push({ event, snippet: makeSnippet(`${beatMatch.title}：${beatMatch.text}`, matchedTerm) });
       continue;
     }
 
-    const originalMatch = (event.original || []).find((p) => p.toLowerCase().includes(term));
+    const originalMatch = originals.find((p) => terms.some((t) => p.toLowerCase().includes(t)));
     if (originalMatch) {
-      results.push({ event, snippet: makeSnippet(originalMatch, term) });
+      const matchedTerm = terms.find((t) => originalMatch.toLowerCase().includes(t)) || terms[0];
+      results.push({ event, snippet: makeSnippet(originalMatch, matchedTerm) });
+      continue;
     }
+
+    results.push({ event, snippet: '' });
   }
 
   return results;

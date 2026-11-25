@@ -6,16 +6,18 @@ import { sitePath } from './site-path.js';
 export function useNarration({clock,playing,rate,onNotice,manifestUrl='/audio/timeline-zh.json'}) {
   const audioRef=useRef(null),loadAbort=useRef(null);
   const [manifest,setManifest]=useState(null),[voice,setVoice]=useState(()=>savedPlaybackPreference('shixu-voice'));
+  const [sessionBlocked,setSessionBlocked]=useState(false);
   const [captionsVisible,setCaptionsVisible]=useState(()=>savedPlaybackPreference('shixu-captions'));
   const [loading,setLoading]=useState(Boolean(manifestUrl)),[waiting,setWaiting]=useState(false);
   const hasAudioTrack = Boolean(manifestUrl);
   const loadManifest=useCallback(async()=>{
     loadAbort.current?.abort();
+    if (audioRef.current) audioRef.current.pause();
+    setManifest(null);
+    setWaiting(false);
+    setSessionBlocked(false);
     if (!manifestUrl) {
-      setManifest(null);
       setLoading(false);
-      setWaiting(false);
-      if (audioRef.current) audioRef.current.pause();
       return;
     }
     const abort=new AbortController();loadAbort.current=abort;setLoading(true);
@@ -28,29 +30,55 @@ export function useNarration({clock,playing,rate,onNotice,manifestUrl='/audio/ti
       // Do not reuse a cached pre-fix response that advertised no seekable range.
       audioURL.searchParams.set('delivery','static-v2');
       setManifest({...next,audio:audioURL.href,captions:sitePath(next.captions)});
-    }catch(error){if(error.name!=='AbortError'){setVoice(false);onNotice('配音暂未载入，字幕和地图仍可播放。点击配音按钮可重试。');}}
+    }catch(error){
+      if(error.name!=='AbortError'){
+        setSessionBlocked(true);
+        onNotice('配音暂时无法播放，已自动保留字幕，点「配音」可重试。');
+      }
+    }
     finally{if(!abort.signal.aborted)setLoading(false);}
   },[manifestUrl,onNotice]);
   useEffect(()=>{loadManifest();return()=>loadAbort.current?.abort();},[loadManifest]);
   useEffect(()=>{try{localStorage.setItem('shixu-voice',String(voice));localStorage.setItem('shixu-captions',String(captionsVisible));}catch{}},[voice,captionsVisible]);
-  const fail=useCallback(()=>{setVoice(false);setWaiting(false);onNotice('配音播放失败，已保留字幕。点击配音按钮可重试。');},[onNotice]);
+  const fail=useCallback(()=>{
+    setSessionBlocked(true);
+    setWaiting(false);
+    onNotice('配音暂时无法播放，已自动保留字幕，点「配音」可重试。');
+  },[onNotice]);
+  const effectiveVoice = hasAudioTrack && voice && !sessionBlocked;
   useEffect(()=>{
     const audio=audioRef.current;if(!audio||!manifest||!hasAudioTrack)return;
     audio.playbackRate=rate;audio.preservesPitch=true;
-    if(playing&&voice){
+    if(playing&&effectiveVoice){
       audio.currentTime=clock.current.time;
       audio.play().catch(error=>{if(error.name!=='AbortError')fail();});
     }else{audio.pause();setWaiting(false);}
     return()=>audio.pause();
-  },[playing,voice,rate,manifest,hasAudioTrack,clock,fail]);
+  },[playing,effectiveVoice,rate,manifest,hasAudioTrack,clock,fail]);
   const syncSeek=useCallback(time=>{if(audioRef.current&&manifest&&hasAudioTrack)audioRef.current.currentTime=time;},[manifest,hasAudioTrack]);
+  const retryLoadIfNeeded=useCallback(()=>{
+    setSessionBlocked(false);
+    onNotice('');
+    if(!manifest)loadManifest();
+    else if(audioRef.current?.error)audioRef.current.load();
+  },[manifest,loadManifest,onNotice]);
   const toggleVoice=()=>{
     if (!hasAudioTrack) {
-      onNotice('新中国史下篇当前为字幕与拟音模式，5 分钟克隆配音将于文案定稿后接入。');
+      onNotice('本篇暂未提供配音，可开启字幕配合观看。');
       return;
     }
-    if(!voice){onNotice('');if(!manifest)loadManifest();else if(audioRef.current?.error)audioRef.current.load();}
+    if(sessionBlocked){
+      retryLoadIfNeeded();
+      setVoice(true);
+      return;
+    }
+    if(!voice) retryLoadIfNeeded();
     setVoice(v=>!v);
   };
-  return {audioRef,manifest,voice: hasAudioTrack ? voice : false,voicePreference:voice,hasAudioTrack,captionsVisible,loading,waiting,fail,syncSeek,toggleVoice,toggleCaptions:()=>setCaptionsVisible(v=>!v),setWaiting};
+  const enableVoice=useCallback(()=>{
+    if(!hasAudioTrack)return;
+    retryLoadIfNeeded();
+    setVoice(true);
+  },[hasAudioTrack,retryLoadIfNeeded]);
+  return {audioRef,manifest,voice:effectiveVoice,voicePreference:voice,hasAudioTrack,captionsVisible,loading,waiting,fail,syncSeek,toggleVoice,enableVoice,toggleCaptions:()=>setCaptionsVisible(v=>!v),setWaiting};
 }

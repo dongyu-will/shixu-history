@@ -193,3 +193,60 @@ test('study store handles migration, spaced review, mastery, backup import/expor
   });
   assert.deepEqual(reviewOnly.map((r) => r.event.id), ['land-75']);
 });
+
+test('cross-volume mastery persists when validEventIds is null, AND search splits spaces, and cloze skips orphan quotes', () => {
+  const mixedState = {
+    version: 1,
+    attempts: [],
+    schedules: {},
+    mastery: {
+      'e-27': { level: 'known', updatedAt: 1000 },
+      'prc-m-8': { level: 'fuzzy', updatedAt: 2000 },
+    },
+  };
+  const crossStore = {
+    getItem: (key) => (key === STUDY_STORAGE_KEY ? JSON.stringify(mixedState) : null),
+  };
+  const loaded = readStudyState(crossStore, null, null);
+  assert.equal(loaded.error, null);
+  assert.equal(loaded.state.mastery['e-27'].level, 'known');
+  assert.equal(loaded.state.mastery['prc-m-8'].level, 'fuzzy');
+
+  // Space-separated multi-word AND search
+  const onlyYear = searchEvents(allEvents, AUTHORED_STORIES, { query: '1927' });
+  const multiMatches = searchEvents(allEvents, AUTHORED_STORIES, { query: '1927 会议' });
+  assert.ok(multiMatches.length >= 1);
+  assert.ok(multiMatches.length <= onlyYear.length);
+  assert.ok(
+    multiMatches.every((r) => {
+      const beatsText = (AUTHORED_STORIES[r.event.id]?.beats || [])
+        .map((b) => `${b.title || ''} ${b.text || ''}`)
+        .join(' ');
+      const originalsText = (r.event.original || []).join(' ');
+      const hay = `${r.event.title} ${r.event.year} ${r.event.headline} ${r.event.summary} ${r.event.location || ''} ${beatsText} ${originalsText}`.toLowerCase();
+      return hay.includes('1927') && hay.includes('会议');
+    }),
+  );
+
+  // Cloze across all 36 PRC events + land-70 preserves verbatim text and avoids orphan closing punctuation
+  const checkEvents = [...historyPrc.events, eventById['land-70']].filter(Boolean);
+  assert.equal(checkEvents.length, 37);
+  for (const ev of checkEvents) {
+    for (const field of [ev.headline, ev.summary]) {
+      const segs = buildClozeSegments(field);
+      assert.equal(segs.map((s) => s.text).join(''), field, `${ev.id} cloze verbatim mismatch`);
+      for (const seg of segs) {
+        if (!seg.blank) continue;
+        const opens = (seg.text.match(/[“「《]/g) || []).length;
+        const closes = (seg.text.match(/[”」》]/g) || []).length;
+        assert.ok(opens >= closes, `${ev.id} trapped orphan closing quote in blank "${seg.text}"`);
+      }
+    }
+    const hSegs = buildClozeSegments(ev.headline);
+    const sSegs = buildClozeSegments(ev.summary);
+    assert.ok(
+      hSegs.some((s) => s.blank) || sSegs.some((s) => s.blank),
+      `${ev.id}: expected at least one cloze blank`,
+    );
+  }
+});

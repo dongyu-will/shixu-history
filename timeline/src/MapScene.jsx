@@ -71,6 +71,7 @@ export const MapScene = memo(function MapScene({
   concealFuture = false,
   fit = 'slice',
   extendMap = false,
+  reduceMotion,
 }) {
   const cameraRef = useRef(null);
   const previousTransform = useRef(null);
@@ -80,7 +81,8 @@ export const MapScene = memo(function MapScene({
   const rateRef = useRef(rate);
   rateRef.current = rate;
 
-  const reduce = useReducedMotion();
+  const systemReduce = useReducedMotion();
+  const reduce = reduceMotion ?? systemReduce;
   const resolvedTheme = useDocumentTheme(theme);
   const [compact, setCompact] = useState(() =>
     Boolean(matchMediaSafe('(max-width: 760px), (max-height: 500px) and (pointer: coarse)')?.matches),
@@ -128,12 +130,10 @@ export const MapScene = memo(function MapScene({
       ? p.clipExtent(
           extendMap
             ? [[-1440, -790], [2880, 1580]]
-            : isSpatial25d
-              ? [[-360, -260], [1800, 1050]]
-              : [[0, 0], [1440, 790]],
+            : [[-540, -340], [1980, 1130]],
         )
       : p;
-  }, [authored, overview, extendMap, isSpatial25d]);
+  }, [authored, overview, extendMap]);
 
   const features = useMemo(() => {
     const path = geoPath(projection);
@@ -257,13 +257,11 @@ export const MapScene = memo(function MapScene({
   const diagram = authored?.kind === 'process' && !['geography', 'rendezvous'].includes(authored.mode);
   const isCompactAuthored = compact && authored && !overview;
   const clipBounds = authored && !overview && !extendMap
-    ? isSpatial25d
-      ? { x: -360, y: -260, width: 2160, height: 1310 }
-      : { x: 0, y: 0, width: 1440, height: 790 }
+    ? { x: -540, y: -340, width: 2520, height: 1470 }
     : { x: -1440, y: -790, width: 4320, height: 2370 };
   const stageRect = isCompactAuthored
     ? { x: 380, y: -90, width: 1160, height: 990 }
-    : extendMap
+    : extendMap || (authored && !overview)
       ? { x: -360, y: -200, width: 2160, height: 1190 }
       : compact
         ? { x: -200, y: -240, width: 1840, height: 1270 }
@@ -284,6 +282,27 @@ export const MapScene = memo(function MapScene({
     [eraVars, effectiveTilt],
   );
 
+  const visibleProvinceLabels = useMemo(() => {
+    const overviewIds = [650000, 540000, 630000, 510000, 150000, 230000, 370000, 430000, 420000, 360000, 350000, 440000, 530000, 610000, 710000];
+    if (!authored || overview) {
+      return features
+        .filter((f) => f.center && overviewIds.includes(f.id))
+        .map((f) => ({ f, pt: projection(f.center) }));
+    }
+    const candidates = [];
+    for (const f of features) {
+      if (!f.center) continue;
+      const pt = projection(f.center);
+      if (!pt || !Number.isFinite(pt[0]) || !Number.isFinite(pt[1])) continue;
+      const current = f.id === scene.province || f.name === scene.province;
+      if (!current && (pt[0] < 460 || pt[0] > 1340 || pt[1] < 110 || pt[1] > 690)) continue;
+      const dist = Math.hypot(pt[0] - 930, pt[1] - 350);
+      candidates.push({ f, pt, current, dist });
+    }
+    candidates.sort((a, b) => Number(b.current) - Number(a.current) || a.dist - b.dist);
+    return candidates.slice(0, 5);
+  }, [features, authored, overview, projection, scene.province]);
+
   return (
     <div
       className={`map-cinema-stage ${playing ? 'is-playing' : 'is-paused'} ${isSpatial25d ? 'is-spatial-25d' : 'is-flat-stage'} ${overview ? 'is-overview' : ''}`}
@@ -298,7 +317,7 @@ export const MapScene = memo(function MapScene({
         <svg
           className={`history-map ${playing ? 'is-playing' : 'is-paused'} ${authored && !overview ? 'has-authored-story' : ''} ${(authored?.kind === 'organization' && phase < 3) || diagram ? 'organization-context' : ''} ${isSpatial25d ? 'is-spatial-25d' : ''}`}
           viewBox={`${viewBoxRect.x} ${viewBoxRect.y} ${viewBoxRect.width} ${viewBoxRect.height}`}
-          preserveAspectRatio={`xMidYMid ${compact ? 'meet' : fit}`}
+          preserveAspectRatio={`xMidYMid ${compact || (authored && !overview) ? 'meet' : fit}`}
           aria-label="中国历史事件地点定位地图"
           role="group"
         >
@@ -368,23 +387,11 @@ export const MapScene = memo(function MapScene({
               ))}
             </g>
             <g className="province-names" aria-hidden="true">
-              {features
-                .filter(
-                  (f) =>
-                    f.center &&
-                    (authored && !overview
-                      ? [430000, 360000, 420000]
-                      : [650000, 540000, 630000, 510000, 150000, 230000, 370000, 430000, 420000, 360000, 350000, 440000, 530000, 610000, 710000]
-                    ).includes(f.id),
-                )
-                .map((f) => {
-                  const [x, y] = projection(f.center);
-                  return (
-                    <text key={f.id} x={x} y={y} className={isCurrentProvince(f) ? 'selected-province-label' : ''}>
-                      {f.name.replace(/省|自治区|壮族|维吾尔|回族/g, '')}
-                    </text>
-                  );
-                })}
+              {visibleProvinceLabels.map(({ f, pt }) => (
+                <text key={f.id} x={pt[0]} y={pt[1]} className={isCurrentProvince(f) ? 'selected-province-label' : ''}>
+                  {f.name.replace(/省|自治区|壮族|维吾尔|回族/g, '')}
+                </text>
+              ))}
             </g>
             {(!authored || overview) &&
               places.map((p) => {
@@ -415,6 +422,7 @@ export const MapScene = memo(function MapScene({
                       }
                     }}
                   >
+                    <title>{`${p.name}：${active ? scene.title : nearest.title}`}</title>
                     <circle r={active ? 25 : 11} fill="transparent" />
                     {active && (
                       <>
@@ -447,16 +455,6 @@ export const MapScene = memo(function MapScene({
               />
             )}
           </g>
-          <rect
-            className="map-vignette-overlay"
-            x={stageRect.x}
-            y={stageRect.y}
-            width={stageRect.width}
-            height={stageRect.height}
-            fill="url(#map-vignette)"
-            pointerEvents="none"
-            aria-hidden="true"
-          />
           <rect
             className="map-grain-overlay"
             x={stageRect.x}

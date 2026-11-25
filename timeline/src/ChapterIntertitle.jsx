@@ -19,7 +19,16 @@ const CHAPTER_NUMERALS = ['一', '二', '三', '四', '五', '六', '七', '八'
  * Non-blocking 1.7s documentary chapter intertitle card shown when playback crosses
  * into a new historical chapter. Never pauses audio or blocks pointer interaction.
  */
-export function ChapterIntertitle({ eraKey, volumeId, chapterIndex, chapterTitle, playing, overview }) {
+export function ChapterIntertitle({
+  eraKey,
+  volumeId,
+  chapterIndex,
+  chapterTitle,
+  playing,
+  overview,
+  reduce = false,
+  suppress = false,
+}) {
   const prevKeyRef = useRef(`${volumeId}:${chapterIndex}`);
   const [card, setCard] = useState(null);
 
@@ -28,17 +37,10 @@ export function ChapterIntertitle({ eraKey, volumeId, chapterIndex, chapterTitle
     const changed = prevKeyRef.current !== nextKey;
     prevKeyRef.current = nextKey;
 
-    if (!changed || !playing || overview) {
-      if (!playing || overview) setCard(null);
+    if (!changed || !playing || overview || suppress || reduce) {
+      if (!playing || overview || reduce) setCard(null);
       return undefined;
     }
-
-    const reduce =
-      typeof window !== 'undefined' &&
-      typeof window.matchMedia === 'function' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (reduce) return undefined;
 
     const preset = ERA_PRESETS[eraKey];
     const globalIdx = (volumeId === 'prc' ? 5 : 0) + (chapterIndex || 0);
@@ -51,9 +53,9 @@ export function ChapterIntertitle({ eraKey, volumeId, chapterIndex, chapterTitle
       motto: ERA_MOTTOS[eraKey] || '',
     });
 
-    const timer = window.setTimeout(() => setCard(null), 1750);
+    const timer = window.setTimeout(() => setCard(null), 1250);
     return () => window.clearTimeout(timer);
-  }, [eraKey, volumeId, chapterIndex, chapterTitle, playing, overview]);
+  }, [eraKey, volumeId, chapterIndex, chapterTitle, playing, overview, reduce, suppress]);
 
   if (!card) return null;
 

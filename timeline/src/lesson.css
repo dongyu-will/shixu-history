@@ -2,6 +2,18 @@
 @media(min-width:761px) and (max-height:750px){.lesson-story{top:22px!important}.lesson-question{margin-bottom:12px;font-size:15px}.lesson-story .year{font-size:48px}.lesson-story h1{font-size:26px}.lesson-date{margin-bottom:12px}.lesson-story .scene-summary{font-size:12px}.lesson-subtitles p{font-size:15px}.decision-scene{padding:22px 28px}.decision-scene h2{font-size:25px}.decision-scene fieldset{margin:15px 0}.decision-scene fieldset label{padding:12px 0}}
 @media(max-width:760px){.causal-lesson{height:100dvh;min-height:680px;overflow:auto}.causal-lesson .masthead{margin:0 18px;min-height:64px;gap:12px}.causal-lesson .brand .brand-sub,.causal-lesson .brand i{display:none}.causal-lesson .header-actions{gap:12px}.causal-lesson .header-actions a{font-size:10px}.lesson-stage{min-height:550px!important;flex:1}.lesson-story{left:22px;top:20px!important;width:calc(100% - 44px)}.lesson-kicker{margin-bottom:8px;font-size:10px}.lesson-question{font-size:14px;max-width:none;margin:0 0 8px}.lesson-story .year-line{position:absolute;right:0;top:30px}.lesson-story .year{font-size:36px}.lesson-story h1{font-size:25px;max-width:65%;margin:0 0 5px}.lesson-date{font-size:10px;margin:0 0 8px}.lesson-story .beat-title{font-size:14px;margin:9px 0 5px;max-width:none}.lesson-story .scene-summary{max-width:none;font-size:12px;line-height:1.8}.lesson-story .beat-navigation{margin-top:10px;max-width:none}.lesson-map .history-map{width:170%;height:65%;left:-75%;top:32%}.lesson-subtitles{left:22px;right:22px;bottom:10px}.lesson-subtitles>span{display:none}.lesson-subtitles p{font-size:12px;line-height:1.7}.lesson-play-state{display:none}.lesson-player{padding:0 20px 13px}.lesson-player .transport-secondary button>span{display:none}.lesson-chapters{gap:8px;flex-wrap:wrap}.lesson-chapters button{font-size:10px}.lesson-chapters button span{display:none}.decision-scene{inset:0;padding:22px;z-index:2;box-shadow:none;border:0}.decision-scene h2{font-size:25px}.decision-scene fieldset label{font-size:13px;padding:16px 0}.reconstruction{display:block;padding:22px}.reconstruction-intro h1{font-size:25px}.reconstruction-intro h1 br{display:none}.reconstruction-intro>p{margin:8px 0}.reconstruction-intro button{margin:12px 0 22px}.order-slots button{font-size:11px;padding:11px 6px;gap:5px}.event-bank{gap:15px}.problem-matches label{grid-template-columns:75px 1fr;font-size:11px;gap:6px}.problem-matches select{font-size:11px}.review-return{top:245px;right:20px;z-index:2}.reconstruction-feedback li{display:block}.reconstruction-feedback li button{display:block;margin:5px 0}.reconstruction-bottom a{font-size:11px}}
 .lesson-map .province{fill:color-mix(in srgb,var(--ui-bg) 78%,var(--ui-map-fill))}.lesson-map .current-province{fill:color-mix(in srgb,var(--ui-bg) 65%,var(--ui-map-active))}.causal-lesson summary:focus-visible{outline:2px solid var(--ui-accent);outline-offset:5px}.lesson-map .diagram-note{font-size:12px}
+.decision-scene fieldset label{padding:14px 12px;border-radius:4px;transition:background-color 140ms ease,border-color 140ms ease}
+.decision-scene fieldset label.is-picked{background:var(--ui-accent-halo);border-color:var(--ui-accent-line);color:var(--ui-heading)}
+.order-slots button.answer-correct{border-color:#2b7a57;background:color-mix(in srgb,#2b7a57 12%,var(--ui-bg));color:#2b7a57}
+.order-slots button.answer-wrong{border-color:var(--ui-accent);background:var(--ui-accent-halo);color:var(--ui-accent)}
+.order-slots .slot-remove{margin-left:auto;color:var(--ui-muted);font-size:12px}
+.bank-complete-hint,.check-hint{font-size:12px;color:var(--ui-muted);margin:10px 0 22px}
+.lesson-check-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.lesson-check-row .check-hint{margin:0}
+.problem-matches label.answer-correct select{border-color:#2b7a57;background:color-mix(in srgb,#2b7a57 10%,var(--ui-bg))}
+.problem-matches label.answer-wrong select{border-color:var(--ui-accent);background:var(--ui-accent-halo)}
+:root:not([data-theme="light"]) .order-slots button.answer-correct{color:#79d2a6;border-color:#79d2a688}
+:root:not([data-theme="light"]) .problem-matches label.answer-correct select{border-color:#79d2a688}
 @media(prefers-reduced-motion:reduce){.causal-lesson *{animation:none!important;transition:none!important}}
 .lesson-map{overflow:hidden}.lesson-map .history-map{overflow:visible}
 
@@ -28,6 +40,7 @@
   .reconstruction{position:relative;order:0;overflow:visible}
   .is-reconstructing .lesson-map{display:none}
   .problem-matches select{font-size:16px}
+  .review-return{position:static;align-self:flex-start;margin:12px 22px 0;min-height:40px}
 }
 @media(min-width:761px) and (max-height:500px) and (pointer:coarse){
   .lesson-story{top:20px!important;width:35%}
